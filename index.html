@@ -4,8 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Anatomy Trainer 2.0</title>
+<title>Anatomy Trainer 2.1</title>
 <link rel="stylesheet" href="./style.css">
+
 <script type="importmap">
 {
   "imports":{
@@ -15,61 +16,87 @@
 }
 </script>
 </head>
+
 <body>
 <main>
-  <h1>🦴 Anatomy Trainer 2.0</h1>
-  <p>Интерактивная анатомия, движения и мышцы</p>
+
+<header class="topbar">
+  <h1>🦴 Anatomy Trainer 2.1</h1>
+  <div class="controls">
+    <label for="language">Язык:</label>
+    <select id="language">
+      <option value="ru">Русский</option>
+      <option value="en">English</option>
+      <option value="both">RU + EN</option>
+    </select>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="controls">
+    <button class="active" id="digitalBtn">
+      Движения и направления
+    </button>
+    <button id="muscleBtn" disabled
+      title="Подключим следующим этапом">
+      Мышцы Écorché (скоро)
+    </button>
+  </div>
+</section>
+
+<div class="workspace">
 
   <section class="panel">
-    <h3>Режим обучения</h3>
-    <div class="controls">
-      <button class="active" id="digitalBtn">Движения и векторы</button>
-      <button id="muscleBtn" disabled title="Будет подключено на следующем этапе">Изучение мышц (скоро)</button>
-    </div>
-  </section>
-
-  <section class="panel">
-    <h3>Цифровой манекен</h3>
-    <div class="controls">
+    <div class="controls" id="viewControls">
       <button data-view="front">Спереди</button>
       <button data-view="back">Сзади</button>
       <button data-view="right">Справа</button>
       <button data-view="left">Слева</button>
-      <button id="resetView">Сброс вида</button>
+      <button id="resetView">Сброс</button>
     </div>
+
     <div id="stage">
-      <div id="viewLabel">Вид спереди</div>
+      <div id="viewLabel">3D-модель</div>
     </div>
-    <p id="status">Подготовка 3D-сцены...</p>
+
+    <p id="status">Подготовка модели...</p>
   </section>
 
-  <section class="panel">
-    <h3>Тренажёр движений</h3>
-    <div class="controls">
-      <select id="movement">
-        <option value="elbow">Сгибание локтя</option>
-        <option value="shoulder">Отведение плеча</option>
-        <option value="knee">Сгибание колена</option>
-      </select>
-      <button id="play">Анимация включена</button>
-    </div>
-    <p>Движение повторяется автоматически.</p>
-  </section>
+  <section class="panel" id="quizPanel">
+    <h3>Проверка знаний</h3>
 
-  <section class="panel">
-    <h3>Викторина</h3>
     <p id="counter">Подготовка вопросов...</p>
+
     <h3 id="question"></h3>
+
     <div id="answers"></div>
+
     <div id="feedback"></div>
-    <button id="next" disabled>Следующий вопрос</button>
+
+    <button id="next" disabled>
+      Следующий вопрос
+    </button>
+
+    <div id="resultTools" class="hidden">
+      <button id="repeat">
+        Повторить ошибки
+      </button>
+      <button id="restart">
+        Новый тест
+      </button>
+    </div>
   </section>
 
-  <p class="small">
-    Учебная 3D-визуализация. Движения схематизированы.
-    Не предназначена для клинической оценки суставов.
-  </p>
+</div>
+
+<p class="small muted">
+  Интерактивный тест анатомических движений.
+  Анимации схематические и не предназначены
+  для клинической оценки суставов.
+</p>
+
 </main>
+
 <script type="module" src="./app.js"></script>
 </body>
 </html>
