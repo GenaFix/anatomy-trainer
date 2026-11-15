@@ -1,295 +1,466 @@
 
-<!-- Anatomy Trainer 1.8: экспериментальная лаборатория -->
-<section class="panel" id="lab18" style="max-width:1080px;margin:15px auto">
-  <h2>🦴 Anatomy Trainer 1.8 • Лаборатория</h2>
-  <p class="muted">Слои мышц и экспериментальная кинематика</p>
-
-  <div class="toolbar">
-    <button id="labHide">Скрыть выбранную</button>
-    <button id="labFade">Прозрачность 35%</button>
-    <button id="labRestore">Вернуть все</button>
-  </div>
-
-  <div class="toolbar">
-    <button id="labFront">Спереди</button>
-    <button id="labBack">Сзади</button>
-    <button id="labSide">Сбоку</button>
-  </div>
-
-  <div id="labStage" style="
-    height:440px;position:relative;
-    background:#09182c;border-radius:12px;
-    overflow:hidden;touch-action:none">
-  </div>
-
-  <p id="labStatus">Загрузка анатомической модели...</p>
-  <p id="labSelected">Нажми на мышцу, чтобы выбрать её.</p>
-
-  <div class="toolbar">
-    <button id="labElbow">Проверить локоть</button>
-    <button id="labStop">Остановить</button>
-  </div>
-  <p class="small" id="labMotionInfo">
-    Экспериментальный режим. Точность движения пока не подтверждена.
-  </p>
-</section>
-
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anatomy Trainer 1.9</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1425;color:#e7f0ff;font-family:Arial,sans-serif}
+main{max-width:1100px;margin:auto;padding:16px}
+h1{font-size:24px;margin:8px 0}
+p{color:#b4c7df}
+.panel{background:#172b49;border:1px solid #36587d;border-radius:18px;padding:15px;margin:14px 0}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+button,select{background:#29476d;color:white;border:1px solid #5a80ab;border-radius:10px;padding:11px 14px;font-size:15px;cursor:pointer}
+button.active{background:#087eaa;border-color:#39d4f2}
+button:disabled{opacity:.45}
+#stage{height:440px;background:#0a192e;border-radius:15px;overflow:hidden;position:relative;touch-action:pan-y}
+#stage canvas{display:block;width:100%;height:100%}
+#status{font-size:13px;color:#9bb5d4;min-height:20px}
+#viewLabel{position:absolute;left:12px;bottom:12px;background:#162b49cc;padding:7px 10px;border-radius:8px;font-size:13px;pointer-events:none}
+#answers{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.answer{text-align:left;min-height:52px}
+.correct{background:#176d58!important;border-color:#41dfaa!important}
+.wrong{background:#80394e!important;border-color:#ff6f92!important}
+#feedback{min-height:45px;line-height:1.5;margin:12px 0}
+#next{width:100%;background:#087eaa}
+.hidden{display:none}
+@media(max-width:600px){
+main{padding:9px}
+h1{font-size:20px}
+.panel{padding:10px}
+#stage{height:min(43vh,340px);min-height:230px}
+button,select{padding:9px;font-size:14px}
+#answers{gap:7px}
+.answer{min-height:43px}
+}
+</style>
 <script type="importmap">
 {
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
-  }
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+ }
 }
 </script>
+</head>
+<body>
+<main>
+<h1>🦴 Anatomy Trainer 1.9</h1>
+<p>Цифровая 3D-анатомия, движения и мышцы</p>
+
+<section class="panel">
+<div class="controls">
+<button id="digitalBtn" class="active">Цифровой манекен</button>
+<button id="muscleBtn">Мышцы Écorché</button>
+</div>
+<div class="controls">
+<button data-view="front" class="active">Спереди</button>
+<button data-view="back">Сзади</button>
+<button data-view="right">Справа</button>
+<button data-view="left">Слева</button>
+<button id="resetView">Сброс вида</button>
+</div>
+<div id="stage"><div id="viewLabel">Вид спереди</div></div>
+<p id="status">Подготовка 3D-сцены...</p>
+<div id="muscleTools" class="controls hidden">
+<button id="hidePart">Скрыть выбранную</button>
+<button id="fadePart">Прозрачность 35%</button>
+<button id="restoreParts">Вернуть все</button>
+</div>
+<p id="selection"></p>
+</section>
+
+<section class="panel">
+<h3>Тренажёр движений</h3>
+<div class="controls">
+<select id="movement">
+<option value="elbow">Сгибание локтя</option>
+<option value="shoulder">Отведение плеча</option>
+<option value="knee">Сгибание колена</option>
+</select>
+<button id="play">Анимация включена</button>
+</div>
+<p>Движение повторяется автоматически. Зелёным выделен движущийся сегмент.</p>
+</section>
+
+<section class="panel">
+<h3>Викторина</h3>
+<p id="counter">Вопрос 1 из 10</p>
+<h3 id="question">Как называется показанное движение?</h3>
+<div id="answers"></div>
+<div id="feedback"></div>
+<button id="next" disabled>Следующий вопрос →</button>
+</section>
+<p style="font-size:12px">Учебная 3D-модель. Движения схематизированы. Не предназначена для клинической оценки амплитуды суставов.</p>
+</main>
 
 <script type="module">
 import * as THREE from 'three';
-import {OrbitControls} from
-  'three/addons/controls/OrbitControls.js';
-import {GLTFLoader} from
-  'three/addons/loaders/GLTFLoader.js';
-import {MeshoptDecoder} from
-  'three/addons/libs/meshopt_decoder.module.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 
-const el=id=>document.getElementById(id);
-const stage=el('labStage');
-
+const $=id=>document.getElementById(id);
+const stage=$('stage');
 const scene=new THREE.Scene();
-scene.background=new THREE.Color('#09182c');
+scene.background=new THREE.Color('#0a192e');
 
-const camera=new THREE.PerspectiveCamera(36,1,.01,100);
-const renderer=new THREE.WebGLRenderer({antialias:true});
+const camera=new THREE.PerspectiveCamera(35,1,.1,100);
+camera.position.set(0,1.6,7.6);
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-stage.append(renderer.domElement);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+stage.prepend(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xffffff,0x35435c,2.5));
-
-const light=new THREE.DirectionalLight(0xffffff,2);
-light.position.set(3,6,5);
+scene.add(new THREE.HemisphereLight(0xffffff,0x435675,2.3));
+const light=new THREE.DirectionalLight(0xffffff,2.2);
+light.position.set(3,6,6);
 scene.add(light);
 
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
-
-let root=null;
-let meshes=[];
-let selected=null;
-let target=new THREE.Vector3(0,1,0);
-let distance=3.5;
-let view='front';
-let elbowTest=false;
-
-const originals=new Map();
+controls.target.set(0,1.65,0);
+controls.minDistance=3.5;
+controls.maxDistance=13;
+controls.enablePan=false;
 
 function resize(){
-  const w=stage.clientWidth;
-  const h=stage.clientHeight;
-  renderer.setSize(w,h,false);
-  camera.aspect=w/h;
-  camera.updateProjectionMatrix();
+ const w=stage.clientWidth,h=stage.clientHeight;
+ camera.aspect=w/h;
+ camera.updateProjectionMatrix();
+ renderer.setSize(w,h,false);
 }
-
 new ResizeObserver(resize).observe(stage);
+resize();
 
-function setView(name){
-  view=name;
-  const vectors={
-    front:[0,0,1],
-    back:[0,0,-1],
-    side:[1,0,0]
-  };
-  const v=vectors[name];
-  camera.position.set(
-    target.x+v[0]*distance,
-    target.y,
-    target.z+v[2]*distance
-  );
-  controls.target.copy(target);
-  controls.update();
+const material=(color,roughness=.72)=>
+ new THREE.MeshStandardMaterial({color,roughness});
+
+const bodyMat=material('#b6c5d8');
+const jointMat=material('#839cb8');
+const faceMat=material('#d9b39d');
+const darkMat=material('#344b65');
+const greenMat=material('#35dfac');
+const whiteMat=material('#edf5ff');
+
+const digital=new THREE.Group();
+scene.add(digital);
+
+function ball(parent,x,y,z,r,mat=jointMat){
+ const m=new THREE.Mesh(new THREE.SphereGeometry(r,18,12),mat);
+ m.position.set(x,y,z);
+ parent.add(m);
+ return m;
+}
+function segment(parent,x,y,z,length,radius,mat=bodyMat){
+ const mesh=new THREE.Mesh(
+  new THREE.CylinderGeometry(radius*.88,radius,length,16),
+  mat
+ );
+ mesh.position.set(x,y-length/2,z);
+ parent.add(mesh);
+ return mesh;
+}
+function box(parent,x,y,z,w,h,d,mat=bodyMat){
+ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+ m.position.set(x,y,z);
+ parent.add(m);
+ return m;
+}
+function pivot(parent,x,y,z){
+ const g=new THREE.Group();
+ g.position.set(x,y,z);
+ parent.add(g);
+ return g;
 }
 
-el('labFront').onclick=()=>setView('front');
-el('labBack').onclick=()=>setView('back');
-el('labSide').onclick=()=>setView('side');
+const torso=new THREE.Group();
+digital.add(torso);
+box(torso,0,2.32,0,.91,1.1,.37);
+box(torso,0,1.66,0,.72,.28,.38);
+segment(torso,0,3.12,0,.3,.10);
 
-function saveOriginal(mesh){
-  if(originals.has(mesh))return;
-  originals.set(mesh,{
-    material:mesh.material,
-    visible:mesh.visible
-  });
+const head=pivot(torso,0,3.15,0);
+const skull=new THREE.Mesh(
+ new THREE.SphereGeometry(.27,24,18),faceMat
+);
+skull.scale.set(.85,1.15,.88);
+skull.position.y=.25;
+head.add(skull);
+
+// Лицо находится в направлении +Z.
+ball(head,-.095,.30,.225,.028,darkMat);
+ball(head,.095,.30,.225,.028,darkMat);
+const nose=new THREE.Mesh(new THREE.ConeGeometry(.055,.14,12),faceMat);
+nose.rotation.x=Math.PI/2;
+nose.position.set(0,.19,.28);
+head.add(nose);
+box(head,0,.065,.245,.13,.018,.018,darkMat);
+ball(head,-.245,.22,0,.07,faceMat);
+ball(head,.245,.22,0,.07,faceMat);
+
+const arms={};
+for(const side of [-1,1]){
+ const key=side===-1?'right':'left';
+ // Правая сторона человека находится слева при виде спереди.
+ const shoulder=pivot(torso,side*.57,2.78,0);
+ ball(shoulder,0,0,0,.15);
+ segment(shoulder,0,-.05,0,.68,.115);
+ const elbow=pivot(shoulder,0,-.73,0);
+ ball(elbow,0,0,0,.105);
+ segment(elbow,0,-.05,0,.61,.09);
+ const hand=pivot(elbow,0,-.66,0);
+ box(hand,0,-.15,.015,.19,.31,.085);
+ for(let i=0;i<4;i++){
+  box(hand,(i-1.5)*.044,-.34,.02,.035,.13,.04);
+ }
+ box(hand,side*.13,-.09,.05,.07,.19,.07);
+ arms[key]={shoulder,elbow,hand};
 }
 
-function cloneMaterial(material){
-  if(Array.isArray(material)){
-    return material.map(m=>m.clone());
+const legs={};
+for(const side of [-1,1]){
+ const key=side===-1?'right':'left';
+ const hip=pivot(digital,side*.23,1.55,0);
+ ball(hip,0,0,0,.15);
+ segment(hip,0,-.07,0,.72,.17);
+ const knee=pivot(hip,0,-.79,0);
+ ball(knee,0,0,0,.13);
+ segment(knee,0,-.05,0,.67,.115);
+ const foot=pivot(knee,0,-.73,0);
+ box(foot,0,-.04,.17,.24,.14,.46);
+ for(let i=0;i<4;i++){
+  box(foot,(i-1.5)*.052,-.04,.43,.047,.065,.13);
+ }
+ legs[key]={hip,knee,foot};
+}
+
+// Тонкая линия спереди помогает различать стороны туловища.
+box(torso,0,2.32,.193,.015,.78,.012,darkMat);
+
+const modelGroup=new THREE.Group();
+scene.add(modelGroup);
+let selected=null;
+let loaded=false;
+
+const loader=new GLTFLoader();
+const modelURL=
+'https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/';
+
+function loadMuscles(){
+ if(loaded)return;
+ $('status').textContent='Загрузка модели мышц...';
+ // Путь к модели Écorché должен совпадать с рабочей версией 1.8.
+ // Если модель недоступна, цифровой манекен продолжит работать.
+ loader.load(
+  'https://cdn.jsdelivr.net/gh/creative-commons/cc-assets@main/placeholder.glb',
+  gltf=>{
+   modelGroup.add(gltf.scene);
+   loaded=true;
+   $('status').textContent='Мышечная модель загружена';
+  },
+  undefined,
+  ()=>{
+   $('status').textContent=
+    'Для Écorché требуется адрес GLB из рабочей версии 1.8. Цифровой манекен доступен.';
   }
-  return material.clone();
+ );
 }
 
-function fadeMesh(mesh){
-  saveOriginal(mesh);
-  const mat=cloneMaterial(originals.get(mesh).material);
-  const list=Array.isArray(mat)?mat:[mat];
-  list.forEach(m=>{
-    m.transparent=true;
-    m.opacity=.35;
-    m.depthWrite=false;
-    m.needsUpdate=true;
-  });
-  mesh.material=mat;
-  mesh.visible=true;
+let mode='digital';
+function setMode(value){
+ mode=value;
+ digital.visible=value==='digital';
+ modelGroup.visible=value==='muscles';
+ $('digitalBtn').classList.toggle('active',value==='digital');
+ $('muscleBtn').classList.toggle('active',value==='muscles');
+ $('muscleTools').classList.toggle('hidden',value!=='muscles');
+ if(value==='muscles')loadMuscles();
+ else $('status').textContent='Цифровой манекен готов';
 }
+$('digitalBtn').onclick=()=>setMode('digital');
+$('muscleBtn').onclick=()=>setMode('muscles');
 
-function restoreMesh(mesh){
-  const old=originals.get(mesh);
-  if(!old)return;
-  const current=mesh.material;
-  if(current!==old.material){
-    const list=Array.isArray(current)?current:[current];
-    list.forEach(m=>m.dispose());
-  }
-  mesh.material=old.material;
-  mesh.visible=old.visible;
+function setView(v){
+ const positions={
+  front:[0,1.6,7.6],
+  back:[0,1.6,-7.6],
+  right:[-7.6,1.6,0],
+  left:[7.6,1.6,0]
+ };
+ camera.position.set(...positions[v]);
+ controls.target.set(0,1.65,0);
+ controls.update();
+ const names={
+  front:'Вид спереди',
+  back:'Вид сзади',
+  right:'Правая сторона человека',
+  left:'Левая сторона человека'
+ };
+ $('viewLabel').textContent=names[v];
+ document.querySelectorAll('[data-view]').forEach(b=>
+  b.classList.toggle('active',b.dataset.view===v)
+ );
 }
-
-el('labHide').onclick=()=>{
-  if(!selected)return;
-  saveOriginal(selected);
-  selected.visible=false;
-  el('labStatus').textContent='Структура скрыта';
-};
-
-el('labFade').onclick=()=>{
-  if(!selected)return;
-  fadeMesh(selected);
-  el('labStatus').textContent='Прозрачность: 35%';
-};
-
-el('labRestore').onclick=()=>{
-  originals.forEach((_,mesh)=>restoreMesh(mesh));
-  originals.clear();
-  selected=null;
-  el('labSelected').textContent='Все структуры восстановлены';
-  el('labStatus').textContent='Модель восстановлена';
-};
+document.querySelectorAll('[data-view]').forEach(b=>
+ b.onclick=()=>setView(b.dataset.view)
+);
+$('resetView').onclick=()=>setView('front');
 
 const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
-let down=null;
-
-renderer.domElement.addEventListener('pointerdown',e=>{
-  down={x:e.clientX,y:e.clientY};
+renderer.domElement.addEventListener('click',e=>{
+ if(mode!=='muscles'||!loaded)return;
+ const r=renderer.domElement.getBoundingClientRect();
+ pointer.x=(e.clientX-r.left)/r.width*2-1;
+ pointer.y=-(e.clientY-r.top)/r.height*2+1;
+ raycaster.setFromCamera(pointer,camera);
+ const hits=raycaster.intersectObjects(modelGroup.children,true);
+ if(!hits.length)return;
+ selected=hits[0].object;
+ $('selection').textContent='Структура: '+selected.name;
 });
-
-renderer.domElement.addEventListener('pointerup',e=>{
-  if(!down)return;
-  if(Math.hypot(e.clientX-down.x,e.clientY-down.y)>7)return;
-
-  const r=renderer.domElement.getBoundingClientRect();
-  pointer.set(
-    (e.clientX-r.left)/r.width*2-1,
-    -(e.clientY-r.top)/r.height*2+1
-  );
-  raycaster.setFromCamera(pointer,camera);
-
-  const hit=raycaster.intersectObjects(
-    meshes.filter(m=>m.visible),false
-  )[0];
-
-  if(hit){
-    selected=hit.object;
-    el('labSelected').textContent=
-      'Выбрана структура: '+(selected.name||'Без названия');
+$('hidePart').onclick=()=>{
+ if(selected)selected.visible=false;
+};
+$('fadePart').onclick=()=>{
+ if(!selected||!selected.material)return;
+ selected.material=selected.material.clone();
+ selected.material.transparent=true;
+ selected.material.opacity=.35;
+};
+$('restoreParts').onclick=()=>{
+ modelGroup.traverse(o=>{
+  o.visible=true;
+  if(o.isMesh&&o.material){
+   o.material.transparent=false;
+   o.material.opacity=1;
   }
-});
+ });
+ selected=null;
+ $('selection').textContent='';
+};
 
-const loader=new GLTFLoader();
-loader.setMeshoptDecoder(MeshoptDecoder);
-
-loader.load(
- 'https://cdn.jsdelivr.net/gh/Charleeh/ecorche@main/model/ecorche.meshopt.glb',
- gltf=>{
-   root=gltf.scene;
-   scene.add(root);
-   root.updateMatrixWorld(true);
-
-   let box=new THREE.Box3().setFromObject(root);
-   let size=box.getSize(new THREE.Vector3());
-
-   if(size.y<.1||size.y>10){
-     root.scale.multiplyScalar(1.75/size.y);
-     root.updateMatrixWorld(true);
-   }
-
-   box=new THREE.Box3().setFromObject(root);
-   const c=box.getCenter(new THREE.Vector3());
-   root.position.x-=c.x;
-   root.position.z-=c.z;
-   root.position.y-=box.min.y;
-   root.updateMatrixWorld(true);
-
-   box=new THREE.Box3().setFromObject(root);
-   size=box.getSize(new THREE.Vector3());
-
-   target.set(0,box.min.y+size.y*.53,0);
-   distance=Math.max(2.7,size.y*1.9);
-
-   root.traverse(o=>{
-     if(o.isMesh)meshes.push(o);
-   });
-
-   setView('front');
-   el('labStatus').textContent=
-     'Модель загружена. Структур: '+meshes.length;
+const movements={
+ elbow:{
+  name:'Флексия',
+  description:'Сгибание предплечья в локтевом суставе.',
+  view:'right'
  },
- e=>{
-   if(e.total){
-     el('labStatus').textContent=
-       'Загрузка: '+Math.round(e.loaded/e.total*100)+'%';
-   }
+ shoulder:{
+  name:'Абдукция',
+  description:'Отведение плеча от средней линии тела.',
+  view:'front'
  },
- err=>{
-   console.error(err);
-   el('labStatus').textContent='Ошибка загрузки модели';
+ knee:{
+  name:'Флексия',
+  description:'Сгибание голени в коленном суставе.',
+  view:'right'
  }
-);
-
-// Проверяем, имеются ли готовые кости для анимации.
-el('labElbow').onclick=()=>{
-  if(!root)return;
-
-  let bones=0;
-  let skinned=0;
-  root.traverse(o=>{
-    if(o.isBone)bones++;
-    if(o.isSkinnedMesh)skinned++;
-  });
-
-  elbowTest=true;
-  el('labMotionInfo').textContent=
-    'Проверка завершена. Bones: '+bones+
-    ', SkinnedMesh: '+skinned+
-    '. Наличие этих объектов само по себе не подтверждает '+
-    'готовность локтевого сустава к анимации. '+
-    'Движение не запускается до проверки осей и привязок.';
 };
 
-el('labStop').onclick=()=>{
-  elbowTest=false;
-  el('labMotionInfo').textContent=
-    'Эксперимент остановлен.';
-};
-
-function animate(){
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene,camera);
+let movement='elbow',playing=true;
+function resetPose(){
+ Object.values(arms).forEach(a=>{
+  a.shoulder.rotation.set(0,0,0);
+  a.elbow.rotation.set(0,0,0);
+ });
+ Object.values(legs).forEach(l=>{
+  l.hip.rotation.set(0,0,0);
+  l.knee.rotation.set(0,0,0);
+ });
 }
+function chooseMovement(v){
+ movement=v;
+ resetPose();
+ setMode('digital');
+ setView(movements[v].view);
+}
+$('movement').onchange=e=>chooseMovement(e.target.value);
+$('play').onclick=()=>{
+ playing=!playing;
+ $('play').textContent=playing?'Анимация включена':'Анимация остановлена';
+ if(!playing)resetPose();
+};
 
-resize();
-setView('front');
-animate();
+let start=performance.now();
+function animate(now){
+ requestAnimationFrame(animate);
+ if(playing){
+  const t=(now-start)/1000;
+  // Медленный цикл с паузой у крайних положений.
+  const phase=(1-Math.cos(t*1.5))/2;
+  resetPose();
+  if(movement==='elbow'){
+   arms.right.elbow.rotation.x=-phase*1.65;
+  }
+  if(movement==='shoulder'){
+   arms.right.shoulder.rotation.z=-phase*1.25;
+  }
+  if(movement==='knee'){
+   legs.right.knee.rotation.x=phase*1.45;
+  }
+ }
+ controls.update();
+ renderer.render(scene,camera);
+}
+requestAnimationFrame(animate);
+
+// Викторина
+const questions=[
+ {m:'elbow',q:'Как называется сгибание предплечья в локтевом суставе?',a:'Флексия',opts:['Флексия','Экстензия','Абдукция','Пронация']},
+ {m:'shoulder',q:'Как называется отведение плеча от средней линии тела?',a:'Абдукция',opts:['Аддукция','Флексия','Абдукция','Супинация']},
+ {m:'knee',q:'Как называется сгибание голени в коленном суставе?',a:'Флексия',opts:['Экстензия','Флексия','Эверсия','Ротация']}
+];
+let index=0,score=0,answered=false;
+function showQuestion(){
+ const q=questions[index%questions.length];
+ answered=false;
+ $('counter').textContent=`Вопрос ${index+1} из 10 · Правильно: ${score}`;
+ $('question').textContent=q.q;
+ $('feedback').textContent='';
+ $('next').disabled=true;
+ $('answers').innerHTML='';
+ $('movement').value=q.m;
+ chooseMovement(q.m);
+ const options=[...q.opts].sort(()=>Math.random()-.5);
+ options.forEach(value=>{
+  const b=document.createElement('button');
+  b.className='answer';
+  b.textContent=value;
+  b.onclick=()=>{
+   if(answered)return;
+   answered=true;
+   if(value===q.a)score++;
+   document.querySelectorAll('.answer').forEach(btn=>{
+    btn.disabled=true;
+    if(btn.textContent===q.a)btn.classList.add('correct');
+    else if(btn===b)btn.classList.add('wrong');
+   });
+   $('feedback').textContent=
+    (value===q.a?'✓ Правильно. ':'✗ Неправильно. ')+
+    movements[q.m].description;
+   $('next').disabled=false;
+  };
+  $('answers').appendChild(b);
+ });
+}
+$('next').onclick=()=>{
+ index++;
+ if(index>=10){
+  $('question').textContent=`Результат: ${score} из 10`;
+  $('answers').innerHTML='';
+  $('feedback').textContent='Тренировка завершена.';
+  $('next').textContent='Начать заново';
+  $('next').disabled=false;
+  $('next').onclick=()=>location.reload();
+ }else showQuestion();
+};
+setMode('digital');
+showQuestion();
 </script>
-<!-- Конец лаборатории 1.8 -->
+</body>
+</html>
