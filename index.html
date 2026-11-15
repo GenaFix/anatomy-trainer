@@ -1,39 +1,407 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0d1728"><title>Anatomy Trainer</title><style>
-:root{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#eaf1fa;background:#0d1728}*{box-sizing:border-box}body{margin:0}.wrap{max-width:850px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;align-items:center;gap:10px}h1{font-size:25px;margin:10px 0}h2{font-size:20px;margin:8px 0}.muted{color:#a9b8cb}.card{background:#18263a;border:1px solid #30445e;border-radius:18px;padding:20px;margin:15px 0}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.btn{background:#293c55;border:1px solid #49617f;border-radius:12px;color:white;padding:12px 16px;font-size:16px;cursor:pointer}.btn:hover{background:#385474}.btn.active,.btn.primary{background:#2877c7;border-color:#4e9dea}.btn:disabled{opacity:.5;cursor:default}.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.answers button{min-height:58px;text-align:left}.answers button.correct{background:#176b4a;border-color:#3cc88b}.answers button.wrong{background:#763a43;border-color:#e88b91}.hidden{display:none!important}.figure{background:#101e30;border-radius:14px;padding:8px;margin:12px auto;max-width:440px}.figure svg{width:100%;height:260px}.progress{height:8px;background:#31455e;border-radius:10px;overflow:hidden}.progress>div{height:100%;background:#40aaef;transition:width .2s}.tag{font-size:12px;border-radius:20px;background:#28455d;padding:5px 10px}.feedback{border-left:4px solid #58c2ff;padding:10px 14px;background:#21374e;border-radius:8px;margin-top:12px}input{font:inherit;border:1px solid #57708f;border-radius:10px;background:#0d1728;color:white;padding:12px;width:100%}footer{font-size:12px;color:#8fa2ba;margin:25px 0}a{color:#8acaff}@media(max-width:550px){.answers{grid-template-columns:1fr}.wrap{padding:12px}.card{padding:15px}h1{font-size:22px}}
-</style></head><body><div class="wrap"><header><div><h1>🦴 Anatomy Trainer <span class="tag">1.0</span></h1><div class="muted">Анатомические направления и движения суставов</div></div><button class="btn" id="reset" title="Сбросить статистику">↺</button></header><section class="card" id="setup"><h2>Выбери тренировку</h2><div class="row"><button class="btn active" data-mode="all">Смешанная</button><button class="btn" data-mode="directions">Направления</button><button class="btn" data-mode="movements">Движения</button><button class="btn" data-mode="planes">Плоскости</button></div><p class="muted">В каждом занятии 10 вопросов. Ошибки повторяются чаще в следующих занятиях.</p><div class="row"><button class="btn active" data-answer="choice">Варианты ответов</button><button class="btn" data-answer="type">Ввод термина</button></div><p id="stats" class="muted"></p><button id="start" class="btn primary">Начать тренировку</button></section><section id="quiz" class="card hidden"><div class="row" style="justify-content:space-between"><span id="counter" class="tag"></span><span id="points" class="muted"></span></div><div class="progress" style="margin-top:12px"><div id="bar" style="width:0%"></div></div><div class="figure"><svg viewBox="0 0 400 260" role="img" aria-label="Схематическая анатомическая фигура и направление"><g stroke="#9eb8d0" fill="none" stroke-width="7" stroke-linecap="round"><circle cx="175" cy="35" r="21" stroke-width="4"/><path d="M175 60V155M175 83L120 135M175 83L230 135M175 155L135 237M175 155L215 237"/></g><g id="arrow" stroke="#55e0a2" fill="none" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path id="shaft" d="M300 210 L300 65"/><path id="head" d="M285 83L300 59L315 83"/></g><text x="16" y="24" fill="#9eb8d0" font-size="13">СХЕМА • АНАТОМИЧЕСКАЯ ПОЗИЦИЯ</text></svg></div><div class="muted" id="category"></div><h2 id="question"></h2><div id="answers" class="answers"></div><div id="typed" class="hidden"><input id="term" autocomplete="off" placeholder="Введите термин по-русски или по-английски"><button id="check" class="btn primary" style="margin-top:10px">Проверить</button></div><div id="feedback" class="feedback hidden"></div><button id="next" class="btn primary hidden" style="margin-top:15px">Следующий вопрос →</button></section><section id="done" class="card hidden"><h2>Тренировка завершена</h2><p id="result"></p><button class="btn primary" id="again">Новая тренировка</button></section><footer>Обучающий тренажёр. Схема условная, не является анатомическим атласом. Данные прогресса хранятся только в этом браузере.</footer></div><script>
-'use strict';
-const DATA=[
-['directions','В каком направлении указывает стрелка к голове?','Краниально',['Каудально','Медиально','Дистально'],'Краниально (cranialis, superior) означает в направлении головы.','up'],
-['directions','В каком направлении указывает стрелка к стопам?','Каудально',['Краниально','Латерально','Проксимально'],'Каудально (caudalis, inferior) означает в направлении нижней части тела.','down'],
-['directions','Как называется направление к срединной плоскости тела?','Медиально',['Латерально','Дорзально','Дистально'],'Медиально (medialis) означает ближе к срединной плоскости.','left'],
-['directions','Как называется направление от срединной плоскости тела?','Латерально',['Медиально','Вентрально','Проксимально'],'Латерально (lateralis) означает дальше от срединной плоскости.','right'],
-['directions','Кисть относительно локтевого сустава расположена...','Дистально',['Проксимально','Краниально','Медиально'],'Дистально (distalis) означает дальше от места прикрепления конечности к туловищу.','right'],
-['directions','Плечевой сустав относительно локтя расположен...','Проксимально',['Дистально','Каудально','Поверхностно'],'Проксимально (proximalis) означает ближе к месту прикрепления конечности к туловищу.','up'],
-['directions','Грудина по отношению к позвоночнику расположена...','Вентрально',['Дорзально','Латерально','Дистально'],'Вентрально (ventralis) у человека в анатомической позиции означает кпереди.','right'],
-['directions','Позвоночник по отношению к грудине расположен...','Дорзально',['Вентрально','Медиально','Проксимально'],'Дорзально (dorsalis) у человека означает кзади.','left'],
-['directions','Кожа по отношению к скелетным мышцам расположена...','Поверхностно',['Глубоко','Медиально','Каудально'],'Поверхностно (superficialis) означает ближе к поверхности тела.','up'],
-['directions','Кость по отношению к коже обычно расположена...','Глубоко',['Поверхностно','Латерально','Краниально'],'Глубоко (profundus) означает дальше от поверхности тела.','down'],
-['movements','Отведение плеча в сторону от туловища называется...','Абдукция',['Аддукция','Флексия','Экстензия'],'Абдукция (abductio, abduction) означает отведение.','right'],
-['movements','Приведение отведённого плеча к туловищу называется...','Аддукция',['Абдукция','Пронация','Супинация'],'Аддукция (adductio, adduction) означает приведение.','left'],
-['movements','Сгибание локтевого сустава называется...','Флексия',['Экстензия','Эверсия','Аддукция'],'Флексия (flexio, flexion) означает сгибание.','up'],
-['movements','Выпрямление согнутого локтя называется...','Экстензия',['Флексия','Абдукция','Инверсия'],'Экстензия (extensio, extension) означает разгибание.','down'],
-['movements','Поворот предплечья из анатомической позиции ладонью назад называется...','Пронация',['Супинация','Эверсия','Аддукция'],'Пронация (pronatio, pronation) поворачивает ладонь из анатомической позиции кзади.','left'],
-['movements','Поворот пронированного предплечья ладонью вперёд до анатомической позиции называется...','Супинация',['Пронация','Абдукция','Флексия'],'Супинация (supinatio, supination) возвращает ладонь кпереди.','right'],
-['movements','Поворот подошвенной поверхности стопы преимущественно медиально называется...','Инверсия',['Эверсия','Пронация','Экстензия'],'Инверсия (inversion) направляет подошву преимущественно медиально.','left'],
-['movements','Поворот подошвенной поверхности стопы преимущественно латерально называется...','Эверсия',['Инверсия','Супинация','Аддукция'],'Эверсия (eversion) направляет подошву преимущественно латерально.','right'],
-['movements','Движение в плечевом суставе, при котором плечо вращается вокруг продольной оси кнутри, называется...','Внутренняя ротация',['Наружная ротация','Абдукция','Экстензия'],'Внутренняя (медиальная) ротация означает вращение сегмента внутрь.','left'],
-['movements','Движение в плечевом суставе, при котором плечо вращается вокруг продольной оси кнаружи, называется...','Наружная ротация',['Внутренняя ротация','Аддукция','Флексия'],'Наружная (латеральная) ротация означает вращение сегмента наружу.','right'],
-['planes','Какая плоскость делит тело на переднюю и заднюю части?','Фронтальная',['Сагиттальная','Поперечная','Продольная'],'Фронтальная (корональная) плоскость разделяет переднюю и заднюю части тела.','up'],
-['planes','Какая плоскость делит тело на правую и левую части?','Сагиттальная',['Фронтальная','Поперечная','Горизонтальная'],'Сагиттальная плоскость разделяет правую и левую части тела.','up'],
-['planes','Какая плоскость делит тело на верхнюю и нижнюю части?','Поперечная',['Фронтальная','Сагиттальная','Медиальная'],'Поперечная (горизонтальная, аксиальная) плоскость разделяет верхнюю и нижнюю части тела.','right'],
-['planes','В какой анатомической плоскости обычно происходит сгибание и разгибание локтя?','Сагиттальная',['Фронтальная','Поперечная','Косая'],'Сгибание и разгибание локтя преимущественно происходят в сагиттальной плоскости.','up'],
-['planes','В какой плоскости обычно происходит отведение плеча в сторону из анатомической позиции?','Фронтальная',['Сагиттальная','Поперечная','Косая'],'Классическое отведение плеча в сторону описывается во фронтальной плоскости.','right']
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anatomy Trainer 1.1</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1425;color:#eaf2ff;font-family:Arial,sans-serif}
+main{max-width:950px;margin:auto;padding:18px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+h1{font-size:25px;margin:8px 0}
+small{color:#9eb4d3}
+.card{background:#152640;border:1px solid #345078;border-radius:18px;padding:20px;margin-top:18px}
+.bar{height:9px;background:#354763;border-radius:10px;overflow:hidden;margin:15px 0}
+#progress{height:100%;background:#39c5e8;width:0;transition:.3s}
+.top{display:flex;justify-content:space-between;gap:10px;color:#bcd1ea}
+.stage{background:#0c1a30;border-radius:14px;margin:15px 0;padding:10px;text-align:center}
+svg{width:100%;max-width:460px;height:300px;display:block;margin:auto}
+button,select{background:#263f64;border:1px solid #5877a3;color:white;border-radius:10px;padding:13px;font-size:15px;cursor:pointer}
+button:hover{background:#365a89}
+button:disabled{opacity:.55;cursor:default}
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+.answers button{text-align:left;min-height:55px}
+.correct{background:#176b50!important;border-color:#4ade80!important}
+.wrong{background:#843944!important;border-color:#ff8181!important}
+#feedback{margin-top:15px;line-height:1.6}
+#next{background:#167ca5;margin-top:15px;width:100%}
+.hidden{display:none!important}
+.note{font-size:13px;color:#a5bad4;line-height:1.5}
+#question{font-size:21px;line-height:1.4}
+#visualTitle{font-size:13px;color:#a8c2df}
+#visualNote{font-size:13px;color:#a8c2df;min-height:32px}
+@media(max-width:500px){
+.answers{grid-template-columns:1fr}
+svg{height:250px}
+.card{padding:13px}
+h1{font-size:21px}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div>
+<h1>🦴 Anatomy Trainer <small>1.1</small></h1>
+<small>Анатомические направления и движения суставов</small>
+</div>
+<button onclick="restart()">↻</button>
+</header>
+
+<div class="card">
+<div class="controls">
+<select id="category" onchange="restart()">
+<option value="all">Все категории</option>
+<option value="directions">Направления</option>
+<option value="movements">Движения суставов</option>
+<option value="planes">Плоскости</option>
+</select>
+<select id="mode" onchange="restart()">
+<option value="visual">Угадай по изображению</option>
+<option value="text">Вопросы по определениям</option>
+</select>
+</div>
+<div class="top">
+<span id="counter"></span>
+<span id="score"></span>
+</div>
+<div class="bar"><div id="progress"></div></div>
+
+<div class="stage">
+<div id="visualTitle">АНАТОМИЧЕСКАЯ ВИЗУАЛИЗАЦИЯ</div>
+<svg id="drawing" viewBox="0 0 400 300" aria-label="Анатомическая схема"></svg>
+<div id="visualNote"></div>
+<div class="controls">
+<button onclick="replay()">▶ Повторить движение</button>
+</div>
+</div>
+
+<small id="topic"></small>
+<h2 id="question"></h2>
+<div id="answers" class="answers"></div>
+<div id="feedback"></div>
+<button id="next" class="hidden" onclick="nextQuestion()">Следующий вопрос →</button>
+</div>
+
+<div class="card" id="results" style="display:none"></div>
+<p class="note">
+Учебные схемы условные. Анимации показывают
+основной принцип движения, а не полную
+трёхмерную кинематику суставов.
+Прогресс сохраняется в этом браузере.
+</p>
+</main>
+
+<script>
+const NS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+
+const questions=[
+{cat:"directions",term:"Краниально",type:"arrow",v:"up",
+q:"В каком анатомическом направлении указывает стрелка?",
+opts:["Каудально","Краниально","Латерально","Дорзально"],
+ex:"Краниально: в направлении головы."},
+{cat:"directions",term:"Каудально",type:"arrow",v:"down",
+q:"В каком направлении указывает стрелка?",
+opts:["Краниально","Медиально","Каудально","Вентрально"],
+ex:"Каудально: в направлении нижнего конца туловища."},
+{cat:"directions",term:"Латерально",type:"arrow",v:"right",
+q:"Как называется направление от срединной линии тела?",
+opts:["Медиально","Латерально","Проксимально","Каудально"],
+ex:"Латерально: дальше от срединной плоскости."},
+{cat:"directions",term:"Медиально",type:"arrow",v:"left",
+q:"Как называется направление к срединной линии тела?",
+opts:["Латерально","Дистально","Медиально","Дорзально"],
+ex:"Медиально: ближе к срединной плоскости."},
+{cat:"directions",term:"Проксимально",type:"limb",v:"prox",
+q:"Стрелка вдоль руки направлена к плечу. Как называется направление?",
+opts:["Дистально","Каудально","Проксимально","Латерально"],
+ex:"Проксимально: ближе к месту соединения конечности с туловищем."},
+{cat:"directions",term:"Дистально",type:"limb",v:"dist",
+q:"Стрелка вдоль руки направлена к кисти. Как называется направление?",
+opts:["Проксимально","Дистально","Медиально","Вентрально"],
+ex:"Дистально: дальше от места соединения конечности с туловищем."},
+{cat:"directions",term:"Вентрально",type:"side",v:"front",
+q:"Стрелка направлена к передней поверхности туловища. Как называется направление?",
+opts:["Дорзально","Вентрально","Каудально","Медиально"],
+ex:"Вентрально: к передней стороне туловища человека."},
+{cat:"directions",term:"Дорзально",type:"side",v:"back",
+q:"Стрелка направлена к задней поверхности туловища. Как называется направление?",
+opts:["Вентрально","Краниально","Дорзально","Дистально"],
+ex:"Дорзально: к задней стороне туловища."},
+
+{cat:"movements",term:"Флексия",type:"elbow",v:"flex",
+q:"Как называется показанное движение предплечья в локтевом суставе?",
+opts:["Экстензия","Флексия","Пронация","Абдукция"],
+ex:"Флексия: сгибание локтя, уменьшение угла между плечом и предплечьем."},
+{cat:"movements",term:"Экстензия",type:"elbow",v:"extend",
+q:"Как называется показанное движение в локтевом суставе?",
+opts:["Флексия","Супинация","Экстензия","Аддукция"],
+ex:"Экстензия: разгибание локтя."},
+{cat:"movements",term:"Абдукция",type:"shoulder",v:"abduct",
+q:"Рука отводится в сторону от туловища. Назови движение.",
+opts:["Аддукция","Абдукция","Флексия","Пронация"],
+ex:"Абдукция: отведение плеча в данном случае во фронтальной плоскости."},
+{cat:"movements",term:"Аддукция",type:"shoulder",v:"adduct",
+q:"Рука возвращается из отведения к туловищу. Назови движение.",
+opts:["Абдукция","Экстензия","Аддукция","Супинация"],
+ex:"Аддукция: приведение плеча к туловищу."},
+{cat:"movements",term:"Пронация",type:"forearm",v:"pronate",
+q:"Предплечье поворачивается так, что ладонь из положения вверх обращается вниз. Назови движение.",
+opts:["Супинация","Пронация","Абдукция","Инверсия"],
+ex:"Пронация: вращение предплечья, при котором ладонь из положения вверх поворачивается вниз."},
+{cat:"movements",term:"Супинация",type:"forearm",v:"supinate",
+q:"Предплечье поворачивается из положения ладонью вниз в положение ладонью вверх.",
+opts:["Пронация","Флексия","Супинация","Эверсия"],
+ex:"Супинация: противоположное пронации вращение предплечья."},
+{cat:"movements",term:"Инверсия",type:"foot",v:"invert",
+q:"Подошва стопы поворачивается преимущественно медиально. Назови движение.",
+opts:["Эверсия","Инверсия","Дорсифлексия","Абдукция"],
+ex:"Инверсия: обращение подошвенной поверхности преимущественно медиально."},
+{cat:"movements",term:"Эверсия",type:"foot",v:"evert",
+q:"Подошва стопы поворачивается преимущественно латерально. Назови движение.",
+opts:["Инверсия","Флексия","Эверсия","Супинация"],
+ex:"Эверсия: обращение подошвенной поверхности преимущественно латерально."},
+
+{cat:"planes",term:"Сагиттальная",type:"plane",v:"sag",
+q:"Какая анатомическая плоскость показана?",
+opts:["Фронтальная","Сагиттальная","Поперечная","Горизонтальная ось"],
+ex:"Сагиттальные плоскости разделяют тело на правую и левую части."},
+{cat:"planes",term:"Фронтальная",type:"plane",v:"front",
+q:"Какая плоскость показана?",
+opts:["Сагиттальная","Поперечная","Фронтальная","Продольная ось"],
+ex:"Фронтальная плоскость разделяет тело на переднюю и заднюю части."},
+{cat:"planes",term:"Поперечная",type:"plane",v:"trans",
+q:"Какая плоскость показана?",
+opts:["Поперечная","Фронтальная","Сагиттальная","Вертикальная ось"],
+ex:"Поперечная плоскость разделяет тело на верхнюю и нижнюю части."}
 ];
-const aliases={'краниально':['cranial','superior'],'каудально':['caudal','inferior'],'медиально':['medial'],'латерально':['lateral'],'дистально':['distal'],'проксимально':['proximal'],'вентрально':['ventral','anterior'],'дорзально':['dorsal','posterior'],'поверхностно':['superficial'],'глубоко':['deep'],'абдукция':['abduction','отведение'],'аддукция':['adduction','приведение'],'флексия':['flexion','сгибание'],'экстензия':['extension','разгибание'],'пронация':['pronation'],'супинация':['supination'],'инверсия':['inversion'],'эверсия':['eversion'],'внутренняя ротация':['internal rotation','medial rotation'],'наружная ротация':['external rotation','lateral rotation'],'фронтальная':['frontal','coronal'],'сагиттальная':['sagittal'],'поперечная':['transverse','axial','horizontal']};
-const $=id=>document.getElementById(id);let mode='all',answerMode='choice',round=[],idx=0,score=0,locked=false;let history={};try{history=JSON.parse(localStorage.getItem('anatomy-progress-v1')||'{}')}catch(e){};function save(){try{localStorage.setItem('anatomy-progress-v1',JSON.stringify(history))}catch(e){}}function shuffle(a){return [...a].sort(()=>Math.random()-.5)}function setupButtons(attr,cb){document.querySelectorAll('[data-'+attr+']').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-'+attr+']').forEach(x=>x.classList.remove('active'));b.classList.add('active');cb(b.dataset[attr])}))}setupButtons('mode',v=>mode=v);setupButtons('answer',v=>answerMode=v);function stats(){let attempts=Object.values(history).reduce((a,x)=>a+x.attempts,0),correct=Object.values(history).reduce((a,x)=>a+x.correct,0);$('stats').textContent=`Всего ответов: ${attempts}. Правильных: ${correct}. Точность: ${attempts?Math.round(correct/attempts*100):0}%.`};stats();
-function start(){const eligible=DATA.map((d,i)=>i).filter(i=>mode==='all'||DATA[i][0]===mode);let bag=[];eligible.forEach(i=>{let h=history[i];let weight=h?Math.max(1,3-Math.floor(h.correct/Math.max(1,h.attempts)*2)):2;for(let n=0;n<weight;n++)bag.push(i)});bag=shuffle(bag);round=[];while(round.length<10){let options=bag.filter(i=>!round.includes(i));if(!options.length){bag=shuffle(eligible);options=bag.filter(i=>!round.includes(i));if(!options.length)break}round.push(options[Math.floor(Math.random()*options.length)])}idx=0;score=0;$('setup').classList.add('hidden');$('done').classList.add('hidden');$('quiz').classList.remove('hidden');show()}
-function arrow(dir){const paths={up:['M300 210 L300 65','M285 83L300 59L315 83'],down:['M300 55 L300 202','M285 184L300 210L315 184'],left:['M365 130 L260 130','M278 115L253 130L278 145'],right:['M255 130 L360 130','M342 115L367 130L342 145']};$('shaft').setAttribute('d',paths[dir][0]);$('head').setAttribute('d',paths[dir][1])}
-function show(){locked=false;let d=DATA[round[idx]];$('counter').textContent=`Вопрос ${idx+1} из ${round.length}`;$('points').textContent=`Правильно: ${score}`;$('bar').style.width=(idx/round.length*100)+'%';$('category').textContent={directions:'АНАТОМИЧЕСКИЕ НАПРАВЛЕНИЯ',movements:'ДВИЖЕНИЯ СУСТАВОВ',planes:'ПЛОСКОСТИ'}[d[0]];$('question').textContent=d[1];arrow(d[5]);$('feedback').classList.add('hidden');$('next').classList.add('hidden');$('answers').innerHTML='';$('term').value='';$('answers').classList.toggle('hidden',answerMode==='type');$('typed').classList.toggle('hidden',answerMode!=='type');if(answerMode==='choice'){shuffle([d[2],...d[3]]).forEach(value=>{let b=document.createElement('button');b.className='btn';b.textContent=value;b.onclick=()=>submit(value,b);$('answers').appendChild(b)})}}
-function normalize(s){return s.toLowerCase().trim().replace(/ё/g,'е').replace(/\s+/g,' ')}function submit(value,button){if(locked)return;locked=true;let key=round[idx],d=DATA[key],ok=normalize(value)===normalize(d[2])||(aliases[normalize(d[2])]||[]).includes(normalize(value));if(ok)score++;let h=history[key]||{attempts:0,correct:0};h.attempts++;if(ok)h.correct++;history[key]=h;save();if(button)button.classList.add(ok?'correct':'wrong');document.querySelectorAll('#answers button').forEach(b=>{b.disabled=true;if(b.textContent===d[2])b.classList.add('correct')});$('check').disabled=true;$('feedback').innerHTML='';let strong=document.createElement('strong');strong.textContent=ok?'✓ Правильно!':'Правильный ответ: '+d[2];let p=document.createElement('p');p.textContent=d[4];$('feedback').append(strong,p);$('feedback').classList.remove('hidden');$('next').textContent=idx===round.length-1?'Показать результат':'Следующий вопрос →';$('next').classList.remove('hidden')}
-$('start').onclick=start;$('check').onclick=()=>submit($('term').value,null);$('term').addEventListener('keydown',e=>{if(e.key==='Enter'&&!locked)submit($('term').value,null)});$('next').onclick=()=>{idx++;$('check').disabled=false;if(idx>=round.length){$('quiz').classList.add('hidden');$('done').classList.remove('hidden');$('result').textContent=`Правильных ответов: ${score} из ${round.length} (${Math.round(score/round.length*100)}%).`;stats()}else show()};$('again').onclick=()=>{$('done').classList.add('hidden');$('setup').classList.remove('hidden')};$('reset').onclick=()=>{if(confirm('Удалить всю статистику обучения в этом браузере?')){history={};save();stats()}};
-</script></body></html>
+
+let pool=[],index=0,correct=0,locked=false;
+let animation=null;
+let stats=JSON.parse(localStorage.getItem("anatomyStats11")||'{"done":0,"correct":0}');
+
+function svgEl(tag,attrs={},parent=$("drawing")){
+let e=document.createElementNS(NS,tag);
+for(let [k,v] of Object.entries(attrs))e.setAttribute(k,v);
+parent.appendChild(e);return e;
+}
+function line(x1,y1,x2,y2,color="#c4d9ff",w=7){
+return svgEl("line",{x1,y1,x2,y2,stroke:color,"stroke-width":w,"stroke-linecap":"round"});
+}
+function circle(x,y,r,color="#c4d9ff"){
+return svgEl("circle",{cx:x,cy:y,r,fill:"none",stroke:color,"stroke-width":5});
+}
+function label(x,y,t){
+let e=svgEl("text",{x,y,fill:"#a9c4e8","font-size":14,"text-anchor":"middle"});
+e.textContent=t;return e;
+}
+function arrow(x1,y1,x2,y2){
+line(x1,y1,x2,y2,"#46e4ad",6);
+let a=Math.atan2(y2-y1,x2-x1),s=16;
+line(x2,y2,x2-s*Math.cos(a-.55),y2-s*Math.sin(a-.55),"#46e4ad",6);
+line(x2,y2,x2-s*Math.cos(a+.55),y2-s*Math.sin(a+.55),"#46e4ad",6);
+}
+function person(){
+circle(170,43,19);
+line(170,65,170,165);
+line(170,85,130,125);
+line(170,85,210,125);
+line(170,165,140,238);
+line(170,165,200,238);
+}
+function clear(){
+if(animation)cancelAnimationFrame(animation);
+animation=null;
+$("drawing").innerHTML="";
+}
+function oscillate(draw){
+let start=performance.now();
+function frame(now){
+let phase=(now-start)%2600/2600;
+let t=(1-Math.cos(phase*2*Math.PI))/2;
+draw(t);
+animation=requestAnimationFrame(frame);
+}
+animation=requestAnimationFrame(frame);
+}
+function drawStatic(q){
+clear();
+if(q.type==="arrow"){
+person();
+let coords={
+up:[260,205,260,85],
+down:[260,85,260,205],
+right:[170,145,290,145],
+left:[290,145,170,145]
+};
+arrow(...coords[q.v]);
+label(200,280,"Вид спереди");
+}
+if(q.type==="limb"){
+circle(110,85,20);
+line(110,105,110,200);
+line(110,125,205,150);
+line(205,150,300,195);
+arrow(q.v==="prox"?290:205,q.v==="prox"?191:154,
+q.v==="prox"?212:290,q.v==="prox"?154:191);
+label(200,255,"Плечо → предплечье → кисть");
+}
+if(q.type==="side"){
+circle(170,48,22);
+line(170,70,170,225,"#c4d9ff",18);
+label(170,275,"Вид сбоку: лицо слева");
+line(150,48,134,55,"#c4d9ff",5);
+if(q.v==="front")arrow(260,150,100,150);
+else arrow(100,150,260,150);
+}
+if(q.type==="plane"){
+person();
+let p=q.v;
+if(p==="sag"){
+svgEl("polygon",{points:"155,25 210,5 210,245 155,260",fill:"#39b8f0","fill-opacity":".35",stroke:"#39b8f0"});
+}
+if(p==="front"){
+svgEl("rect",{x:115,y:20,width:110,height:235,fill:"#46e4ad","fill-opacity":".24",stroke:"#46e4ad"});
+}
+if(p==="trans"){
+svgEl("polygon",{points:"90,145 240,145 285,175 135,175",fill:"#f6b95b","fill-opacity":".5",stroke:"#f6b95b"});
+}
+label(200,285,"Условная схема плоскости");
+}
+}
+function drawMoving(q,t){
+$("drawing").innerHTML="";
+if(q.type==="elbow"){
+let sx=165,sy=75,ex=165,ey=160,L=95;
+circle(165,45,19);
+line(sx,sy,ex,ey);
+circle(ex,ey,5);
+let flex=q.v==="flex"?t:1-t;
+let a=Math.PI/2+flex*Math.PI*.68;
+let hx=ex+L*Math.cos(a),hy=ey+L*Math.sin(a);
+line(ex,ey,hx,hy,"#46e4ad",9);
+circle(hx,hy,5);
+label(200,280,"Вид сбоку: движение локтя");
+}
+if(q.type==="shoulder"){
+circle(200,42,18);
+line(200,63,200,190);
+line(200,190,165,260);
+line(200,190,235,260);
+line(200,90,240,145);
+let a=(q.v==="abduct"?t:1-t)*1.35;
+let x=200-90*Math.sin(a);
+let y=90+90*Math.cos(a);
+line(200,90,x,y,"#46e4ad",9);
+label(200,287,"Вид спереди: левое плечо модели");
+}
+if(q.type==="forearm"){
+circle(200,65,9);
+line(200,74,200,180,"#c4d9ff",12);
+let a=(q.v==="pronate"?t:1-t)*Math.PI;
+let w=65*Math.cos(a);
+svgEl("ellipse",{cx:200,cy:205,rx:Math.max(5,Math.abs(w)),ry:16,
+fill:"#46e4ad","fill-opacity":".65"});
+line(200-w,205,200+w,205,"#46e4ad",5);
+label(200,260,"Условная проекция вращения ладони");
+}
+if(q.type==="foot"){
+line(200,50,200,165,"#c4d9ff",14);
+let a=(q.v==="invert"?-1:1)*t*.5;
+let g=svgEl("g",{transform:`rotate(${a*180/Math.PI} 200 175)`});
+svgEl("ellipse",{cx:200,cy:203,rx:50,ry:24,fill:"#46e4ad","fill-opacity":".55",stroke:"#46e4ad","stroke-width":4},g);
+label(200,275,"Условная схема поворота стопы");
+}
+}
+function replay(){
+let q=pool[index];
+if(!q)return;
+clear();
+$("visualNote").textContent=q.type==="elbow"||q.type==="shoulder"?
+"Наблюдай движение зелёного сегмента":
+q.type==="forearm"||q.type==="foot"?
+"Упрощённая анимация, не точная 3D-кинематика":
+"Определи направление или плоскость";
+if(["elbow","shoulder","forearm","foot"].includes(q.type)){
+oscillate(t=>drawMoving(q,t));
+}else drawStatic(q);
+}
+function shuffle(a){
+return [...a].sort(()=>Math.random()-.5);
+}
+function restart(){
+clear();
+pool=shuffle(questions.filter(q=>$("category").value==="all"||q.cat===$("category").value)).slice(0,10);
+index=0;correct=0;
+$("results").style.display="none";
+showQuestion();
+}
+function showQuestion(){
+locked=false;
+let q=pool[index];
+$("counter").textContent=`Вопрос ${index+1} из ${pool.length}`;
+$("score").textContent=`Правильно: ${correct}`;
+$("progress").style.width=(index/pool.length*100)+"%";
+$("topic").textContent={directions:"АНАТОМИЧЕСКИЕ НАПРАВЛЕНИЯ",movements:"ДВИЖЕНИЯ СУСТАВОВ",planes:"АНАТОМИЧЕСКИЕ ПЛОСКОСТИ"}[q.cat];
+$("question").textContent=$("mode").value==="visual"?q.q:
+`Какое определение соответствует термину «${q.term}»?`;
+$("feedback").textContent="";
+$("next").classList.add("hidden");
+$("answers").innerHTML="";
+let options=$("mode").value==="visual"?
+shuffle(q.opts):
+shuffle([q.ex,...shuffle(questions.filter(x=>x!==q&&x.cat===q.cat).map(x=>x.ex)).slice(0,3)]);
+options.forEach(value=>{
+let b=document.createElement("button");
+b.textContent=value;
+b.onclick=()=>answer(b,value,$("mode").value==="visual"?q.term:q.ex);
+$("answers").appendChild(b);
+});
+replay();
+}
+function answer(button,value,right){
+if(locked)return;
+locked=true;
+let ok=value===right;
+if(ok)correct++;
+stats.done++;
+if(ok)stats.correct++;
+localStorage.setItem("anatomyStats11",JSON.stringify(stats));
+document.querySelectorAll("#answers button").forEach(b=>{
+b.disabled=true;
+if(b.textContent===right)b.classList.add("correct");
+});
+if(!ok)button.classList.add("wrong");
+$("feedback").innerHTML=
+`<strong>${ok?"✓ Правильно!":"✗ Неправильно"}</strong><p>${pool[index].ex}</p>`;
+$("score").textContent=`Правильно: ${correct}`;
+$("next").textContent=index===pool.length-1?"Завершить тренировку":"Следующий вопрос →";
+$("next").classList.remove("hidden");
+}
+function nextQuestion(){
+index++;
+if(index>=pool.length){
+clear();
+$("progress").style.width="100%";
+$("results").style.display="block";
+$("results").innerHTML=`<h2>Тренировка завершена</h2>
+<p>Результат: ${correct} из ${pool.length}</p>
+<p>За всё время: ${stats.correct} правильных из ${stats.done}</p>
+<button onclick="restart()">Новая тренировка</button>`;
+$("next").classList.add("hidden");
+$("answers").innerHTML="";
+$("question").textContent="Готово!";
+$("visualNote").textContent="";
+$("drawing").innerHTML="";
+return;
+}
+showQuestion();
+}
+restart();
+</script>
+</body>
+</html>
