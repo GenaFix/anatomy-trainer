@@ -1,6 +1,7 @@
 
 import * as THREE from 'three';
-import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {OrbitControls} from
+  'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js';
 
 const $=id=>document.getElementById(id);
@@ -9,26 +10,33 @@ const stage=$('stage');
 const scene=new THREE.Scene();
 scene.background=new THREE.Color('#0a192e');
 
-const camera=new THREE.PerspectiveCamera(35,1,.1,100);
+const camera=new THREE.PerspectiveCamera(36,1,.1,100);
 const renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setPixelRatio(Math.min(
+  window.devicePixelRatio||1,2
+));
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 stage.prepend(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xffffff,0x435675,2.3));
+scene.add(new THREE.HemisphereLight(
+  0xffffff,0x435675,2.3
+));
 
-const light=new THREE.DirectionalLight(0xffffff,2.2);
+const light=new THREE.DirectionalLight(
+  0xffffff,2.2
+);
 light.position.set(3,6,6);
 scene.add(light);
 
-const controls=new OrbitControls(camera,renderer.domElement);
+const controls=new OrbitControls(
+  camera,renderer.domElement
+);
 controls.enableDamping=true;
-controls.target.set(0,1.65,0);
-controls.minDistance=2.5;
-controls.maxDistance=13;
 controls.enablePan=false;
+controls.minDistance=2;
+controls.maxDistance=12;
 
-const movement=createMovementModel(scene);
+const model=createMovementModel(scene);
 
 function resize(){
   const w=stage.clientWidth;
@@ -41,84 +49,101 @@ function resize(){
 new ResizeObserver(resize).observe(stage);
 
 const views={
-  front:[0,1.65,7.6],
-  back:[0,1.65,-7.6],
-  right:[-7.6,1.65,0],
-  left:[7.6,1.65,0]
+  front:[0,1.7,6.6],
+  back:[0,1.7,-6.6],
+  right:[-6.6,1.7,0],
+  left:[6.6,1.7,0]
+};
+
+const viewNames={
+  front:'Вид спереди',
+  back:'Вид сзади',
+  right:'Правая сторона человека',
+  left:'Левая сторона человека'
 };
 
 function setView(name){
   if(!views[name])return;
   camera.position.set(...views[name]);
-  controls.target.set(0,1.65,0);
+  controls.target.set(0,1.7,0);
   controls.update();
-
-  const names={
-    front:'Вид спереди',
-    back:'Вид сзади',
-    right:'Правая сторона человека',
-    left:'Левая сторона человека'
-  };
-
-  $('viewLabel').textContent=names[name];
-
-  document.querySelectorAll('[data-view]').forEach(button=>{
-    button.classList.toggle(
-      'active',button.dataset.view===name
+  $('viewLabel').textContent=viewNames[name];
+  document.querySelectorAll('[data-view]').forEach(b=>{
+    b.classList.toggle(
+      'active',b.dataset.view===name
     );
   });
 }
 
-document.querySelectorAll('[data-view]').forEach(button=>{
-  button.onclick=()=>setView(button.dataset.view);
+document.querySelectorAll('[data-view]').forEach(b=>{
+  b.onclick=()=>setView(b.dataset.view);
 });
 
 $('resetView').onclick=()=>setView('front');
 
-function selectMovement(name){
-  movement.setMovement(name);
-  $('movement').value=name;
-  setView(movement.movements[name].view);
-}
-
-$('movement').onchange=e=>selectMovement(e.target.value);
-
-$('play').onclick=()=>{
-  movement.setPlaying(!movement.playing);
-  $('play').textContent=movement.playing
-    ?'Анимация включена'
-    :'Анимация остановлена';
+const dictionary={
+  ru:{
+    question:'Как называется показанное движение?',
+    next:'Следующий вопрос',
+    restart:'Новый тест',
+    repeat:'Повторить ошибки',
+    correct:'Правильно.',
+    wrong:'Неправильно.',
+    result:'Результат',
+    finished:'Тест завершён'
+  },
+  en:{
+    question:'What movement is shown?',
+    next:'Next question',
+    restart:'New test',
+    repeat:'Retry mistakes',
+    correct:'Correct.',
+    wrong:'Incorrect.',
+    result:'Result',
+    finished:'Test completed'
+  }
 };
 
-$('status').textContent='Цифровой манекен готов';
+const movementNames={
+  abduction:['Абдукция плеча','Shoulder abduction'],
+  adduction:['Аддукция плеча','Shoulder adduction'],
+  elbowFlex:['Флексия локтя','Elbow flexion'],
+  elbowExtend:['Экстензия локтя','Elbow extension'],
+  kneeFlex:['Флексия колена','Knee flexion'],
+  kneeExtend:['Экстензия колена','Knee extension']
+};
 
-const questions=[
-  {
-    movement:'elbow',
-    question:'Как называется сгибание предплечья?',
-    correct:'Флексия',
-    answers:['Флексия','Экстензия','Абдукция','Пронация']
-  },
-  {
-    movement:'shoulder',
-    question:'Как называется отведение плеча от средней линии?',
-    correct:'Абдукция',
-    answers:['Аддукция','Флексия','Абдукция','Супинация']
-  },
-  {
-    movement:'knee',
-    question:'Как называется сгибание голени в коленном суставе?',
-    correct:'Флексия',
-    answers:['Экстензия','Флексия','Эверсия','Ротация']
-  }
-];
+const descriptions={
+  abduction:[
+    'Отведение плеча от туловища.',
+    'Movement of the arm away from the trunk.'
+  ],
+  adduction:[
+    'Приведение плеча к туловищу.',
+    'Movement of the arm toward the trunk.'
+  ],
+  elbowFlex:[
+    'Уменьшение угла в локтевом суставе.',
+    'Decreasing the angle at the elbow.'
+  ],
+  elbowExtend:[
+    'Увеличение угла в локтевом суставе.',
+    'Increasing the angle at the elbow.'
+  ],
+  kneeFlex:[
+    'Уменьшение угла в коленном суставе.',
+    'Decreasing the angle at the knee.'
+  ],
+  kneeExtend:[
+    'Увеличение угла в коленном суставе.',
+    'Increasing the angle at the knee.'
+  ]
+};
 
-let index=0;
-let score=0;
-let answered=false;
+const allQuestions=Object.keys(movementNames);
 
-function shuffle(items){
-  const a=[...items];
+function shuffle(array){
+  const a=[...array];
   for(let i=a.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
@@ -126,85 +151,162 @@ function shuffle(items){
   return a;
 }
 
-let quizOrder=shuffle(questions);
+let language='ru';
+let questions=shuffle(allQuestions);
+let index=0;
+let score=0;
+let mistakes=[];
+let answered=false;
+let finished=false;
+let clockStart=performance.now();
+
+function tr(key){
+  return dictionary[language==='en'?'en':'ru'][key];
+}
+
+function term(id){
+  const pair=movementNames[id];
+  if(language==='en')return pair[1];
+  if(language==='both')return pair[0]+' / '+pair[1];
+  return pair[0];
+}
+
+function explanation(id){
+  const pair=descriptions[id];
+  if(language==='en')return pair[1];
+  if(language==='both')return pair[0]+' '+pair[1];
+  return pair[0];
+}
+
+function choicesFor(correct){
+  // Варианты включают противоположное движение,
+  // чтобы проверять именно направление.
+  const opposites={
+    abduction:'adduction',
+    adduction:'abduction',
+    elbowFlex:'elbowExtend',
+    elbowExtend:'elbowFlex',
+    kneeFlex:'kneeExtend',
+    kneeExtend:'kneeFlex'
+  };
+  const chosen=[correct,opposites[correct]];
+  const remaining=shuffle(
+    allQuestions.filter(id=>!chosen.includes(id))
+  );
+  chosen.push(...remaining.slice(0,2));
+  return shuffle(chosen);
+}
 
 function showQuestion(){
-  if(index>=quizOrder.length){
-    $('counter').textContent='Тренировка завершена';
-    $('question').textContent=
-      `Результат: ${score} из ${quizOrder.length}`;
-    $('answers').innerHTML='';
-    $('feedback').textContent='';
-    $('next').disabled=false;
-    $('next').textContent='Начать заново';
-    return;
-  }
-
-  const q=quizOrder[index];
+  finished=false;
   answered=false;
 
+  const id=questions[index];
   $('counter').textContent=
-    `Вопрос ${index+1} из ${quizOrder.length} · Правильно: ${score}`;
-  $('question').textContent=q.question;
+    `${index+1} / ${questions.length} · ✓ ${score}`;
+  $('question').textContent=tr('question');
   $('feedback').textContent='';
-  $('next').disabled=true;
-  $('next').textContent='Следующий вопрос';
   $('answers').innerHTML='';
+  $('next').disabled=true;
+  $('next').textContent=tr('next');
+  $('resultTools').classList.add('hidden');
 
-  selectMovement(q.movement);
+  model.setMovement(id);
+  model.setPlaying(true);
+  clockStart=performance.now();
+  setView(model.movements[id].view);
 
-  shuffle(q.answers).forEach(value=>{
+  for(const choice of choicesFor(id)){
     const button=document.createElement('button');
     button.className='answer';
-    button.textContent=value;
+    button.textContent=term(choice);
+    button.dataset.answer=choice;
 
     button.onclick=()=>{
       if(answered)return;
       answered=true;
 
-      if(value===q.correct)score++;
+      const correct=choice===id;
+      if(correct)score++;
+      else mistakes.push(id);
 
       document.querySelectorAll('.answer').forEach(b=>{
         b.disabled=true;
-        if(b.textContent===q.correct){
+        if(b.dataset.answer===id){
           b.classList.add('correct');
         }else if(b===button){
           b.classList.add('wrong');
         }
       });
 
-      $('feedback').textContent=value===q.correct
-        ?'Правильно. '+movement.movements[q.movement].description
-        :'Неправильно. '+movement.movements[q.movement].description;
+      $('feedback').textContent=
+        (correct?tr('correct'):tr('wrong'))+
+        ' '+term(id)+'. '+explanation(id);
 
       $('next').disabled=false;
     };
 
     $('answers').appendChild(button);
-  });
+  }
+}
+
+function showResult(){
+  finished=true;
+  model.setPlaying(false);
+  $('counter').textContent=tr('finished');
+  $('question').textContent=
+    `${tr('result')}: ${score} / ${questions.length}`;
+  $('answers').innerHTML='';
+  $('feedback').textContent=
+    language==='en'
+      ?`Mistakes: ${mistakes.length}`
+      :`Ошибок: ${mistakes.length}`;
+  $('next').classList.add('hidden');
+  $('resultTools').classList.remove('hidden');
+  $('repeat').disabled=mistakes.length===0;
+}
+
+function beginTest(ids){
+  questions=shuffle(ids);
+  index=0;
+  score=0;
+  mistakes=[];
+  finished=false;
+  $('next').classList.remove('hidden');
+  showQuestion();
 }
 
 $('next').onclick=()=>{
-  if(index>=quizOrder.length){
-    index=0;
-    score=0;
-    quizOrder=shuffle(questions);
-  }else{
-    index++;
-  }
-  showQuestion();
+  index++;
+  if(index>=questions.length)showResult();
+  else showQuestion();
 };
 
-let start=performance.now();
+$('restart').onclick=()=>beginTest(allQuestions);
+$('repeat').onclick=()=>beginTest(mistakes);
+
+$('language').onchange=e=>{
+  language=e.target.value;
+  // Новый тест, чтобы переключение языка
+  // не меняло варианты во время ответа.
+  beginTest(allQuestions);
+};
+
+let lastTime=performance.now();
 
 function animate(now){
   requestAnimationFrame(animate);
-  movement.update((now-start)/1000);
+  if(!finished){
+    model.update((now-clockStart)/1000);
+  }
   controls.update();
   renderer.render(scene,camera);
+  lastTime=now;
 }
 
+$('status').textContent=
+  '3D-модель готова. Жёлтая стрелка показывает направление.';
+
 resize();
-selectMovement('elbow');
-showQuestion();
+beginTest(allQuestions);
 requestAnimationFrame(animate);
