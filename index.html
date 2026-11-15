@@ -1,779 +1,435 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Anatomy Trainer 1.4</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anatomy Trainer 1.5</title>
 <style>
-:root {
-  color-scheme:dark;
-  --bg:#0a1528;
-  --panel:#172b49;
-  --ink:#eaf3ff;
-  --muted:#b4c8e3;
-  --border:#496b94;
-  --mint:#43e7b2;
-}
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--ink);
-  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
-}
-main{max-width:980px;margin:auto;padding:14px}
-header{
-  display:flex;align-items:center;
-  justify-content:space-between;gap:8px;
-}
+body{margin:0;background:#091426;color:#eaf3ff;font-family:system-ui,Arial}
+main{max-width:980px;margin:auto;padding:12px}
 h1{font-size:24px;margin:5px 0}
-small{color:var(--muted)}
-button,select{
-  font:inherit;color:var(--ink);background:#28476f;
-  border:1px solid #6484af;border-radius:10px;
-  padding:10px;cursor:pointer;
-}
-button:disabled{cursor:default}
-.panel{
-  margin-top:12px;background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:16px;padding:18px;
-}
-.controls{
-  display:flex;gap:8px;flex-wrap:wrap;
-  justify-content:center;
-}
-.controls select{max-width:100%}
-.status{
-  display:flex;justify-content:space-between;
-  gap:8px;margin:14px 0 8px;
-}
-.track{
-  height:7px;background:#344d70;
-  border-radius:10px;overflow:hidden;
-}
-.fill{
-  height:100%;background:#3ac7ec;
-  transition:width .2s;
-}
-.stage{
-  background:#0d1d34;border-radius:13px;
-  margin:12px 0;padding:10px;text-align:center;
-}
-.stage-title{
-  font-size:12px;letter-spacing:.07em;
-  color:var(--muted);
-}
-#scene{width:100%;height:290px;display:block}
-#sceneNote{
-  font-size:12px;color:var(--muted);
-  min-height:18px;
-}
-#categoryLabel{color:var(--muted);font-size:12px}
-#question{
-  font-size:21px;line-height:1.35;
-  margin:9px 0 12px;
-}
-.answers{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:9px;
-}
-.answers button{
-  text-align:left;min-height:58px;
-  overflow-wrap:anywhere;
-}
-.answers button.vector{
-  min-height:100px;text-align:center;
-}
-.answers svg{
-  display:block;margin:auto;width:100%;
-  max-width:180px;height:105px;
-}
-.correct{
-  background:#136c51!important;
-  border-color:#55efb5!important;
-}
-.wrong{
-  background:#813e51!important;
-  border-color:#ff8098!important;
-}
-#feedback{margin:12px 0 0;line-height:1.5}
-#feedback p{margin:5px 0}
-#next{
-  margin-top:12px;width:100%;
-  background:#177ea5;
-}
+small{color:#b7c9e1}
+.panel{background:#172b49;border:1px solid #496b94;border-radius:16px;padding:14px;margin-top:12px}
+button,select{background:#29466b;color:#fff;border:1px solid #6484af;border-radius:10px;padding:10px;font:inherit;cursor:pointer}
+.controls,.views{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+.status{display:flex;justify-content:space-between;margin:12px 0}
+.track{height:7px;background:#344d70;border-radius:10px}
+#progress{height:100%;width:0;background:#3ac7ec}
+.stage{background:#0c1b31;border-radius:12px;margin:10px 0;padding:8px;text-align:center}
+#scene{width:100%;height:350px;touch-action:none}
+#scene canvas{display:block}
+.views button{font-size:12px;padding:6px}
+#note{color:#b7c9e1;font-size:12px}
+#question{font-size:21px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.answers button{text-align:left;min-height:55px}
+.correct{background:#116e50!important;border-color:#5ff0b6}
+.wrong{background:#823b51!important;border-color:#ff8098}
+#feedback{margin:12px 0;line-height:1.5}
+#next{width:100%;background:#177da5;margin-top:10px}
 .hidden{display:none}
-footer{
-  font-size:12px;color:var(--muted);
-  line-height:1.5;padding:12px 2px;
-}
-#results{display:none}
-svg text{font-family:system-ui,sans-serif}
-
+footer{font-size:12px;color:#b7c9e1;padding:12px}
 @media(max-width:650px){
-  main{padding:7px}
-  h1{font-size:19px}
-  .panel{padding:10px;margin-top:8px}
-  .controls{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:6px;
-  }
-  .controls select{
-    width:100%;min-width:0;
-    padding:8px 5px;font-size:12px;
-  }
-  .controls select:last-child{grid-column:1/-1}
-  .status{font-size:13px;margin:9px 0 6px}
-  .stage{margin:8px 0;padding:5px}
-  #scene{height:clamp(150px,25dvh,200px)}
-  #sceneNote{font-size:11px}
-  .stage-title{font-size:10px}
-  #question{font-size:16px;margin:7px 0 9px}
-  .answers{
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-    gap:7px;
-  }
-  .answers button{
-    font-size:12px;padding:9px 7px;
-    min-height:53px;
-  }
-  .answers button.vector{
-    min-height:88px;padding:2px;
-  }
-  .answers svg{height:84px}
-  #feedback{font-size:13px;margin-top:8px}
-  #next{
-    padding:11px;margin-top:8px;
-    font-size:14px;
-  }
-  footer{font-size:11px}
+main{padding:6px}
+h1{font-size:19px}
+.panel{padding:9px}
+.controls{display:grid;grid-template-columns:1fr 1fr}
+.controls select{width:100%;min-width:0;font-size:12px;padding:7px 3px}
+.controls select:last-child{grid-column:1/-1}
+#scene{height:clamp(185px,29dvh,250px)}
+#question{font-size:16px}
+.answers button{font-size:12px;min-height:47px;padding:7px}
+.status{font-size:13px}
 }
 </style>
 </head>
 <body>
 <main>
 <header>
-  <div>
-    <h1>🦴 Anatomy Trainer 1.4</h1>
-    <small>Направления, движения и плоскости</small>
-  </div>
-  <button id="restart" aria-label="Начать заново">↻</button>
+<h1>🦴 Anatomy Trainer 1.5</h1>
+<small>Интерактивная 3D-анатомия</small>
 </header>
-
-<section class="panel" id="quiz">
-  <div class="controls">
-    <select id="category">
-      <option value="all">Все категории</option>
-      <option value="directions">Направления</option>
-      <option value="advanced">Составные направления</option>
-      <option value="movements">Движения суставов</option>
-      <option value="planes">Плоскости</option>
-    </select>
-    <select id="level">
-      <option value="all">Все уровни</option>
-      <option value="1">Уровень 1</option>
-      <option value="2">Уровень 2</option>
-      <option value="3">Уровень 3</option>
-    </select>
-    <select id="mode">
-      <option value="visual">Изображение → термин</option>
-      <option value="reverse">Термин → изображение</option>
-      <option value="text">Термин → определение</option>
-      <option value="mixed">Смешанная тренировка</option>
-    </select>
-  </div>
-  <div class="status">
-    <span id="counter"></span>
-    <span id="score"></span>
-  </div>
-  <div class="track"><div class="fill" id="progress"></div></div>
-  <div class="stage" id="stage">
-    <div class="stage-title" id="sceneTitle">АНАТОМИЧЕСКАЯ ВИЗУАЛИЗАЦИЯ</div>
-    <svg id="scene" viewBox="0 0 440 290" role="img" aria-label="Анатомическая анимация"></svg>
-    <div id="sceneNote"></div>
-  </div>
-  <div id="categoryLabel"></div>
-  <h2 id="question"></h2>
-  <div class="answers" id="answers"></div>
-  <div id="feedback" aria-live="polite"></div>
-  <button id="next" class="hidden">Следующий вопрос →</button>
+<section class="panel">
+<div class="controls">
+<select id="category">
+<option value="all">Все категории</option>
+<option value="directions">Направления</option>
+<option value="advanced">Составные направления</option>
+<option value="movements">Движения суставов</option>
+<option value="planes">Плоскости</option>
+</select>
+<select id="level">
+<option value="all">Все уровни</option>
+<option value="1">Уровень 1</option>
+<option value="2">Уровень 2</option>
+<option value="3">Уровень 3</option>
+</select>
+<select id="mode">
+<option value="visual">Угадай по 3D</option>
+<option value="text">Термин → определение</option>
+<option value="mixed">Смешанная тренировка</option>
+</select>
+</div>
+<div class="status">
+<span id="counter"></span><span id="score"></span>
+</div>
+<div class="track"><div id="progress"></div></div>
+<div class="stage">
+<small>ТРЁХМЕРНАЯ АНАТОМИЧЕСКАЯ СЦЕНА</small>
+<div id="scene"></div>
+<div class="views">
+<button onclick="setView(0)">Спереди</button>
+<button onclick="setView(Math.PI)">Сзади</button>
+<button onclick="setView(Math.PI/2)">Сбоку</button>
+</div>
+<p id="note"></p>
+</div>
+<small id="categoryLabel"></small>
+<h2 id="question"></h2>
+<div class="answers" id="answers"></div>
+<div id="feedback"></div>
+<button id="next" class="hidden">Следующий вопрос →</button>
 </section>
-
-<section class="panel" id="results"></section>
 <footer>
-Упрощённые учебные схемы. Анимации автоматически повторяются.
-Пространственные векторы показаны в условной аксонометрической проекции,
-а не в масштабе реальной анатомии.
+Учебные трёхмерные модели. Движения суставов упрощены и не заменяют анатомический атлас.
 </footer>
 </main>
 
-<script>
-'use strict';
+<script type="module">
+import * as T from "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js";
 
 const $=id=>document.getElementById(id);
-const NS='http://www.w3.org/2000/svg';
 const Q=[];
+const words=[
+["краниально","каудально"],
+["латерально","медиально"],
+["дорзально","вентрально"]
+];
 
 function add(cat,level,term,type,v,ex){
-  Q.push({cat,level,term,type,v,ex});
+Q.push({cat,level,term,type,v,ex});
+}
+
+function description(v){
+return v.map((n,i)=>n?words[i][n>0?0:1]:null).filter(Boolean).join(", ");
 }
 
 const directions=[
- ['Краниально',[1,0,0],1],
- ['Каудально',[-1,0,0],1],
- ['Латерально',[0,1,0],1],
- ['Медиально',[0,-1,0],1],
- ['Дорзально',[0,0,1],1],
- ['Вентрально',[0,0,-1],1],
- ['Кранио-латерально',[1,1,0],2],
- ['Каудо-медиально',[-1,-1,0],2],
- ['Дорзо-краниально',[1,0,1],2],
- ['Вентро-каудально',[-1,0,-1],2],
- ['Кранио-медиально',[1,-1,0],2],
- ['Каудо-латерально',[-1,1,0],2],
- ['Дорзо-латерально',[0,1,1],2],
- ['Вентро-медиально',[0,-1,-1],2],
- ['Дорзо-кранио-латерально',[1,1,1],3],
- ['Вентро-каудо-медиально',[-1,-1,-1],3],
- ['Вентро-кранио-латерально',[1,1,-1],3],
- ['Дорзо-каудо-медиально',[-1,-1,1],3],
- ['Вентро-кранио-медиально',[1,-1,-1],3],
- ['Дорзо-каудо-латерально',[-1,1,1],3]
+["Краниально",[1,0,0],1],
+["Каудально",[-1,0,0],1],
+["Латерально",[0,1,0],1],
+["Медиально",[0,-1,0],1],
+["Дорзально",[0,0,1],1],
+["Вентрально",[0,0,-1],1],
+["Кранио-латерально",[1,1,0],2],
+["Каудо-медиально",[-1,-1,0],2],
+["Дорзо-краниально",[1,0,1],2],
+["Вентро-каудально",[-1,0,-1],2],
+["Кранио-медиально",[1,-1,0],2],
+["Каудо-латерально",[-1,1,0],2],
+["Дорзо-латерально",[0,1,1],2],
+["Вентро-медиально",[0,-1,-1],2],
+["Дорзо-кранио-латерально",[1,1,1],3],
+["Вентро-каудо-медиально",[-1,-1,-1],3],
+["Вентро-кранио-латерально",[1,1,-1],3],
+["Дорзо-каудо-медиально",[-1,-1,1],3],
+["Вентро-кранио-медиально",[1,-1,-1],3]
 ];
+directions.forEach(([term,v,l])=>
+add(l===1?"directions":"advanced",l,term,"vector",v,"Направление: "+description(v))
+);
 
-const words=[
- ['краниально','каудально'],
- ['латерально','медиально'],
- ['дорзально','вентрально']
-];
+add("directions",1,"Проксимально","limb","prox","Ближе к месту прикрепления конечности к туловищу.");
+add("directions",1,"Дистально","limb","dist","Дальше от места прикрепления конечности к туловищу.");
 
-function description(v){
-  return v.map((x,i)=>x?words[i][x>0?0:1]:null)
-    .filter(Boolean).join(', ');
+[
+["Флексия","elbow","flex","Сгибание локтя: угол между плечом и предплечьем уменьшается."],
+["Экстензия","elbow","extend","Разгибание локтя: угол увеличивается."],
+["Абдукция","shoulder","abduct","Отведение плеча от средней линии тела."],
+["Аддукция","shoulder","adduct","Приведение плеча к средней линии тела."],
+["Пронация","forearm","pronate","Вращение предплечья, при котором ладонь из положения вверх обращается вниз."],
+["Супинация","forearm","supinate","Вращение предплечья, при котором ладонь из положения вниз обращается вверх."],
+["Инверсия","foot","invert","Подошвенная поверхность стопы обращается медиально."],
+["Эверсия","foot","evert","Подошвенная поверхность стопы обращается латерально."]
+].forEach(([term,type,v,ex])=>add("movements",1,term,type,v,ex));
+
+[
+["Сагиттальная","sag","Разделяет тело на правую и левую части."],
+["Фронтальная","front","Разделяет тело на переднюю и заднюю части."],
+["Поперечная","trans","Разделяет тело на верхнюю и нижнюю части."]
+].forEach(([term,v,ex])=>add("planes",1,term,"plane",v,ex));
+
+// THREE.JS
+const scene=new T.Scene();
+scene.background=new T.Color("#0c1b31");
+const camera=new T.PerspectiveCamera(38,1,.1,100);
+const renderer=new T.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+$("scene").appendChild(renderer.domElement);
+
+scene.add(new T.HemisphereLight(0xffffff,0x29415f,2));
+const light=new T.DirectionalLight(0xffffff,2);
+light.position.set(3,6,6);
+scene.add(light);
+
+const root=new T.Group();
+scene.add(root);
+
+const material=c=>new T.MeshStandardMaterial({color:c,roughness:.65,side:T.DoubleSide});
+const bone=material("#d7e4f0");
+const green=material("#43e7b2");
+const skin=material("#c18b76");
+const joint=material("#7da1ca");
+let moving=[];
+let angle=0,phi=.12,dist=7.5;
+const focus=new T.Vector3(0,1.4,0);
+
+function ball(p,x,y,z,r,m=joint){
+let o=new T.Mesh(new T.SphereGeometry(r,16,12),m);
+o.position.set(x,y,z);p.add(o);return o;
 }
-
-directions.forEach(([term,v,level])=>
-  add(level===1?'directions':'advanced',level,
-      term,'vector',v,'Направление: '+description(v)+'.')
+function box(p,x,y,z,w,h,d,m){
+let o=new T.Mesh(new T.BoxGeometry(w,h,d),m);
+o.position.set(x,y,z);p.add(o);return o;
+}
+function segment(p,a,b,r,m){
+let A=new T.Vector3(...a),B=new T.Vector3(...b);
+let d=B.clone().sub(A);
+let o=new T.Mesh(new T.CylinderGeometry(r,r,d.length(),12),m);
+o.position.copy(A).add(B).multiplyScalar(.5);
+o.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());
+p.add(o);return o;
+}
+function clear(){
+while(root.children.length)root.remove(root.children[0]);
+moving=[];
+}
+function pelvis(){
+box(root,0,2.5,0,1.1,.35,.42,bone);
+}
+function legs(q){
+pelvis();
+for(let s of [-1,1]){
+let x=s*.43;
+ball(root,x,2.38,0,.16);
+segment(root,[x,2.38,0],[x,1.42,0],.13,bone);
+ball(root,x,1.4,0,.14);
+segment(root,[x,1.4,0],[x,.38,0],.105,bone);
+let pivot=new T.Group();
+pivot.position.set(x,.33,0);
+root.add(pivot);
+ball(pivot,0,0,0,.12);
+let active=q.type==="foot"&&s===1;
+let foot=new T.Group();
+pivot.add(foot);
+box(foot,0,-.14,.35,.34,.20,.8,active?green:bone);
+for(let i=0;i<5;i++)
+ball(foot,(i-2)*.065,-.13,.78,.045,active?green:bone);
+if(active)moving.push({
+o:pivot,
+axis:"z",
+sign:q.v==="invert"?1:-1,
+amount:.36
+});
+}
+}
+function arms(q){
+ball(root,0,2.85,0,.3,skin);
+segment(root,[0,2.5,0],[0,1.4,0],.24,bone);
+box(root,0,2.32,0,1.3,.24,.35,bone);
+for(let s of [-1,1]){
+let x=s*.67;
+ball(root,x,2.32,0,.14);
+let arm=new T.Group();
+arm.position.set(x,2.32,0);root.add(arm);
+segment(arm,[0,0,0],[0,-.78,0],.11,bone);
+ball(arm,0,-.78,0,.12);
+let fore=new T.Group();
+fore.position.y=-.78;arm.add(fore);
+segment(fore,[0,0,0],[0,-.72,0],.085,s===1?green:bone);
+let hand=new T.Group();
+hand.position.y=-.8;fore.add(hand);
+box(hand,0,-.16,0,.24,.31,.12,s===1?green:bone);
+for(let i=0;i<4;i++)
+segment(hand,[(i-1.5)*.056,-.3,0],[(i-1.5)*.056,-.5,0],.025,s===1?green:bone);
+segment(hand,[.13,-.07,0],[.25,-.23,.05],.04,s===1?green:bone);
+if(s===1){
+if(q.type==="elbow")
+moving.push({o:fore,axis:"z",sign:q.v==="flex"?-1:1,amount:1.3});
+if(q.type==="shoulder")
+moving.push({o:arm,axis:"z",sign:q.v==="abduct"?-1:1,amount:.9});
+if(q.type==="forearm"){
+fore.rotation.z=-Math.PI/2;
+moving.push({o:fore,axis:"y",sign:q.v==="pronate"?1:-1,amount:Math.PI*.8});
+}
+}
+}
+}
+function arrows(q){
+let v=q.type==="vector"?q.v:q.v==="prox"?[1,0,0]:[-1,0,0];
+let d=new T.Vector3(v[1],v[0],-v[2]).normalize();
+root.add(new T.ArrowHelper(d,new T.Vector3(0,1.5,0),1.7,0x43e7b2,.25,.15));
+for(let a of [
+new T.Vector3(0,1,0),
+new T.Vector3(1,0,0),
+new T.Vector3(0,0,-1)
+])root.add(new T.ArrowHelper(a,new T.Vector3(0,1.5,0),1.2,0x6488aa,.13,.08));
+}
+function planes(q){
+arms(q);
+let m=new T.Mesh(
+new T.PlaneGeometry(2.2,3.3),
+new T.MeshBasicMaterial({color:0x43c9e7,transparent:true,opacity:.3,side:T.DoubleSide,depthWrite:false})
 );
-
-add('directions',1,'Проксимально','limb','prox',
-    'Ближе к месту прикрепления конечности к туловищу.');
-add('directions',1,'Дистально','limb','dist',
-    'Дальше от места прикрепления конечности к туловищу.');
-
-[
- ['Флексия','elbow','flex',
-  'Сгибание локтя: угол между плечом и предплечьем уменьшается.'],
- ['Экстензия','elbow','extend',
-  'Разгибание локтя: угол между плечом и предплечьем увеличивается.'],
- ['Абдукция','shoulder','abduct',
-  'Отведение плеча от средней линии тела.'],
- ['Аддукция','shoulder','adduct',
-  'Приведение плеча к средней линии тела.'],
- ['Пронация','forearm','pronate',
-  'Поворот предплечья из положения ладонью вверх в положение ладонью вниз.'],
- ['Супинация','forearm','supinate',
-  'Поворот предплечья из положения ладонью вниз в положение ладонью вверх.'],
- ['Инверсия','foot','invert',
-  'Поворот подошвенной поверхности стопы преимущественно медиально.'],
- ['Эверсия','foot','evert',
-  'Поворот подошвенной поверхности стопы преимущественно латерально.']
-].forEach(([term,type,v,ex])=>
-  add('movements',1,term,type,v,ex)
+m.position.y=1.7;
+if(q.v==="sag")m.rotation.y=Math.PI/2;
+if(q.v==="trans")m.rotation.x=Math.PI/2;
+root.add(m);
+}
+function build(q){
+clear();
+if(q.type==="foot")legs(q);
+else if(["elbow","shoulder","forearm"].includes(q.type))arms(q);
+else if(q.type==="plane")planes(q);
+else arrows(q);
+$("note").textContent=q.type==="foot"?
+"Две ноги. Движется левая стопа человека, справа на экране.":
+"Вращай модель пальцем или мышью. Анимация повторяется.";
+}
+function updateCamera(){
+camera.position.set(
+focus.x+dist*Math.sin(angle)*Math.cos(phi),
+focus.y+dist*Math.sin(phi),
+focus.z+dist*Math.cos(angle)*Math.cos(phi)
 );
+camera.lookAt(focus);
+}
+window.setView=a=>{angle=a;phi=.12;updateCamera()};
+updateCamera();
 
-[
- ['Сагиттальная','sag','Плоскость, разделяющая тело на правую и левую части.'],
- ['Фронтальная','front','Плоскость, разделяющая тело на переднюю и заднюю части.'],
- ['Поперечная','trans','Плоскость, разделяющая тело на верхнюю и нижнюю части.']
-].forEach(([term,v,ex])=>add('planes',1,term,'plane',v,ex));
+const canvas=renderer.domElement;
+let drag=null;
+canvas.onpointerdown=e=>{
+drag=[e.clientX,e.clientY];
+canvas.setPointerCapture(e.pointerId);
+};
+canvas.onpointermove=e=>{
+if(!drag)return;
+angle-=(e.clientX-drag[0])*.009;
+phi=Math.max(-1.1,Math.min(1.1,phi+(e.clientY-drag[1])*.007));
+drag=[e.clientX,e.clientY];updateCamera();
+};
+canvas.onpointerup=()=>drag=null;
+canvas.onpointercancel=()=>drag=null;
+canvas.addEventListener("wheel",e=>{
+e.preventDefault();
+dist=Math.max(3,Math.min(13,dist+e.deltaY*.007));
+updateCamera();
+},{passive:false});
 
+function resize(){
+let w=$("scene").clientWidth,h=$("scene").clientHeight;
+renderer.setSize(w,h,false);
+camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe($("scene"));
+resize();
+
+function frame(t){
+requestAnimationFrame(frame);
+let p=(1-Math.cos(t*.002))/2;
+for(let m of moving)m.o.rotation[m.axis]=m.sign*m.amount*p;
+renderer.render(scene,camera);
+}
+requestAnimationFrame(frame);
+
+// ВИКТОРИНА
 function shuffle(a){
-  let b=[...a];
-  for(let i=b.length-1;i>0;i--){
-    let j=Math.floor(Math.random()*(i+1));
-    [b[i],b[j]]=[b[j],b[i]];
-  }
-  return b;
+a=[...a];
+for(let i=a.length-1;i>0;i--){
+let j=Math.floor(Math.random()*(i+1));
+[a[i],a[j]]=[a[j],a[i]];
 }
-
-function el(tag,attrs={},parent=$('scene')){
-  let e=document.createElementNS(NS,tag);
-  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
-  parent.appendChild(e);
-  return e;
+return a;
 }
-
-function line(x1,y1,x2,y2,color='#c5dbff',width=5,parent){
-  return el('line',{
-    x1,y1,x2,y2,stroke:color,
-    'stroke-width':width,'stroke-linecap':'round'
-  },parent);
-}
-function circle(x,y,r,color='#c5dbff',parent){
-  return el('circle',{
-    cx:x,cy:y,r,fill:'none',stroke:color,'stroke-width':3
-  },parent);
-}
-function label(x,y,value,size=12,parent){
-  let e=el('text',{
-    x,y,fill:'#bbd0e9','font-size':size,'text-anchor':'middle'
-  },parent);
-  e.textContent=value;
-  return e;
-}
-function path(d,color='#43e7b2',width=3,parent){
-  return el('path',{
-    d,stroke:color,'stroke-width':width,
-    fill:'none','stroke-linecap':'round'
-  },parent);
-}
-function arrow(x1,y1,x2,y2,color='#43e7b2',parent){
-  line(x1,y1,x2,y2,color,4,parent);
-  let a=Math.atan2(y2-y1,x2-x1);
-  for(let s of [-.55,.55]){
-    line(x2,y2,x2-11*Math.cos(a+s),
-         y2-11*Math.sin(a+s),color,3,parent);
-  }
-}
-
-function face(x,y,side=false){
-  let g=el('g',{transform:`translate(${x} ${y})`});
-  el('ellipse',{
-    cx:0,cy:0,rx:16,ry:21,fill:'#233f61',
-    stroke:'#c5dbff','stroke-width':3
-  },g);
-  if(side){
-    path('M-14 -4 L-24 5 L-15 10','#c5dbff',2,g);
-    circle(8,4,4,'#c5dbff',g);
-    circle(-8,-3,2,'#c5dbff',g);
-  }else{
-    circle(-6,-3,2,'#c5dbff',g);
-    circle(6,-3,2,'#c5dbff',g);
-    line(-5,11,5,11,'#c5dbff',2,g);
-  }
-}
-
-// Аксонометрическая проекция анатомических направлений
-function proj(v,o=[220,145],scale=1){
-  return [
-    o[0]+scale*(v[1]*76+v[2]*46),
-    o[1]+scale*(-v[0]*68-v[2]*32)
-  ];
-}
-
-function vectorScene(v,t=1){
-  $('scene').innerHTML='';
-  const o=[220,145];
-  const axes=[
-    [[1,0,0],'Краниально'],
-    [[0,1,0],'Латерально'],
-    [[0,0,1],'Дорзально']
-  ];
-  axes.forEach(([a,name],i)=>{
-    let p=proj(a,o);
-    line(...o,...p,'#6582a4',2);
-    label(p[0],p[1]+(i===0?-9:15),name,11);
-  });
-  circle(...o,4);
-  let p=proj(v,o);
-  arrow(...o,o[0]+(p[0]-o[0])*t,
-        o[1]+(p[1]-o[1])*t);
-  label(220,275,'Условная пространственная проекция',11);
-}
-
-function planeScene(kind,t){
-  $('scene').innerHTML='';
-  face(220,45);
-  line(220,68,220,195,'#c5dbff',8);
-  line(220,104,185,145);
-  line(220,104,255,145);
-  line(220,195,185,270);
-  line(220,195,255,270);
-  let pts=kind==='sag'
-    ?[[220,35],[255,60],[255,265],[220,245]]
-    :kind==='front'
-    ?[[160,45],[280,45],[280,250],[160,250]]
-    :[[145,135],[275,135],[295,169],[125,169]];
-  let color=kind==='sag'?'#4abfff':
-            kind==='front'?'#43e7b2':'#f7bb62';
-  el('polygon',{
-    points:pts.map(p=>p.join(',')).join(' '),
-    fill:color,'fill-opacity':.26,
-    stroke:color,'stroke-width':2
-  });
-}
-
-function limbScene(v){
-  $('scene').innerHTML='';
-  face(120,45);
-  line(120,68,120,175,'#c5dbff',8);
-  line(120,105,210,140);
-  line(210,140,325,190);
-  circle(210,140,4);
-  if(v==='prox')arrow(315,185,225,147);
-  else arrow(225,147,315,185);
-  label(220,269,'Вдоль верхней конечности');
-}
-
-// Схематическая кисть с пальцами и большим пальцем
-function hand(parent,x,y,rot,palm){
-  const g=el('g',{
-    transform:`translate(${x} ${y}) rotate(${rot})`,
-    opacity:1
-  },parent);
-  el('path',{
-    d:'M-21 23 L-24 -7 Q-23 -15 -17 -15 L-16 -45 Q-15 -52 -10 -52 Q-5 -52 -5 -44 L-4 -56 Q-3 -63 2 -63 Q7 -62 7 -54 L9 -48 Q13 -54 18 -50 Q22 -46 19 -40 L18 -11 Q33 -25 37 -18 Q42 -12 30 3 L20 23 Z',
-    fill:palm?'#61d9bd':'#3da993',
-    stroke:'#b9ffeb','stroke-width':2
-  },g);
-  if(palm){
-    path('M-13 5 Q0 -4 13 5','#c8fff0',2,g);
-    circle(2,-2,2,'#c8fff0',g);
-  }else{
-    line(-12,-7,14,-7,'#83e8cf',2,g);
-  }
-  return g;
-}
-
-function movementScene(q,t){
-  $('scene').innerHTML='';
-
-  if(q.type==='elbow'){
-    face(220,37,true);
-    line(220,62,220,142,'#c5dbff',9);
-    let ang=(q.v==='flex'?t:1-t)*1.5;
-    let x=220-88*Math.sin(ang);
-    let y=142+88*Math.cos(ang);
-    line(220,142,x,y,'#43e7b2',9);
-    circle(220,142,5);
-    circle(x,y,4,'#43e7b2');
-    label(220,274,'Вид сбоку: локтевой сустав');
-  }
-  else if(q.type==='shoulder'){
-    face(220,35);
-    line(220,60,220,173,'#c5dbff',9);
-    line(220,173,185,260);
-    line(220,173,255,260);
-    line(220,94,260,167);
-    let ang=(q.v==='abduct'?t:1-t)*1.4;
-    line(220,94,
-         220-88*Math.sin(ang),
-         94+88*Math.cos(ang),'#43e7b2',9);
-    label(220,274,'Вид спереди: плечо');
-  }
-  else if(q.type==='forearm'){
-    // Кисть вращается вокруг продольной оси предплечья
-    const turn=q.v==='pronate'?t:1-t;
-    const angle=Math.PI*turn;
-    label(220,24,'Плечо и предплечье',12);
-    line(220,45,220,117,'#c5dbff',14);
-    circle(220,117,6);
-    line(220,117,220,190,'#43e7b2',17);
-
-    let g=el('g',{
-      transform:`translate(220 208) scale(${Math.max(.09,Math.abs(Math.cos(angle)))},1) translate(-220 -208)`
-    });
-    hand(g,220,214,180,Math.cos(angle)>0);
-    label(220,277,'Кисть поворачивается вокруг оси предплечья',11);
-  }
-  else if(q.type==='foot'){
-    // Условный наклон стопы относительно голени
-    label(220,24,'Вид сзади, условная схема',12);
-    line(220,40,220,145,'#c5dbff',17);
-    circle(220,145,6);
-    let sign=q.v==='invert'?-1:1;
-    let angle=sign*t*25;
-    let g=el('g',{
-      transform:`rotate(${angle} 220 152)`
-    });
-    el('path',{
-      d:'M198 151 Q185 169 187 207 Q190 239 209 249 L232 249 Q253 236 253 209 Q253 177 242 151 Z',
-      fill:'#2d947e',stroke:'#a5ffe1','stroke-width':3
-    },g);
-    for(let i=0;i<5;i++){
-      el('ellipse',{
-        cx:196+i*12,cy:247+(i%2)*3,
-        rx:5,ry:7,fill:'#71e8ca'
-      },g);
-    }
-    line(220,151,220,242,'#9afde0',2,g);
-    label(220,277,'Подошва и пальцы, схематично',11);
-  }
-}
-
-let raf=null;
-
-function stop(){
-  if(raf!==null)cancelAnimationFrame(raf);
-  raf=null;
-}
-
-function animate(draw){
-  stop();
-  let start=performance.now();
-  function frame(now){
-    let p=((now-start)%3200)/3200;
-    let t=p<.4?p/.4:
-          p<.58?1:
-          p<.95?1-(p-.58)/.37:0;
-    t=Math.max(0,Math.min(1,t));
-    t=t*t*(3-2*t);
-    draw(t);
-    raf=requestAnimationFrame(frame);
-  }
-  raf=requestAnimationFrame(frame);
-}
-
-function draw(q){
-  stop();
-  if(q.type==='vector')
-    animate(t=>vectorScene(q.v,.15+.85*t));
-  else if(q.type==='plane')
-    animate(t=>planeScene(q.v,t));
-  else if(q.type==='limb')
-    limbScene(q.v);
-  else
-    animate(t=>movementScene(q,t));
-}
-
-function mini(v){
-  let svg=document.createElementNS(NS,'svg');
-  svg.setAttribute('viewBox','0 0 180 105');
-  let o=[83,66];
-  function ln(a,b,color,w){
-    let l=document.createElementNS(NS,'line');
-    for(let [k,val] of Object.entries({
-      x1:a[0],y1:a[1],x2:b[0],y2:b[1],
-      stroke:color,'stroke-width':w,
-      'stroke-linecap':'round'
-    }))l.setAttribute(k,val);
-    svg.appendChild(l);
-  }
-  let pp=x=>proj(x,o,.42);
-  [[1,0,0],[0,1,0],[0,0,1]].forEach(v=>
-    ln(o,pp(v),'#6a88a8',2)
-  );
-  let end=pp(v);
-  ln(o,end,'#43e7b2',5);
-  let a=Math.atan2(end[1]-o[1],end[0]-o[0]);
-  for(let s of [-.5,.5]){
-    ln(end,[
-      end[0]-10*Math.cos(a+s),
-      end[1]-10*Math.sin(a+s)
-    ],'#43e7b2',3);
-  }
-  return svg;
-}
-
 let pool=[],index=0,score=0,locked=false;
-let mode='visual',correctOption=null;
-let stats={done:0,correct:0};
-
-try{
-  let v=JSON.parse(localStorage.getItem('anatomyStats14'));
-  if(v&&Number.isFinite(v.done)&&Number.isFinite(v.correct))
-    stats=v;
-}catch(e){}
-
-function uniqueOptions(q){
-  let a=Q.filter(x=>x!==q&&x.cat===q.cat);
-  if(q.type==='vector'){
-    a=a.filter(x=>
-      JSON.stringify(x.v)!==JSON.stringify(q.v)
-    );
-  }
-  return shuffle(a).slice(0,3);
-}
 
 function start(){
-  stop();
-  let cat=$('category').value;
-  let level=$('level').value;
-  let candidates=Q.filter(q=>
-    (cat==='all'||q.cat===cat)&&
-    (level==='all'||q.level===+level)
-  );
-  $('results').style.display='none';
-
-  if(!candidates.length){
-    $('question').textContent='Для выбранных фильтров нет вопросов.';
-    $('answers').innerHTML='';
-    $('feedback').textContent='';
-    $('scene').innerHTML='';
-    $('sceneNote').textContent='';
-    $('counter').textContent='';
-    $('score').textContent='';
-    $('next').classList.add('hidden');
-    return;
-  }
-
-  pool=shuffle(candidates).slice(0,10);
-  index=0;
-  score=0;
-  show();
+let cat=$("category").value,level=$("level").value;
+let a=Q.filter(q=>(cat==="all"||q.cat===cat)&&(level==="all"||q.level===+level));
+pool=shuffle(a).slice(0,10);
+index=0;score=0;
+if(!pool.length){
+$("question").textContent="Нет вопросов для выбранных фильтров.";
+$("answers").innerHTML="";
+return;
 }
-
+show();
+}
 function show(){
-  stop();
-  locked=false;
-  let q=pool[index];
-  let selected=$('mode').value;
-  mode=selected==='mixed'?
-    shuffle(['visual','reverse','text'])[0]:selected;
-  if(mode==='reverse'&&q.type!=='vector')
-    mode='visual';
+locked=false;
+let q=pool[index];
+$("counter").textContent=`Вопрос ${index+1} из ${pool.length}`;
+$("score").textContent=`Правильно: ${score}`;
+$("progress").style.width=(100*index/pool.length)+"%";
+$("categoryLabel").textContent=q.cat==="movements"?"ДВИЖЕНИЯ СУСТАВОВ":q.cat==="planes"?"ПЛОСКОСТИ":"АНАТОМИЧЕСКИЕ НАПРАВЛЕНИЯ";
+$("feedback").textContent="";
+$("next").classList.add("hidden");
+build(q);
 
-  $('counter').textContent=`Вопрос ${index+1} из ${pool.length}`;
-  $('score').textContent=`Правильно: ${score}`;
-  $('progress').style.width=(100*index/pool.length)+'%';
-  $('categoryLabel').textContent={
-    directions:'АНАТОМИЧЕСКИЕ НАПРАВЛЕНИЯ',
-    advanced:'СОСТАВНЫЕ НАПРАВЛЕНИЯ',
-    movements:'ДВИЖЕНИЯ СУСТАВОВ',
-    planes:'АНАТОМИЧЕСКИЕ ПЛОСКОСТИ'
-  }[q.cat];
+let mode=$("mode").value;
+if(mode==="mixed")mode=Math.random()<.5?"text":"visual";
+$("question").textContent=mode==="text"?
+`Какое определение соответствует термину «${q.term}»?`:
+q.type==="vector"?"Назови направление вектора.":
+q.type==="plane"?"Какая плоскость показана?":
+"Как называется показанное движение или направление?";
 
-  $('answers').innerHTML='';
-  $('feedback').innerHTML='';
-  $('next').classList.add('hidden');
-  $('sceneNote').textContent='';
+let others=shuffle(Q.filter(x=>x!==q&&x.cat===q.cat));
+let options=shuffle([q,...others.slice(0,3)]);
+$("answers").innerHTML="";
+let correctButton;
 
-  let options=shuffle([q,...uniqueOptions(q)]);
-
-  if(mode==='reverse'){
-    $('question').textContent=
-      `Выбери пространственный вектор: «${q.term}»`;
-    $('sceneTitle').textContent='СИСТЕМА КООРДИНАТ';
-    vectorScene([0,0,0],0);
-    $('sceneNote').textContent=
-      'Все варианты используют одинаковые оси';
-  }
-  else if(mode==='text'){
-    $('question').textContent=
-      `Какое определение соответствует термину «${q.term}»?`;
-    $('sceneTitle').textContent='АНАТОМИЧЕСКАЯ ТЕРМИНОЛОГИЯ';
-    $('scene').innerHTML='';
-    $('sceneNote').textContent='Выбери правильное определение';
-  }
-  else{
-    $('question').textContent=q.type==='plane'?
-      'Какая анатомическая плоскость показана?':
-      q.type==='vector'?
-      'Назови направление показанного вектора.':
-      q.type==='limb'?
-      'Назови направление вдоль конечности.':
-      'Как называется показанное движение?';
-    $('sceneTitle').textContent='АНАТОМИЧЕСКАЯ ВИЗУАЛИЗАЦИЯ';
-    draw(q);
-  }
-
-  options.forEach(opt=>{
-    let b=document.createElement('button');
-    if(mode==='reverse'){
-      b.className='vector';
-      b.appendChild(mini(opt.v));
-      b.setAttribute('aria-label','Вариант пространственного вектора');
-    }else{
-      b.textContent=mode==='text'?opt.ex:opt.term;
-    }
-    b.onclick=()=>answer(b,opt,q);
-    $('answers').appendChild(b);
-    if(opt===q)correctOption=b;
-  });
-}
-
-function answer(button,chosen,right){
-  if(locked)return;
-  locked=true;
-  let ok=chosen===right;
-  if(ok)score++;
-  stats.done++;
-  if(ok)stats.correct++;
-
-  try{
-    localStorage.setItem('anatomyStats14',JSON.stringify(stats));
-  }catch(e){}
-
-  for(let b of $('answers').querySelectorAll('button'))
-    b.disabled=true;
-
-  button.classList.add(ok?'correct':'wrong');
-  correctOption.classList.add('correct');
-
-  let f=$('feedback');
-  f.innerHTML='';
-  let h=document.createElement('strong');
-  h.textContent=ok?'✓ Правильно':'✗ Неправильно';
-  let p=document.createElement('p');
-  p.textContent=`Правильный ответ: ${right.term}. ${right.ex}`;
-  f.append(h,p);
-
-  $('score').textContent=`Правильно: ${score}`;
-  $('next').textContent=index===pool.length-1?
-    'Завершить тренировку':'Следующий вопрос →';
-  $('next').classList.remove('hidden');
-
-  if(window.matchMedia('(max-width:650px)').matches){
-    requestAnimationFrame(()=>{
-      $('feedback').scrollIntoView({
-        behavior:'smooth',block:'nearest'
-      });
-    });
-  }
-}
-
-function next(){
-  index++;
-  if(index<pool.length){
-    show();
-    if(window.matchMedia('(max-width:650px)').matches){
-      requestAnimationFrame(()=>
-        $('stage').scrollIntoView({
-          behavior:'smooth',block:'start'
-        })
-      );
-    }
-    return;
-  }
-
-  stop();
-  $('progress').style.width='100%';
-  $('results').style.display='block';
-  $('results').innerHTML='';
-
-  let h=document.createElement('h2');
-  h.textContent='Тренировка завершена';
-  let p=document.createElement('p');
-  p.textContent=`Правильно: ${score} из ${pool.length}`;
-  let total=document.createElement('p');
-  total.textContent=
-    `За всё время в версии 1.4: ${stats.correct} из ${stats.done}`;
-  let b=document.createElement('button');
-  b.textContent='Новая тренировка';
-  b.onclick=start;
-
-  $('results').append(h,p,total,b);
-  $('answers').innerHTML='';
-  $('feedback').innerHTML='';
-  $('question').textContent='Готово!';
-  $('scene').innerHTML='';
-  $('next').classList.add('hidden');
-}
-
-for(let id of ['category','level','mode']){
-  $(id).addEventListener('change',start);
-}
-$('restart').onclick=start;
-$('next').onclick=next;
-
-document.addEventListener('visibilitychange',()=>{
-  if(document.hidden)stop();
-  else if(pool[index]&&!locked)draw(pool[index]);
+options.forEach(opt=>{
+let b=document.createElement("button");
+b.textContent=mode==="text"?opt.ex:opt.term;
+$("answers").appendChild(b);
+if(opt===q)correctButton=b;
+b.onclick=()=>{
+if(locked)return;
+locked=true;
+let ok=opt===q;
+if(ok)score++;
+$("answers").querySelectorAll("button").forEach(x=>x.disabled=true);
+b.classList.add(ok?"correct":"wrong");
+correctButton.classList.add("correct");
+$("feedback").textContent=(ok?"✓ Правильно. ":"✗ Неправильно. ")+`Правильный ответ: ${q.term}. ${q.ex}`;
+$("score").textContent=`Правильно: ${score}`;
+$("next").textContent=index===pool.length-1?"Завершить тренировку":"Следующий вопрос →";
+$("next").classList.remove("hidden");
+if(matchMedia("(max-width:650px)").matches)
+$("feedback").scrollIntoView({behavior:"smooth",block:"nearest"});
+};
 });
-
+}
+$("next").onclick=()=>{
+index++;
+if(index<pool.length){
+show();
+if(matchMedia("(max-width:650px)").matches)
+$("scene").scrollIntoView({behavior:"smooth",block:"start"});
+}else{
+$("question").textContent=`Тренировка завершена: ${score} из ${pool.length}`;
+$("answers").innerHTML="";
+$("feedback").textContent="";
+$("next").textContent="Новая тренировка";
+$("next").onclick=()=>{ $("next").onclick=null;location.reload(); };
+$("progress").style.width="100%";
+}
+};
+["category","level","mode"].forEach(id=>$(id).onchange=start);
 start();
 </script>
 </body>
