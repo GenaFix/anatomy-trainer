@@ -196,6 +196,9 @@ export function createMovementModel(scene) {
       to: 0
     },
 
+    shoulderFlex: {view:'right',joint:'shoulderSagittal',from:0,to:-1.2},
+    shoulderExtend: {view:'right',joint:'shoulderSagittal',from:0,to:0.6},
+
     elbowFlex: {
       ru: 'Флексия локтя',
       en: 'Elbow flexion',
@@ -330,6 +333,19 @@ export function createMovementModel(scene) {
       }
     }
 
+    if (spec.joint === 'shoulderSagittal') {
+      const center = new THREE.Vector3(-0.56, 2.77, 0.35);
+      const radius = 1.02;
+      for (let i = 0; i <= count; i++) {
+        const a = spec.from + (spec.to - spec.from) * i / count;
+        points.push(new THREE.Vector3(
+          center.x,
+          center.y - radius * Math.cos(a),
+          center.z - radius * Math.sin(a)
+        ));
+      }
+    }
+
     if (spec.joint === 'elbow') {
       const center = new THREE.Vector3(
         -0.56, 2.05, 0.36
@@ -436,7 +452,9 @@ export function createMovementModel(scene) {
     }
 
     if (current === 'abduction' ||
-        current === 'adduction') {
+        current === 'adduction' ||
+        current === 'shoulderFlex' ||
+        current === 'shoulderExtend') {
       arm.upper.material = color;
       arm.forearm.material = color;
       arm.palm.material = color;
@@ -474,6 +492,10 @@ export function createMovementModel(scene) {
 
     if (spec.joint === 'shoulder') {
       arms.right.shoulder.rotation.z = angle;
+    }
+
+    if (spec.joint === 'shoulderSagittal') {
+      arms.right.shoulder.rotation.x = angle;
     }
 
     if (spec.joint === 'elbow') {
