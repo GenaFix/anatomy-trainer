@@ -7,6 +7,7 @@ export function createEcorche(scene,camera,canvas){
  const root=new THREE.Group();scene.add(root);root.visible=false;
  const ray=new THREE.Raycaster();const pointer=new THREE.Vector2();
  const meshes=[];let picked=null;let onPick=()=>{};
+ let phase='loading';
  const materialCache=new Map();
  function restore(){
    for(const [mesh,material] of materialCache){mesh.material=material;}
@@ -38,6 +39,7 @@ export function createEcorche(scene,camera,canvas){
  loader.setMeshoptDecoder(MeshoptDecoder);
  const ready=new Promise((resolve,reject)=>{
    loader.load(SOURCE,gltf=>{
+     phase='ready';
      const model=gltf.scene;
      model.traverse(o=>{if(o.isMesh){meshes.push(o);o.frustumCulled=false;}});
      if(!meshes.length){reject(new Error('В файле нет доступных Mesh-объектов'));return;}
@@ -52,9 +54,9 @@ export function createEcorche(scene,camera,canvas){
      centered.position.y=1.83;
      root.add(centered);
      resolve({meshCount:meshes.length,namedCount:meshes.filter(m=>m.name&& !/^mesh[_ .-]?\\d+$/i.test(m.name)).length});
-   },undefined,reject);
+   },undefined,error=>{phase='error';reject(error);});
  });
- return {root,ready,meshes,highlight,restore,
+ return {root,ready,meshes,highlight,restore,get phase(){return phase;},
    setOnPick(fn){onPick=fn;},
    selectByName(query){
      const q=query.toLowerCase().trim();
