@@ -73,8 +73,10 @@ export function createMovementModel(scene) {
   }
 
   // Туловище
+  const torsoPivot = pivot(group, 0, 1.55, 0);
   const torso = new THREE.Group();
-  group.add(torso);
+  torso.position.y = -1.55;
+  torsoPivot.add(torso);
 
   box(torso, 0, 2.3, 0, 0.9, 1.06, 0.38);
   box(torso, 0, 1.67, 0, 0.71, 0.25, 0.4);
@@ -448,7 +450,7 @@ export function createMovementModel(scene) {
     }
 
     head.rotation.set(0,0,0);
-    torso.rotation.set(0,0,0);
+    torsoPivot.rotation.set(0,0,0);
     for (const leg of Object.values(legs)) {
       leg.hip.rotation.set(0, 0, 0);
       leg.knee.rotation.set(0, 0, 0);
@@ -549,7 +551,7 @@ export function createMovementModel(scene) {
 
     if(spec.joint==='wrist')arms.right.hand.rotation.x=angle;
     if(spec.joint==='neck')head.rotation.y=angle;
-    if(spec.joint==='trunkSide')torso.rotation.z=angle;
+    if(spec.joint==='trunkSide')torsoPivot.rotation.z=angle;
     if(spec.joint==='girdle'){
       arms.right.shoulder.position.y=2.77+angle;
       arms.left.shoulder.position.y=2.77+angle;
