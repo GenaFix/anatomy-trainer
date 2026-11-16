@@ -121,6 +121,8 @@ const movementNames={
   kneeExtend:['Экстензия колена','Knee extension'],
   hipFlex:['Флексия тазобедренного сустава','Hip flexion'],
   hipExtend:['Экстензия тазобедренного сустава','Hip extension'],
+  hipAbduction:['Абдукция бедра','Hip abduction'],
+  hipAdduction:['Аддукция бедра','Hip adduction'],
   ankleDorsi:['Тыльное сгибание стопы','Ankle dorsiflexion'],
   anklePlantar:['Подошвенное сгибание стопы','Ankle plantarflexion'],
   superior:['Краниально (верхний)','Superior (cranial)'],
@@ -165,6 +167,8 @@ const descriptions={
   ],
   hipFlex:['Движение бедра вперёд относительно таза.','Movement of the thigh forward relative to the pelvis.'],
   hipExtend:['Движение бедра назад относительно таза.','Movement of the thigh backward relative to the pelvis.'],
+  hipAbduction:['Отведение бедра от срединной линии тела.','Moving the thigh away from the body midline.'],
+  hipAdduction:['Приведение бедра к срединной линии тела.','Moving the thigh toward the body midline.'],
   ankleDorsi:['Подъём переднего отдела стопы к голени.','Moving the top of the foot toward the shin.'],
   anklePlantar:['Движение переднего отдела стопы вниз от голени.','Pointing the foot downward away from the shin.'],
   superior:['Направление к голове.','Toward the head.'],
@@ -185,7 +189,7 @@ const descriptions={
 const allQuestions=Object.keys(movementNames);
 const directionIds=['superior','inferior','anterior','posterior','medial','lateral','proximal','distal','superficial','deep'];
 const planeIds=['sagittal','frontal','transverse'];
-const movementIds=['abduction','adduction','elbowFlex','elbowExtend','kneeFlex','kneeExtend','hipFlex','hipExtend','ankleDorsi','anklePlantar'];
+const movementIds=['abduction','adduction','elbowFlex','elbowExtend','kneeFlex','kneeExtend','hipFlex','hipExtend','hipAbduction','hipAdduction','ankleDorsi','anklePlantar'];
 
 function shuffle(array){
   const a=[...array];
@@ -250,6 +254,7 @@ function choicesFor(correct){
     elbowFlex:'elbowExtend', elbowExtend:'elbowFlex',
     kneeFlex:'kneeExtend', kneeExtend:'kneeFlex',
     hipFlex:'hipExtend', hipExtend:'hipFlex',
+    hipAbduction:'hipAdduction', hipAdduction:'hipAbduction',
     ankleDorsi:'anklePlantar', anklePlantar:'ankleDorsi',
     superior:'inferior', inferior:'superior',
     anterior:'posterior', posterior:'anterior',
