@@ -46,23 +46,26 @@ export function setupMuscleQuiz(container,model,language){
  };
  function draw(){
   section.replaceChildren();const english=language()==='en';
-  section.append(el('h3','',english?'Muscle learning':'Изучение мышц'));
-  const choose=el('select','muscle-dropdown');
+  const settings=el('div','muscle-compact-settings');section.append(settings);
+  const choose=el('select','muscle-dropdown');choose.setAttribute('aria-label',english?'Choose muscle':'Выберите мышцу');
   muscleNames.forEach((m,i)=>{const o=el('option','',english?m[1]:m[0]);o.value=i;choose.append(o);});
-  choose.value=active;choose.onchange=()=>{active=+choose.value;question=0;checked.clear();draw();};section.append(choose);
-  const label=el('label','muscle-note',english?'Difficulty':'Уровень сложности');section.append(label);
-  const difficulty=el('select','muscle-dropdown');
+  choose.value=active;choose.onchange=()=>{active=+choose.value;question=0;checked.clear();draw();};settings.append(choose);
+  const difficulty=el('select','muscle-dropdown');difficulty.setAttribute('aria-label',english?'Difficulty':'Уровень сложности');
   for(const [v,ru,en] of [['easy','Начальный: 4 варианта','Beginner: 4 choices'],['medium','Средний: 6 вариантов','Intermediate: 6 choices'],['expert','Эксперт: все 50 мышц','Expert: all 50 muscles']]){const o=el('option','',english?en:ru);o.value=v;difficulty.append(o);}
-  difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;checked.clear();draw();};section.append(difficulty);
-  section.append(el('p','muscle-note',english?'Tap the 3D model to select a mesh. Use the buttons above to hide or restore surfaces.':'Нажмите на 3D-модель для выбора объекта. Кнопки над моделью позволяют скрывать и восстанавливать поверхности.'));
-  const modelInfo=el('p','muscle-note',info);modelInfo.id='ecorcheInfo';section.append(modelInfo);
-  const pickedInfo=el('p','muscle-note',meshInfo);pickedInfo.id='meshInfo';section.append(pickedInfo);
-  const search=el('input','muscle-search');search.placeholder=english?'Search GLB mesh name':'Поиск по имени объекта GLB';search.oninput=()=>{const found=model.selectByName(search.value);pickedInfo.textContent=found.length?'GLB: '+found.length:'';};section.append(search);
+  difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;checked.clear();draw();};settings.append(difficulty);
+
+  const details=el('details','muscle-diagnostics');
+  details.append(el('summary','',english?'Model details':'Информация о модели'));
+  const modelInfo=el('p','muscle-note',info);modelInfo.id='ecorcheInfo';details.append(modelInfo);
+  const pickedInfo=el('p','muscle-note',meshInfo);pickedInfo.id='meshInfo';details.append(pickedInfo);
+  section.append(details);
+  const search=document.getElementById('muscleGlobalSearch');
+  if(search){search.placeholder=english?'Find GLB object':'Поиск объекта GLB';search.oninput=()=>{const found=model.selectByName(search.value);meshInfo=found.length?'GLB: '+found.length:'';pickedInfo.textContent=meshInfo;};}
   const qset=questions.filter(q=>q.focus===active);
   if(!qset.length){section.append(el('p','muscle-note',english?'Questions for this muscle are being prepared.':'Для этой мышцы вопросы пока готовятся.'));return;}
   const q=qset[question%qset.length];
   const beginner=level==='easy';
-  section.append(el('h4','',english?(beginner?'Select one '+(q.kind==='synergists'?'synergist':'antagonist'):'Select all '+(q.kind==='synergists'?'synergists':'antagonists'))+': '+q.movement:(beginner?'Выберите одного '+(q.kind==='synergists'?'синергиста':'антагониста'):'Выберите всех '+(q.kind==='synergists'?'синергистов':'антагонистов'))+': '+q.movement));
+  section.append(el('h4','muscle-question',english?(beginner?'Select one '+(q.kind==='synergists'?'synergist':'antagonist'):'Select all '+(q.kind==='synergists'?'synergists':'antagonists'))+': '+q.movement:(beginner?'Выберите одного '+(q.kind==='synergists'?'синергиста':'антагониста'):'Выберите всех '+(q.kind==='synergists'?'синергистов':'антагонистов'))+': '+q.movement));
   const options=el('div',level==='easy'?'muscle-answers easy':'muscle-answers');
   const offered=pickOptions(q);
   for(const i of offered){const label=el('label','muscle-choice');const box=el('input');box.type=beginner?'radio':'checkbox';box.name=beginner?'muscle-answer':undefined;box.checked=checked.has(i);box.onchange=()=>{if(beginner){checked.clear();checked.add(i);options.querySelectorAll('input').forEach(x=>{if(x!==box)x.checked=false;});}else{box.checked?checked.add(i):checked.delete(i);}};label.append(box,document.createTextNode(' '+(english?muscleNames[i][1]:muscleNames[i][0])));options.append(label);}
