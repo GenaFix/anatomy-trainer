@@ -41,7 +41,7 @@ button:disabled{opacity:.5;cursor:default}
 #stage{
  position:relative;height:470px;
  background:#0a192e;border-radius:12px;
- overflow:hidden;touch-action:none
+ overflow:hidden;touch-action:pan-y
 }
 #stage canvas{display:block;width:100%;height:100%}
 #viewLabel{
@@ -103,3 +103,6 @@ button:disabled{opacity:.5;cursor:default}
  .quiz-settings{gap:6px}
  .quiz-settings select{font-size:13px;padding:7px}
 }
+
+#touchRotate[hidden]{display:none!important}
+#touchRotate{margin:4px 0 8px}
