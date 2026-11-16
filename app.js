@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
-import {createMovementModel} from './movement.js?v=292';
+import {createMovementModel} from './movement.js?v=2922';
 import {createVectorModel} from './vectors.js?v=292';
 
 const $=id=>document.getElementById(id);
@@ -412,15 +412,18 @@ function showQuestion(){
   $('resultTools').classList.add('hidden');
 
   resetCompound();
+  model.clearCompound();
   const visual=vectors.specs[id];
   const isCompound=Boolean(compoundDirections[id]);
-  if(visual){
+  if(isCompound){
+    vectors.show(null);
+    const limb = index % 2 === 0 ? 'arm' : 'leg';
+    model.setCompound(id,limb);
+    clockStart=performance.now();
+    setView(compoundDirections[id][2] ? 'oblique' : 'front');
+  }else if(visual){
     model.setPlaying(false);
     vectors.show(isCompound?null:id);
-    if(isCompound){
-      activeCompound=id;
-      reference.visible=true;
-    }
     clockStart=performance.now();
     setView(visual.view);
   }else{
@@ -430,8 +433,10 @@ function showQuestion(){
     clockStart=performance.now();
     setView(model.movements[id].view);
   }
-  $('status').textContent=visual
-    ? (isCompound ? (language==='en'?'The figure moves relative to its original position.':'Фигура перемещается относительно исходного положения.') : visual.type==='plane'
+  $('status').textContent=isCompound
+    ? (language==='en'?'Identify the direction of the highlighted limb.':'Определи направление движения подсвеченной конечности.')
+    : visual
+    ? (visual.type==='plane'
       ? (language==='en'?'Identify the highlighted anatomical plane.':'Определи выделенную анатомическую плоскость.')
       : (language==='en'?'Identify the arrow direction.':'Определи направление жёлтой стрелки.'))
     : (language==='en'?'Identify the movement from the arrow.':'Определи движение по жёлтой стрелке.');
@@ -475,6 +480,7 @@ function showResult(){
   model.setPlaying(false);
   vectors.show(null);
   resetCompound();
+  model.clearCompound();
   $('counter').textContent=tr('finished');
   $('question').textContent=
     `${tr('result')}: ${score} / ${questions.length}`;
@@ -522,8 +528,7 @@ let lastTime=performance.now();
 function animate(now){
   requestAnimationFrame(animate);
   if(!finished){
-    if(activeCompound) updateCompound((now-clockStart)/1000);
-    else if(!vectors.group.visible) model.update((now-clockStart)/1000);
+    if(!vectors.group.visible) model.update((now-clockStart)/1000);
   }
   controls.update();
   renderer.render(scene,camera);
