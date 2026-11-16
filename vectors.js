@@ -66,12 +66,37 @@ export function createVectorModel(scene) {
     lateral: {type:'direction', start:[-0.75,2.05,0.55], dir:[-1,0,0], view:'front'},
     proximal: {type:'direction', start:[-0.56,1.8,0.55], dir:[0,1,0], view:'front'},
     distal: {type:'direction', start:[-0.56,2.5,0.55], dir:[0,-1,0], view:'front'},
-    superficial: {type:'direction', start:[-0.7,2.25,0.05], dir:[0,0,1], view:'right'},
-    deep: {type:'direction', start:[-0.7,2.25,1.05], dir:[0,0,-1], view:'right'},
+    superficial: {type:'depth', outward:true, view:'oblique'},
+    deep: {type:'depth', outward:false, view:'oblique'},
     sagittal: {type:'plane', view:'oblique'},
     frontal: {type:'plane', view:'oblique'},
     transverse: {type:'plane', view:'oblique'}
   };
+
+  function depthDiagram(outward) {
+    // Сечение мягких тканей: поверхностное направление обозначено
+    // от глубокой ткани к коже, а глубокое в обратную сторону.
+    const tissue = new THREE.Group();
+    tissue.position.set(-1.15, 1.85, 0.75);
+    group.add(tissue);
+    const layers = [
+      {z:-0.38, color:0x9e4d4d, label:'deep'},
+      {z:-0.10, color:0xcc7777, label:'muscle'},
+      {z: 0.17, color:0xe5b77f, label:'subcutaneous'},
+      {z: 0.40, color:0xf2cfac, label:'skin'}
+    ];
+    for (const layer of layers) {
+      const geometry = new THREE.BoxGeometry(1.25, 1.1, 0.10);
+      const material = new THREE.MeshPhongMaterial({color:layer.color,transparent:true,opacity:0.83});
+      const mesh = new THREE.Mesh(geometry,material);
+      mesh.position.z=layer.z;
+      tissue.add(mesh);
+      disposable.push(geometry,material);
+    }
+    // Стрелка располагается сбоку от слоёв, а не рядом с туловищем.
+    const start=outward?[-0.22,1.85,0.32]:[-0.22,1.85,1.15];
+    arrow(start, [0,0,outward?1:-1], 0.80);
+  }
 
   function show(id) {
     clear();
@@ -79,6 +104,7 @@ export function createVectorModel(scene) {
     group.visible = Boolean(spec);
     if (!spec) return;
     if (spec.type === 'direction') arrow(spec.start, spec.dir);
+    else if (spec.type === 'depth') depthDiagram(spec.outward);
     else if (id === 'sagittal') plane(2.2, 3.7, 'sagittal');
     else if (id === 'frontal') plane(2.2, 3.7, 'frontal');
     else plane(2.4, 2.0, 'transverse');
