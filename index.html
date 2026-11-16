@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Anatomy Trainer 2.9.4.1</title>
-<link rel="stylesheet" href="./style.css?v=2941">
+<title>Anatomy Trainer 2.9.4.2</title>
+<link rel="stylesheet" href="./style.css?v=2942">
 
 <script type="importmap">
 {
@@ -21,7 +21,7 @@
 <main>
 
 <header class="topbar">
-  <h1>🦴 Anatomy Trainer 2.9.4.1</h1>
+  <h1>🦴 Anatomy Trainer 2.9.4.2</h1>
   <div class="controls topbar-tools">
     
     <label for="language">Язык:</label>
@@ -53,7 +53,10 @@
       <button id="resetView">Сброс</button>
     </div>
 
-    <button id="touchRotate" type="button" hidden aria-pressed="false">Вращать 3D-модель</button>
+    <div id="modelInteractionRow" class="model-interaction-row">
+      <button id="touchRotate" type="button" hidden aria-pressed="false">Вращать 3D-модель</button>
+      <input id="muscleGlobalSearch" class="muscle-global-search hidden" type="search" aria-label="Поиск объекта модели" placeholder="Поиск объекта GLB">
+    </div>
     <div id="muscleTools" class="controls hidden">
       <button id="hideMuscleMesh" type="button">Скрыть выбранное</button>
       <button id="restoreMuscleMeshes" type="button">Вернуть слои</button>
@@ -61,7 +64,7 @@
     </div>
     <p id="muscleGestureHint" class="small muted hidden">Один палец: вращение. Два пальца: перемещение или масштабирование. Для прокрутки страницы нажмите «Готово».</p>
     <div id="stage">
-      <input id="muscleGlobalSearch" class="muscle-global-search hidden" type="search" aria-label="Поиск объекта модели" placeholder="Поиск объекта GLB">
+      
       <div id="viewLabel">3D-модель</div>
     </div>
 
@@ -121,6 +124,6 @@
 
 </main>
 
-<script type="module" src="./app.js?v=2941"></script>
+<script type="module" src="./app.js?v=2942"></script>
 </body>
 </html>
