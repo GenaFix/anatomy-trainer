@@ -32,54 +32,79 @@ export const questions=[
  {focus:0,kind:'antagonists',movement:'Приведение (ретракция) лопатки',correct:[4],note:'Передняя зубчатая мышца участвует в протракции лопатки, противоположной ретракции.'},
  {focus:0,kind:'synergists',movement:'Подъём лопатки',correct:[3],note:'Мышца, поднимающая лопатку, содействует верхним пучкам трапециевидной мышцы при подъёме лопатки.'}
 ];
+// Questions are scoped to a precise movement or attachment landmark.
+const anatomyQuestions=[
+ {topic:'relations',kind:'synergists',focus:0,movement:'Ретракция лопатки',correct:[1,2],note:'Ромбовидные мышцы участвуют в ретракции лопатки вместе со средними пучками трапециевидной мышцы.'},
+ {topic:'relations',kind:'antagonists',focus:0,movement:'Ретракция лопатки',correct:[4],note:'Передняя зубчатая мышца способствует протракции лопатки.'},
+ {topic:'relations',kind:'synergists',focus:0,movement:'Подъём лопатки',correct:[3],note:'Мышца, поднимающая лопатку, содействует верхним пучкам трапециевидной мышцы.'},
+ {topic:'attachments',text:'Какая мышца начинается в надостной ямке лопатки?',correct:[11],note:'Надостная мышца начинается в надостной ямке лопатки.'},
+ {topic:'attachments',text:'Какая мышца начинается в подостной ямке лопатки?',correct:[12],note:'Подостная мышца начинается в подостной ямке лопатки.'},
+ {topic:'attachments',text:'Какая мышца начинается на передней поверхности лопатки в подлопаточной ямке?',correct:[13],note:'Подлопаточная мышца начинается в подлопаточной ямке.'},
+ {topic:'attachments',text:'Какая мышца прикрепляется к малому бугорку плечевой кости?',correct:[13],note:'Подлопаточная мышца прикрепляется к малому бугорку плечевой кости.'},
+ {topic:'attachments',text:'Какая мышца прикрепляется к большому бугорку плечевой кости?',correct:[11,12,10],note:'Надостная, подостная и малая круглая мышцы прикрепляются к фасеткам большого бугорка плечевой кости.'},
+ {topic:'functions',text:'Какая мышца является главным пронатором предплечья в дистальном отделе?',correct:[19],note:'Квадратный пронатор выполняет пронацию предплечья.'},
+ {topic:'functions',text:'Какая мышца разгибает локоть?',correct:[15],note:'Трёхглавая мышца плеча выполняет разгибание в локтевом суставе.'}
+];
 export function setupMuscleQuiz(container,model,language){
- let active=0,question=0,level='easy',checked=new Set(),info='',meshInfo='';
+ let level='easy',topic='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false;
  const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x;};
  const section=el('div','muscle-study');container.append(section);
- const pickOptions=(q)=>{
-   const pool=muscleNames.map((_,i)=>i).filter(i=>i!==active&&!q.correct.includes(i));
-   // Fixed question-specific order; no invented relationship labels.
-   const shuffled=pool.map((v,i)=>({v,k:(i*37+question*17)%101})).sort((a,b)=>a.k-b.k).map(x=>x.v);
-   if(level==='expert')return muscleNames.map((_,i)=>i).filter(i=>i!==active);
-   if(level==='easy')return [q.correct[question%q.correct.length],...shuffled.slice(0,3)].sort((a,b)=>((a*17+question*11)%43)-((b*17+question*11)%43));
-   return [...q.correct,...shuffled.slice(0,Math.max(0,6-q.correct.length))].sort((a,b)=>((a*17+question*11)%43)-((b*17+question*11)%43));
- };
+ const shuffled=(arr)=>[...arr].sort(()=>Math.random()-.5);
+ const active=()=>anatomyQuestions.filter(q=>topic==='all'||q.topic===topic);
+ function reset(){order=shuffled(active());position=0;checked.clear();answered=false;}
+ reset();
+ function questionText(q){
+  if(q.text)return q.text;
+  return (q.kind==='synergists'?'Какая мышца является синергистом трапециевидной мышцы при движении «':'Какая мышца является антагонистом трапециевидной мышцы при движении «')+q.movement+'»?';
+ }
+ function options(q){
+  const all=muscleNames.map((_,i)=>i).filter(i=>i!==q.focus);
+  const wrong=shuffled(all.filter(i=>!q.correct.includes(i)));
+  if(level==='expert')return all;
+  if(level==='medium')return shuffled([...q.correct,...wrong.slice(0,Math.max(0,6-q.correct.length))]);
+  return shuffled([q.correct[Math.floor(Math.random()*q.correct.length)],...wrong.slice(0,3)]);
+ }
+ function highlightAnswer(q){
+  if(!model||typeof model.selectByName!=='function')return;
+  // Only attempt lookup using explicit model metadata, never pretend the mesh has been identified.
+  const found=q.correct.flatMap(i=>model.findByAnatomicalName?.(muscleNames[i][1])||[]);
+  if(found.length&&model.highlight){model.highlight(found);return;}
+  model.restore?.();
+ }
  function draw(){
-  section.replaceChildren();const english=language()==='en';
+  section.replaceChildren();
+  const english=language()==='en';
   const settings=el('div','muscle-compact-settings');section.append(settings);
-  const choose=el('select','muscle-dropdown');choose.setAttribute('aria-label',english?'Choose muscle':'Выберите мышцу');
-  muscleNames.forEach((m,i)=>{const o=el('option','',english?m[1]:m[0]);o.value=i;choose.append(o);});
-  choose.value=active;choose.onchange=()=>{active=+choose.value;question=0;checked.clear();draw();};settings.append(choose);
-  const difficulty=el('select','muscle-dropdown');difficulty.setAttribute('aria-label',english?'Difficulty':'Уровень сложности');
+  const categories=el('select','muscle-dropdown');categories.setAttribute('aria-label','Тема вопросов');
+  for(const [v,ru,en] of [['all','Все вопросы','All questions'],['relations','Синергисты и антагонисты','Synergists and antagonists'],['attachments','Начало и прикрепление','Origins and insertions'],['functions','Функции мышц','Muscle functions']]){const o=el('option','',english?en:ru);o.value=v;categories.append(o);}
+  categories.value=topic;categories.onchange=()=>{topic=categories.value;reset();draw();};settings.append(categories);
+  const difficulty=el('select','muscle-dropdown');difficulty.setAttribute('aria-label','Сложность');
   for(const [v,ru,en] of [['easy','Начальный: 4 варианта','Beginner: 4 choices'],['medium','Средний: 6 вариантов','Intermediate: 6 choices'],['expert','Эксперт: все 50 мышц','Expert: all 50 muscles']]){const o=el('option','',english?en:ru);o.value=v;difficulty.append(o);}
-  difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;checked.clear();draw();};settings.append(difficulty);
-
-  const details=el('details','muscle-diagnostics');
-  details.append(el('summary','',english?'Model details':'Информация о модели'));
+  difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;checked.clear();answered=false;draw();};settings.append(difficulty);
+  const details=el('details','muscle-diagnostics');details.append(el('summary','',english?'Model details':'Информация о модели'));
   const modelInfo=el('p','muscle-note',info);modelInfo.id='ecorcheInfo';details.append(modelInfo);
-  const pickedInfo=el('p','muscle-note',meshInfo);pickedInfo.id='meshInfo';details.append(pickedInfo);
-  section.append(details);
+  const pickedInfo=el('p','muscle-note',meshInfo);pickedInfo.id='meshInfo';details.append(pickedInfo);section.append(details);
   const search=document.getElementById('muscleGlobalSearch');
   if(search){search.placeholder=english?'Find GLB object':'Поиск объекта GLB';search.oninput=()=>{const found=model.selectByName(search.value);meshInfo=found.length?'GLB: '+found.length:'';pickedInfo.textContent=meshInfo;};}
-  const qset=questions.filter(q=>q.focus===active);
-  if(!qset.length){section.append(el('p','muscle-note',english?'Questions for this muscle are being prepared.':'Для этой мышцы вопросы пока готовятся.'));return;}
-  const q=qset[question%qset.length];
-  const beginner=level==='easy';
-  section.append(el('h4','muscle-question',english?(beginner?'Select one '+(q.kind==='synergists'?'synergist':'antagonist'):'Select all '+(q.kind==='synergists'?'synergists':'antagonists'))+': '+q.movement:(beginner?'Выберите одного '+(q.kind==='synergists'?'синергиста':'антагониста'):'Выберите всех '+(q.kind==='synergists'?'синергистов':'антагонистов'))+': '+q.movement));
-  const options=el('div',level==='easy'?'muscle-answers easy':'muscle-answers');
-  const offered=pickOptions(q);
-  for(const i of offered){const label=el('label','muscle-choice');const box=el('input');box.type=beginner?'radio':'checkbox';box.name=beginner?'muscle-answer':undefined;box.checked=checked.has(i);box.onchange=()=>{if(beginner){checked.clear();checked.add(i);options.querySelectorAll('input').forEach(x=>{if(x!==box)x.checked=false;});}else{box.checked?checked.add(i):checked.delete(i);}};label.append(box,document.createTextNode(' '+(english?muscleNames[i][1]:muscleNames[i][0])));options.append(label);}
-  section.append(options);
-  const result=el('p','muscle-note','');const submit=el('button','',english?'Check answers':'Проверить');
-  submit.onclick=()=>{
-    const expected=new Set(q.correct);
-    const ok=beginner?checked.size===1&&expected.has([...checked][0]):expected.size===checked.size&&[...expected].every(x=>checked.has(x));
-    result.textContent=(ok?'✓ ':'✗ ')+(ok?(english?'Correct. ':'Правильно. '):(english?'Review the answer. ':'Проверь ответ. '))+q.note;
-    for(const label of options.querySelectorAll('label')){const input=label.querySelector('input');const index=offered[[...options.children].indexOf(label)];if(expected.has(index))label.classList.add('correct');else if(input.checked)label.classList.add('wrong');input.disabled=true;}
-    submit.disabled=true;
+  if(!order.length){section.append(el('p','muscle-note','Вопросы готовятся.'));return;}
+  if(position>=order.length){section.append(el('h4','muscle-question','Тест завершён'));const restart=el('button','','Новый тест');restart.onclick=()=>{reset();draw();};section.append(restart);return;}
+  const q=order[position];const beginner=level==='easy';
+  section.append(el('p','muscle-note',String(position+1)+' / '+order.length));
+  section.append(el('h4','muscle-question',questionText(q)));
+  const choices=options(q);const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
+  choices.forEach(i=>{const label=el('label','muscle-choice');const box=el('input');box.type=beginner?'radio':'checkbox';box.name=beginner?'muscle-answer':undefined;box.checked=checked.has(i);box.onchange=()=>{if(beginner){checked.clear();checked.add(i);panel.querySelectorAll('input').forEach(x=>{if(x!==box)x.checked=false;});}else{box.checked?checked.add(i):checked.delete(i);}};label.append(box,document.createTextNode(' '+(english?muscleNames[i][1]:muscleNames[i][0])));label.dataset.index=String(i);panel.append(label);});
+  section.append(panel);
+  const result=el('p','muscle-note','');const check=el('button','',english?'Check':'Проверить');
+  check.onclick=()=>{
+   if(!checked.size)return;
+   const expected=new Set(q.correct);
+   const correct=beginner?checked.size===1&&expected.has([...checked][0]):checked.size===expected.size&&[...expected].every(i=>checked.has(i));
+   result.textContent=(correct?'✓ ':'✗ ')+q.note;
+   panel.querySelectorAll('label').forEach(label=>{const index=Number(label.dataset.index);if(expected.has(index))label.classList.add('correct');else if(checked.has(index))label.classList.add('wrong');label.querySelector('input').disabled=true;});
+   check.disabled=true;answered=true;highlightAnswer(q);
   };
-  section.append(submit,result);
-  const next=el('button','',english?'Next task':'Следующее задание');next.onclick=()=>{question++;checked.clear();draw();};section.append(next);
+  section.append(check,result);
+  const next=el('button','',english?'Next question':'Следующий вопрос');next.onclick=()=>{position++;checked.clear();answered=false;model.restore?.();draw();};section.append(next);
  }
  model.setOnPick(mesh=>{meshInfo='GLB: '+(mesh.name||'(без названия)');const e=section.querySelector('#meshInfo');if(e)e.textContent=meshInfo;});
  return {draw,setInfo(message){info=message;const e=section.querySelector('#ecorcheInfo');if(e)e.textContent=message;},setMeshInfo(message){meshInfo=message;const e=section.querySelector('#meshInfo');if(e)e.textContent=message;}};
