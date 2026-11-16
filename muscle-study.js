@@ -97,19 +97,51 @@ export function setupMuscleQuiz(container,model,language){
   section.append(el('p','muscle-note',String(position+1)+' / '+order.length));
   section.append(el('h4','muscle-question',questionText(q)));
   const choices=options(q);const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
-  choices.forEach(i=>{const label=el('label','muscle-choice');const box=el('input');box.type=beginner?'radio':'checkbox';box.name=beginner?'muscle-answer':undefined;box.checked=checked.has(i);box.onchange=()=>{if(beginner){checked.clear();checked.add(i);panel.querySelectorAll('input').forEach(x=>{if(x!==box)x.checked=false;});}else{box.checked?checked.add(i):checked.delete(i);}};label.append(box,document.createTextNode(' '+(english?muscleNames[i][1]:muscleNames[i][0])));label.dataset.index=String(i);panel.append(label);});
-  section.append(panel);
-  const result=el('p','muscle-note','');const check=el('button','',english?'Check':'Проверить');
-  check.onclick=()=>{
-   if(!checked.size)return;
+  const result=el('p','muscle-note','');
+  const next=el('button','',english?'Next question':'Следующий вопрос');
+  next.onclick=()=>{position++;checked.clear();answered=false;model.restore?.();draw();};
+  function evaluate(){
+   if(answered||!checked.size)return;
    const expected=new Set(q.correct);
    const correct=beginner?checked.size===1&&expected.has([...checked][0]):checked.size===expected.size&&[...expected].every(i=>checked.has(i));
    result.textContent=(correct?'✓ ':'✗ ')+q.note;
-   panel.querySelectorAll('label').forEach(label=>{const index=Number(label.dataset.index);if(expected.has(index))label.classList.add('correct');else if(checked.has(index))label.classList.add('wrong');label.querySelector('input').disabled=true;});
-   check.disabled=true;answered=true;highlightAnswer(q);
-  };
-  section.append(check,result);
-  const next=el('button','',english?'Next question':'Следующий вопрос');next.onclick=()=>{position++;checked.clear();answered=false;model.restore?.();draw();};section.append(next);
+   panel.querySelectorAll('label').forEach(label=>{
+    const index=Number(label.dataset.index);
+    if(expected.has(index))label.classList.add('correct');
+    else if(checked.has(index))label.classList.add('wrong');
+    label.querySelector('input').disabled=true;
+   });
+   answered=true;
+   if(!beginner)check.disabled=true;
+   next.disabled=false;
+   highlightAnswer(q);
+  }
+  choices.forEach(i=>{
+   const label=el('label','muscle-choice');
+   const box=el('input');
+   box.type=beginner?'radio':'checkbox';
+   if(beginner)box.name='muscle-answer';
+   box.checked=checked.has(i);
+   box.onchange=()=>{
+    if(answered)return;
+    if(beginner){
+     checked.clear();checked.add(i);
+     panel.querySelectorAll('input').forEach(x=>{if(x!==box)x.checked=false;});
+     evaluate();
+    }else{
+     box.checked?checked.add(i):checked.delete(i);
+    }
+   };
+   label.append(box,document.createTextNode(' '+(english?muscleNames[i][1]:muscleNames[i][0])));
+   label.dataset.index=String(i);panel.append(label);
+  });
+  section.append(panel);
+  const check=el('button','',english?'Check':'Проверить');
+  check.onclick=evaluate;
+  if(!beginner)section.append(check);
+  section.append(result);
+  next.disabled=true;
+  section.append(next);
  }
  model.setOnPick(mesh=>{meshInfo='GLB: '+(mesh.name||'(без названия)');const e=section.querySelector('#meshInfo');if(e)e.textContent=meshInfo;});
  return {draw,setInfo(message){info=message;const e=section.querySelector('#ecorcheInfo');if(e)e.textContent=message;},setMeshInfo(message){meshInfo=message;const e=section.querySelector('#meshInfo');if(e)e.textContent=message;}};
