@@ -25,15 +25,15 @@ export function createVectorModel(scene) {
     const a = new THREE.ArrowHelper(unit, origin, length, yellow, 0.2, 0.1);
     a.line.material.depthTest = false;
     a.cone.material.depthTest = false;
-    a.line.renderOrder = 30;
-    a.cone.renderOrder = 31;
+    a.line.renderOrder = 1000;
+    a.cone.renderOrder = 1001;
     group.add(a);
     disposable.push(a.line.geometry, a.cone.geometry, a.line.material, a.cone.material);
     const dotGeometry = new THREE.SphereGeometry(0.07, 12, 8);
     const dotMaterial = new THREE.MeshBasicMaterial({color: yellow, depthTest: false});
     const dot = new THREE.Mesh(dotGeometry, dotMaterial);
     dot.position.copy(origin);
-    dot.renderOrder = 32;
+    dot.renderOrder = 1002;
     group.add(dot);
     disposable.push(dotGeometry, dotMaterial);
   }
@@ -58,6 +58,18 @@ export function createVectorModel(scene) {
   }
 
   const specs = {
+    cranioMedial: {type:'direction', start:[-1.12,1.90,0.65], dir:[1,1,0], view:'front'},
+    cranioLateral: {type:'direction', start:[-0.62,1.90,0.65], dir:[-1,1,0], view:'front'},
+    caudoMedial: {type:'direction', start:[-1.12,2.55,0.65], dir:[1,-1,0], view:'front'},
+    caudoLateral: {type:'direction', start:[-0.62,2.55,0.65], dir:[-1,-1,0], view:'front'},
+    cranioVentral: {type:'direction', start:[-0.92,1.80,0.55], dir:[0,1,1], view:'oblique'},
+    cranioDorsal: {type:'direction', start:[-0.92,1.80,0.55], dir:[0,1,-1], view:'oblique'},
+    caudoVentral: {type:'direction', start:[-0.92,2.55,0.55], dir:[0,-1,1], view:'oblique'},
+    caudoDorsal: {type:'direction', start:[-0.92,2.55,0.55], dir:[0,-1,-1], view:'oblique'},
+    cranioLateroVentral: {type:'direction', start:[-0.75,1.75,0.65], dir:[-1,1,1], view:'oblique'},
+    cranioMedioVentral: {type:'direction', start:[-1.35,1.75,0.65], dir:[1,1,1], view:'oblique'},
+    caudoLateroDorsal: {type:'direction', start:[-0.75,2.65,0.65], dir:[-1,-1,-1], view:'oblique'},
+    caudoMedioDorsal: {type:'direction', start:[-1.35,2.65,0.65], dir:[1,-1,-1], view:'oblique'},
     superior: {type:'direction', start:[-0.8,2.1,0.55], dir:[0,1,0], view:'front'},
     inferior: {type:'direction', start:[-0.8,2.1,0.55], dir:[0,-1,0], view:'front'},
     anterior: {type:'direction', start:[-0.7,2.1,0.45], dir:[0,0,1], view:'right'},
@@ -89,6 +101,7 @@ export function createVectorModel(scene) {
       const geometry = new THREE.BoxGeometry(1.25, 1.1, 0.10);
       const material = new THREE.MeshPhongMaterial({color:layer.color,transparent:true,opacity:0.83});
       const mesh = new THREE.Mesh(geometry,material);
+      mesh.renderOrder = 0;
       mesh.position.z=layer.z;
       tissue.add(mesh);
       disposable.push(geometry,material);
@@ -96,7 +109,7 @@ export function createVectorModel(scene) {
     // Стрелка располагается сбоку от слоёв, а не рядом с туловищем.
     // Помещаем стрелку отдельно слева от среза тканей,
     // чтобы она не перекрывалась слоями или фигурой.
-    const start=outward?[-2.05,1.85,0.32]:[-2.05,1.85,1.15];
+    const start=outward?[-1.95,1.85,0.32]:[-1.95,1.85,1.15];
     arrow(start, [0,0,outward?1:-1], 0.80);
   }
 
