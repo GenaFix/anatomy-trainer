@@ -46,7 +46,7 @@ export function createMovementModel(scene) {
       map: texture, depthTest: false, depthWrite: false
     });
     const sprite = new THREE.Sprite(material);
-    sprite.position.set(x * 1.22, 3.95, 0.35);
+    sprite.position.set(x * 1.22, 3.52, 0.35);
     sprite.scale.set(0.25, 0.25, 1);
     sprite.renderOrder = 200;
     group.add(sprite);
