@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
-import {createMovementModel} from './movement.js?v=2931';
+import {createMovementModel} from './movement.js?v=2932';
 import {createVectorModel} from './vectors.js?v=2924';
 
 const $=id=>document.getElementById(id);
@@ -436,6 +436,7 @@ function showQuestion(){
   $('feedback').textContent='';
   $('answers').innerHTML='';
   $('next').disabled=true;
+  $('replay').disabled=Boolean(vectors.specs[id])&&!compoundDirections[id];
   $('next').textContent=tr('next');
   $('resultTools').classList.add('hidden');
 
@@ -521,6 +522,7 @@ function showResult(){
       ?`Mistakes: ${mistakes.length}`
       :`Ошибок: ${mistakes.length}`;
   $('next').classList.add('hidden');
+  $('replay').disabled=true;
   $('resultTools').classList.remove('hidden');
   $('repeat').disabled=mistakes.length===0;
 }
@@ -541,6 +543,7 @@ $('next').onclick=()=>{
   else showQuestion();
 };
 
+$('replay').onclick=()=>{clockStart=performance.now();model.replay();};
 $('restart').onclick=()=>beginTest(selectedQuestions());
 $('topic').onchange=()=>beginTest(selectedQuestions());
 $('questionCount').onchange=()=>beginTest(selectedQuestions());
