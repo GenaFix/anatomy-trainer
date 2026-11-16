@@ -89,6 +89,11 @@ export function setupMuscleQuiz(container,model,language){
   if(!order.length){section.append(el('p','muscle-note','Вопросы готовятся.'));return;}
   if(position>=order.length){section.append(el('h4','muscle-question','Тест завершён'));const restart=el('button','','Новый тест');restart.onclick=()=>{reset();draw();};section.append(restart);return;}
   const q=order[position];const beginner=level==='easy';
+  model.restore?.();
+  if(Number.isInteger(q.focus)){
+    const focusMeshes=model.findByAnatomicalName?.(muscleNames[q.focus][1])||[];
+    if(focusMeshes.length)model.highlight(focusMeshes);
+  }
   section.append(el('p','muscle-note',String(position+1)+' / '+order.length));
   section.append(el('h4','muscle-question',questionText(q)));
   const choices=options(q);const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
