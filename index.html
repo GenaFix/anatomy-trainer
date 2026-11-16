@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Anatomy Trainer 2.2</title>
+<title>Anatomy Trainer 2.3</title>
 <link rel="stylesheet" href="./style.css">
 
 <script type="importmap">
@@ -65,6 +65,21 @@
   <section class="panel" id="quizPanel">
     <h3>Проверка знаний</h3>
 
+    <div class="controls quiz-settings">
+      <label for="topic">Тема:</label>
+      <select id="topic">
+        <option value="all">Все темы</option>
+        <option value="movements">Движения суставов</option>
+        <option value="directions">Анатомические направления</option>
+        <option value="planes">Анатомические плоскости</option>
+      </select>
+      <label for="questionCount">Вопросов:</label>
+      <select id="questionCount">
+        <option value="all">Все</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+      </select>
+    </div>
     <p id="counter">Подготовка вопросов...</p>
 
     <h3 id="question"></h3>
