@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=ec2';
-import {setupMuscleQuiz} from './muscle-study.js?v=ec2';
+import {createEcorche} from './ecorche.js?v=ec3';
+import {setupMuscleQuiz} from './muscle-study.js?v=ec3';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -55,6 +55,9 @@ if(touchDevice){
 }
 controls.enableDamping=true;
 controls.enablePan=false;
+controls.screenSpacePanning=true;
+controls.touches.ONE=THREE.TOUCH.ROTATE;
+controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
 controls.minDistance=2;
 controls.maxDistance=12;
 
@@ -621,6 +624,9 @@ function renderMuscle(){
 }
 function activateMode(enabled){
  muscleMode=enabled;
+ controls.enablePan=enabled;
+ $('muscleTools').classList.toggle('hidden',!enabled);
+ $('muscleGestureHint').classList.toggle('hidden',!enabled);
  $('muscleBtn').classList.toggle('active',enabled);
  $('digitalBtn').classList.toggle('active',!enabled);
  $('quizPanel').classList.toggle('hidden',enabled);
@@ -647,6 +653,24 @@ function activateMode(enabled){
 }
 $('muscleBtn').onclick=()=>activateMode(true);
 $('digitalBtn').onclick=()=>activateMode(false);
+
+$('hideMuscleMesh').onclick=()=>{
+ const ok=ecorche.hidePicked();
+ if(muscleStudy)muscleStudy.setMeshInfo(ok?'Выбранная поверхность скрыта. Можно выбрать следующую.':'Сначала нажмите на объект модели.');
+};
+$('restoreMuscleMeshes').onclick=()=>{
+ ecorche.showAll();
+ if(muscleStudy)muscleStudy.setMeshInfo('Все поверхности восстановлены.');
+};
+$('focusMuscleMesh').onclick=()=>{
+ const center=ecorche.getPickedCenter();
+ if(!center){if(muscleStudy)muscleStudy.setMeshInfo('Сначала выберите мышцу на модели.');return;}
+ const delta=center.clone().sub(controls.target);
+ controls.target.copy(center);
+ camera.position.add(delta);
+ camera.position.sub(controls.target).normalize().multiplyScalar(2.8).add(controls.target);
+ controls.update();
+};
 
 let lastTime=performance.now();
 
