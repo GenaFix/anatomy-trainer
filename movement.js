@@ -17,6 +17,8 @@ export function createMovementModel(scene) {
   const dark = makeMaterial('#344b65');
   const active = makeMaterial('#39e2ad');
   const palmMarkerMaterial = new THREE.MeshBasicMaterial({color:0xffb347});
+  const footMedialMaterial = new THREE.MeshBasicMaterial({color:0xffb347});
+  const footLateralMaterial = new THREE.MeshBasicMaterial({color:0x28d6e5});
 
   const arrowMaterial = new THREE.MeshBasicMaterial({
     color: '#ffcc52',
@@ -202,20 +204,29 @@ export function createMovementModel(scene) {
 
     const ankle = pivot(knee, 0, -0.72, 0);
 
-    // Пятка, свод и передний отдел стопы.
-    const foot=ellipsoid(ankle,0,-0.055,0.165,0.135,0.092,0.265);
-    ellipsoid(foot,0,-0.09,0.62,0.88,0.55,0.42);
-    // Пальцы стопы размещены относительно локальных координат меша.
+    // Отдельный узел предплюсны: инверсия/эверсия не поворачивает голень.
+    // +Z направлено к пальцам, +Y к тылу стопы.
+    const subtalar = pivot(ankle,0,0,0);
+    const foot=ellipsoid(subtalar,0,-0.055,0.165,0.135,0.092,0.265);
+    // Пятка и передний отдел имеют разную форму, чтобы наклон был заметен.
+    ellipsoid(subtalar,0,-0.065,-0.025,0.105,0.088,0.115);
+    ellipsoid(subtalar,0,-0.07,0.305,0.155,0.064,0.14);
     for(let i=0;i<5;i++){
-      const toe=ellipsoid(ankle,(i-2)*0.049,-0.075,0.405,
-        i===2?0.033:0.027,0.034,0.078);
-      toe.material=body;
+      ellipsoid(subtalar,(i-2)*0.055,-0.075,0.423,
+        i===2?0.031:0.026,0.031,0.075);
+    }
+    if(key==='right'){
+      // Медиальный край справа от стопы модели (+X), латеральный слева (-X).
+      // Метки привязаны к subtalar и поворачиваются вместе со стопой.
+      box(subtalar,0.112,0.006,0.245,0.035,0.014,0.25,footMedialMaterial);
+      box(subtalar,-0.112,0.006,0.245,0.035,0.014,0.25,footLateralMaterial);
     }
 
     legs[key] = {
       hip,
       knee,
       ankle,
+      subtalar,
       thigh,
       shin,
       foot
@@ -313,8 +324,8 @@ export function createMovementModel(scene) {
     comboHipFlexAbduct:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.85*p,0,-.45*p,'XYZ');}},
     comboHipFlexExternal:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.8*p,-.5*p,0,'XYZ');legs.right.knee.rotation.x=.55*p;}},
     comboHipFlexKneeFlex:{view:'right',parts:'leg',pose:p=>{legs.right.hip.rotation.x=-.85*p;legs.right.knee.rotation.x=1.05*p;}},
-    comboAnklePlantarInvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.set(.45*p,0,-.3*p,'XYZ');}},
-    comboAnkleDorsiEvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.set(-.45*p,0,.3*p,'XYZ');}},
+    comboAnklePlantarInvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.x=.52*primaryPhase(p);legs.right.subtalar.rotation.z=-.52*secondaryPhase(p);}},
+    comboAnkleDorsiEvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.x=-.52*primaryPhase(p);legs.right.subtalar.rotation.z=.52*secondaryPhase(p);}},
     comboTrunkFlexRotateLeft:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(.27*p,.35*p,0,'YXZ');}},
     comboTrunkExtendRotateRight:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(-.22*p,-.35*p,0,'YXZ');}}
   };
@@ -536,6 +547,7 @@ export function createMovementModel(scene) {
       leg.hip.rotation.set(0, 0, 0);
       leg.knee.rotation.set(0, 0, 0);
       leg.ankle.rotation.set(0, 0, 0);
+      leg.subtalar.rotation.set(0, 0, 0);
     }
   }
 
@@ -807,6 +819,8 @@ export function createMovementModel(scene) {
       dark,
       active,
       palmMarkerMaterial,
+      footMedialMaterial,
+      footLateralMaterial,
       arrowMaterial
     ].forEach(material => material.dispose());
   }
