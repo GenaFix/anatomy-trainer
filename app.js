@@ -4,6 +4,7 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
+import {createMuscleLayer} from './muscles.js?v=2950';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -58,6 +59,8 @@ controls.maxDistance=12;
 
 const model=createMovementModel(scene);
 const vectors=createVectorModel(scene);
+const muscles=createMuscleLayer(scene);
+let muscleMode=false;
 // Демонстрация составного направления перемещением всей фигуры.
 // Неподвижный контур показывает исходное положение.
 const reference=new THREE.Group();
@@ -599,11 +602,48 @@ $('language').onchange=e=>{
   beginTest(selectedQuestions());
 };
 
+
+function renderMuscle(){
+ const id=$('muscleSelect').value;
+ const spec=muscles.specs[id];if(!spec)return;
+ muscles.select(id);
+ $('muscleTitle').textContent=language==='en'?spec.en:spec.ru;
+ $('muscleLatin').textContent=spec.la;
+ $('muscleAction').textContent=language==='en'?spec.action[1]:spec.action[0];
+ setView(spec.view);
+}
+function activateMode(enabled){
+ muscleMode=enabled;
+ $('muscleBtn').classList.toggle('active',enabled);
+ $('digitalBtn').classList.toggle('active',!enabled);
+ $('quizPanel').classList.toggle('hidden',enabled);
+ $('musclePanel').classList.toggle('hidden',!enabled);
+ muscles.group.visible=enabled;
+ vectors.group.visible=false;
+ reference.visible=false;
+ if(enabled){
+   model.setPlaying(false);
+   model.clearCompound();
+   model.setNeutralPose();
+   renderMuscle();
+   $('status').textContent=language==='en'?'Schematic muscle location. Rotate the model to inspect.':'Схематическое расположение мышцы. Поверните модель для осмотра.';
+ }else{
+   beginTest(selectedQuestions());
+ }
+}
+for(const [id,s] of Object.entries(muscles.specs)){
+ const option=document.createElement('option');option.value=id;option.textContent=s.ru;
+ $('muscleSelect').append(option);
+}
+$('muscleSelect').onchange=renderMuscle;
+$('muscleBtn').onclick=()=>activateMode(true);
+$('digitalBtn').onclick=()=>activateMode(false);
+
 let lastTime=performance.now();
 
 function animate(now){
   requestAnimationFrame(animate);
-  if(!finished){
+  if(!finished && !muscleMode){
     if(!vectors.group.visible) model.update((now-clockStart)/1000);
   }
   controls.update();
