@@ -205,3 +205,15 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
  .muscle-answers.easy .muscle-choice{font-size:18px;min-height:64px}
  .muscle-answers:not(.easy) .muscle-choice{font-size:16px}
 }
+
+/* v2.9.4.1: Search sits in the unused upper-right corner of the 3D viewport. */
+#stage .muscle-global-search{
+ position:absolute;top:10px;right:10px;z-index:3;
+ display:block;width:min(43%,220px);max-width:calc(100% - 20px);
+ padding:9px 10px;font-size:14px;
+ background:#24456be8;box-shadow:0 2px 8px #07132699;
+}
+#stage .muscle-global-search.hidden{display:none!important}
+@media(max-width:600px){
+ #stage .muscle-global-search{width:min(46%,175px);font-size:13px;padding:8px}
+}
