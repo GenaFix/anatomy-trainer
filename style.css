@@ -145,3 +145,8 @@ button:disabled{opacity:.5;cursor:default}
   #feedback{margin:6px 0;min-height:18px}
 }
 
+/* 2.9.3: компактные кнопки повтора и перехода */
+.quiz-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.quiz-actions #next{width:100%}
+.quiz-actions #replay{background:#29476d;min-height:43px}
+@media(max-width:390px){.quiz-actions{grid-template-columns:1fr}}
