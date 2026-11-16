@@ -63,6 +63,12 @@ export function createEcorche(scene,camera,canvas){
    getPicked(){return picked;},
    getPickedCenter(){if(!picked)return null;const bounds=new THREE.Box3().setFromObject(picked);return bounds.getCenter(new THREE.Vector3());},
    setOnPick(fn){onPick=fn;},
+   findByAnatomicalName(name){
+     const normalized=s=>String(s||'').toLowerCase().replace(/[^a-z]+/g,' ').trim();
+     const key=normalized(name);
+     if(!key)return [];
+     return meshes.filter(mesh=>{const label=normalized(mesh.name);return label===key||label.startsWith(key+' ')||label.endsWith(' '+key);});
+   },
    selectByName(query){
      const q=query.toLowerCase().trim();
      if(!q)return [];
