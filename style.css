@@ -150,3 +150,11 @@ button:disabled{opacity:.5;cursor:default}
 #muscleSelect{width:100%;margin:9px 0 14px}
 #muscleLatin{font-style:italic;color:#d1e2fa}
 #muscleTitle{font-size:20px;margin:8px 0}
+
+.muscle-study{display:flex;flex-direction:column;gap:10px}
+.muscle-dropdown,.muscle-search{width:100%;padding:10px;border-radius:8px;background:#24456b;color:#fff;border:1px solid #6b9dcc}
+.muscle-note{font-size:13px;line-height:1.45;margin:0}
+.muscle-answers{max-height:260px;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;border:1px solid #54769d;border-radius:8px}
+.muscle-choice{font-size:12px;display:flex;align-items:center;gap:5px;padding:5px;cursor:pointer}
+.muscle-choice input{flex-shrink:0}
+@media(max-width:600px){.muscle-answers{grid-template-columns:1fr}}
