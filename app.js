@@ -182,6 +182,25 @@ function shuffle(array){
 
 let language='ru';
 let questions=shuffle(allQuestions);
+const topicLabels={
+  ru:{all:'Все темы',movements:'Движения суставов',directions:'Анатомические направления',planes:'Анатомические плоскости',count:'Вопросов:',allCount:'Все'},
+  en:{all:'All topics',movements:'Joint movements',directions:'Anatomical directions',planes:'Anatomical planes',count:'Questions:',allCount:'All'}
+};
+function selectedQuestions(){
+  const topic=$('topic').value;
+  const pool=topic==='movements'?movementIds:
+    topic==='directions'?directionIds:
+    topic==='planes'?planeIds:allQuestions;
+  const count=$('questionCount').value;
+  return shuffle(pool).slice(0,count==='all'?pool.length:Number(count));
+}
+function updateSettingsLanguage(){
+  const lang=language==='en'?'en':'ru';
+  const labels=topicLabels[lang];
+  for(const option of $('topic').options)option.textContent=labels[option.value];
+  $('questionCount').previousElementSibling.textContent=labels.count;
+  $('questionCount').options[0].textContent=labels.allCount;
+}
 let index=0;
 let score=0;
 let mistakes=[];
@@ -325,14 +344,17 @@ $('next').onclick=()=>{
   else showQuestion();
 };
 
-$('restart').onclick=()=>beginTest(allQuestions);
+$('restart').onclick=()=>beginTest(selectedQuestions());
+$('topic').onchange=()=>beginTest(selectedQuestions());
+$('questionCount').onchange=()=>beginTest(selectedQuestions());
 $('repeat').onclick=()=>beginTest(mistakes);
 
 $('language').onchange=e=>{
   language=e.target.value;
   // Новый тест, чтобы переключение языка
   // не меняло варианты во время ответа.
-  beginTest(allQuestions);
+  updateSettingsLanguage();
+  beginTest(selectedQuestions());
 };
 
 let lastTime=performance.now();
@@ -351,5 +373,6 @@ $('status').textContent=
   '3D-модель готова. Жёлтая стрелка показывает направление.';
 
 resize();
-beginTest(allQuestions);
+updateSettingsLanguage();
+beginTest(selectedQuestions());
 requestAnimationFrame(animate);
