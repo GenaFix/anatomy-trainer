@@ -2,8 +2,8 @@
 import * as THREE from 'three';
 import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
-import {createMovementModel} from './movement.js';
-import {createVectorModel} from './vectors.js';
+import {createMovementModel} from './movement.js?v=28fix2';
+import {createVectorModel} from './vectors.js?v=28fix2';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
