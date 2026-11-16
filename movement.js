@@ -16,6 +16,7 @@ export function createMovementModel(scene) {
   const face = makeMaterial('#dcb59d');
   const dark = makeMaterial('#344b65');
   const active = makeMaterial('#39e2ad');
+  const rotationMarker = new THREE.MeshBasicMaterial({color:'#ffb347',depthTest:true});
 
   const arrowMaterial = new THREE.MeshBasicMaterial({
     color: '#ffcc52',
@@ -163,6 +164,8 @@ export function createMovementModel(scene) {
     // Ладонь и пальцы имеют округлую форму.
     // Большой палец расположен на лучевой стороне кисти.
     const palm=ellipsoid(hand,0,-0.135,0.012,0.104,0.16,0.062);
+    // Контрастная полоса на ладонной поверхности: делает осевое вращение заметным.
+    if(side===-1)box(hand,0,-0.135,0.081,0.075,0.19,0.012,rotationMarker);
     const fingers=[];
     for(let i=0;i<4;i++){
       const finger=ellipsoid(
@@ -201,6 +204,8 @@ export function createMovementModel(scene) {
 
     // Пятка, свод и передний отдел стопы.
     const foot=ellipsoid(ankle,0,-0.055,0.165,0.135,0.092,0.265);
+    // Латеральная метка на тыле стопы показывает инверсию/эверсию.
+    if(side===-1)box(ankle,-0.095,0.015,0.24,0.047,0.012,0.21,rotationMarker);
     ellipsoid(foot,0,-0.09,0.62,0.88,0.55,0.42);
     // Пальцы стопы размещены относительно локальных координат меша.
     for(let i=0;i<5;i++){
@@ -301,17 +306,21 @@ export function createMovementModel(scene) {
   });
 
   // 2.9.3: учебные сочетания движений, без спорных клинических вариантов.
+  // Первый компонент начинается сразу, второй подключается после него.
+  // На обратном ходе порядок автоматически обращается.
+  const primary=p=>Math.min(1,p*1.8);
+  const secondary=p=>Math.max(0,Math.min(1,(p-.36)/.64));
   const combinations={
-    comboShoulderFlexAbduct:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-.85*p,0,-.55*p,'XYZ');}},
-    comboShoulderFlexExternal:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-.95*p,-.55*p,0,'XYZ');arms.right.elbow.rotation.x=-.65*p;}},
-    comboElbowFlexSupinate:{view:'oblique',parts:'forearm',pose:p=>{arms.right.elbow.rotation.set(-1.25*p,-.85*p,0,'XYZ');}},
-    comboHipFlexAbduct:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.85*p,0,-.45*p,'XYZ');}},
-    comboHipFlexExternal:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.8*p,-.5*p,0,'XYZ');legs.right.knee.rotation.x=.55*p;}},
-    comboHipFlexKneeFlex:{view:'right',parts:'leg',pose:p=>{legs.right.hip.rotation.x=-.85*p;legs.right.knee.rotation.x=1.05*p;}},
-    comboAnklePlantarInvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.set(.45*p,0,-.3*p,'XYZ');}},
-    comboAnkleDorsiEvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.set(-.45*p,0,.3*p,'XYZ');}},
-    comboTrunkFlexRotateLeft:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(.27*p,.35*p,0,'YXZ');}},
-    comboTrunkExtendRotateRight:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(-.22*p,-.35*p,0,'YXZ');}}
+    comboShoulderFlexAbduct:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-.95*primary(p),0,-.8*secondary(p),'XYZ');}},
+    comboShoulderFlexExternal:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-1.0*primary(p),-1.0*secondary(p),0,'XYZ');arms.right.elbow.rotation.x=-.85*primary(p);}},
+    comboElbowFlexSupinate:{view:'oblique',parts:'forearm',pose:p=>{arms.right.elbow.rotation.set(-1.35*primary(p),1.55*secondary(p),0,'XYZ');}},
+    comboHipFlexAbduct:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.95*primary(p),0,-.7*secondary(p),'XYZ');}},
+    comboHipFlexExternal:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.85*primary(p),-.8*secondary(p),0,'XYZ');legs.right.knee.rotation.x=.7*primary(p);}},
+    comboHipFlexKneeFlex:{view:'right',parts:'leg',pose:p=>{legs.right.hip.rotation.x=-.9*primary(p);legs.right.knee.rotation.x=1.3*secondary(p);}},
+    comboAnklePlantarInvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.set(.6*primary(p),0,-.7*secondary(p),'XYZ');}},
+    comboAnkleDorsiEvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.set(-.6*primary(p),0,.7*secondary(p),'XYZ');}},
+    comboTrunkFlexRotateLeft:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(.32*primary(p),.5*secondary(p),0,'YXZ');}},
+    comboTrunkExtendRotateRight:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(-.28*primary(p),-.5*secondary(p),0,'YXZ');}}
   };
   for(const [id,spec] of Object.entries(combinations))movements[id]={view:spec.view,joint:'combination',from:0,to:1};
   function paintCombination(parts,forward){
@@ -801,6 +810,7 @@ export function createMovementModel(scene) {
       face,
       dark,
       active,
+      rotationMarker,
       arrowMaterial
     ].forEach(material => material.dispose());
   }
