@@ -39,6 +39,15 @@ const controls=new OrbitControls(
 // Вращение модели включается отдельной кнопкой.
 const touchDevice=window.matchMedia('(pointer: coarse)').matches;
 const rotateBtn=$('touchRotate');
+const searchField=$('muscleGlobalSearch');
+const desktopSearchSlot=$('viewControls');
+const mobileSearchSlot=$('modelInteractionRow');
+function placeMuscleSearch(){
+ const target=window.matchMedia('(min-width: 801px)').matches?desktopSearchSlot:mobileSearchSlot;
+ if(searchField.parentElement!==target)target.append(searchField);
+}
+placeMuscleSearch();
+window.addEventListener('resize',placeMuscleSearch);
 let touchRotate=false;
 if(touchDevice){
   rotateBtn.hidden=false;
