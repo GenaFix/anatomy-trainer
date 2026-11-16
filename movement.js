@@ -299,6 +299,36 @@ export function createMovementModel(scene) {
     trunkRotateLeft:{view:'front',joint:'trunkRotate',from:0,to:0.45},
     trunkRotateRight:{view:'front',joint:'trunkRotate',from:0,to:-0.45}
   });
+
+  // 2.9.3: учебные сочетания движений, без спорных клинических вариантов.
+  const combinations={
+    comboShoulderFlexAbduct:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-.85*p,0,-.55*p,'XYZ');}},
+    comboShoulderFlexExternal:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-.95*p,-.55*p,0,'XYZ');arms.right.elbow.rotation.x=-.65*p;}},
+    comboElbowFlexSupinate:{view:'oblique',parts:'forearm',pose:p=>{arms.right.elbow.rotation.set(-1.25*p,-.85*p,0,'XYZ');}},
+    comboHipFlexAbduct:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.85*p,0,-.45*p,'XYZ');}},
+    comboHipFlexExternal:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.8*p,-.5*p,0,'XYZ');legs.right.knee.rotation.x=.55*p;}},
+    comboHipFlexKneeFlex:{view:'right',parts:'leg',pose:p=>{legs.right.hip.rotation.x=-.85*p;legs.right.knee.rotation.x=1.05*p;}},
+    comboAnklePlantarInvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.set(.45*p,0,-.3*p,'XYZ');}},
+    comboAnkleDorsiEvert:{view:'oblique',parts:'foot',pose:p=>{legs.right.ankle.rotation.set(-.45*p,0,.3*p,'XYZ');}},
+    comboTrunkFlexRotateLeft:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(.27*p,.35*p,0,'YXZ');}},
+    comboTrunkExtendRotateRight:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(-.22*p,-.35*p,0,'YXZ');}}
+  };
+  for(const [id,spec] of Object.entries(combinations))movements[id]={view:spec.view,joint:'combination',from:0,to:1};
+  function paintCombination(parts,forward){
+    const mat=forward?active:body;
+    if(parts==='arm'||parts==='forearm'){
+      const a=arms.right;
+      if(parts==='arm')a.upper.material=mat;
+      a.forearm.material=mat;a.palm.material=mat;
+      a.fingers.forEach(f=>f.material=mat);
+    }
+    if(parts==='leg'||parts==='foot'){
+      const l=legs.right;
+      if(parts==='leg'){l.thigh.material=mat;l.shin.material=mat;}
+      l.foot.material=mat;
+    }
+  }
+
   const arrowGroup = new THREE.Group();
   group.add(arrowGroup);
 
@@ -605,6 +635,10 @@ export function createMovementModel(scene) {
       arms.left.shoulder.position.y=2.77+angle;
     }
     paintMovement(forward);
+    if(combinations[current]){
+      combinations[current].pose(progress);
+      paintCombination(combinations[current].parts,forward);
+    }
   }
 
 
@@ -692,8 +726,8 @@ export function createMovementModel(scene) {
     current = id;
     lastPhase = -1;
 
-    buildArrow(id);
-    arrowGroup.visible = playing;
+    if(combinations[id])clearArrow();else buildArrow(id);
+    arrowGroup.visible = playing && !combinations[id];
     applyPose(0, true);
   }
 
@@ -726,6 +760,12 @@ export function createMovementModel(scene) {
       else applyPose(progress, forward);
       lastPhase = progress;
     }
+  }
+
+  function replay(){
+    playing=true;lastPhase=-1;
+    arrowGroup.visible=!combinations[current];
+    if(compound)applyCompound(0,true);else applyPose(0,true);
   }
 
   function setNeutralPose() {
@@ -776,6 +816,7 @@ export function createMovementModel(scene) {
     setPlaying,
     setNeutralPose,
     update,
+    replay,
     dispose,
 
     get current() {
