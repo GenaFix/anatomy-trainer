@@ -25,6 +25,37 @@ export function createMovementModel(scene) {
 
   const geometries = [];
 
+  // Постоянные анатомические маркеры сторон, привязанные к модели.
+  // -X = правая сторона человека, +X = левая.
+  const sideLabels = [];
+  function makeSideLabel(letter, x, color) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(64, 64, 55, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 78px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(letter, 64, 68);
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.SpriteMaterial({
+      map: texture, depthTest: false, depthWrite: false
+    });
+    const sprite = new THREE.Sprite(material);
+    sprite.position.set(x, 2.9, 0.35);
+    sprite.scale.set(0.25, 0.25, 1);
+    sprite.renderOrder = 200;
+    group.add(sprite);
+    sideLabels.push({sprite, material, texture});
+  }
+  makeSideLabel('R', -0.95, '#2563eb');
+  makeSideLabel('L', 0.95, '#c24166');
+
+
   function addMesh(parent, geometry, material, position) {
     const mesh = new THREE.Mesh(geometry, material);
     if (position) mesh.position.copy(position);
@@ -257,8 +288,8 @@ export function createMovementModel(scene) {
   Object.assign(movements,{
     wristFlex:{view:'right',joint:'wrist',from:0,to:-0.85},
     wristExtend:{view:'right',joint:'wrist',from:0,to:0.75},
-    neckRotateLeft:{view:'front',joint:'neck',from:0,to:-0.8},
-    neckRotateRight:{view:'front',joint:'neck',from:0,to:0.8},
+    neckRotateLeft:{view:'front',joint:'neck',from:0,to:0.8},
+    neckRotateRight:{view:'front',joint:'neck',from:0,to:-0.8},
     trunkSideLeft:{view:'front',joint:'trunkSide',from:0,to:0.3},
     trunkSideRight:{view:'front',joint:'trunkSide',from:0,to:-0.3},
     scapElevate:{view:'front',joint:'girdle',from:0,to:0.18},
@@ -714,6 +745,10 @@ export function createMovementModel(scene) {
 
   function dispose() {
     clearArrow();
+    for (const label of sideLabels) {
+      label.texture.dispose();
+      label.material.dispose();
+    }
     scene.remove(group);
 
     for (const geometry of geometries) {
