@@ -3,8 +3,8 @@ import * as THREE from 'three';
 // Schematic surface landmarks, not an anatomical dissection model.
 export function createMuscleLayer(scene){
  const group=new THREE.Group();scene.add(group);group.visible=false;
- const neutral=new THREE.MeshStandardMaterial({color:0x9b5c67,roughness:.78,transparent:true,opacity:.76,depthTest:false});
- const selected=new THREE.MeshStandardMaterial({color:0xffc267,roughness:.55,emissive:0x59300a,depthTest:false});
+ const neutral=new THREE.MeshStandardMaterial({color:0x9b5c67,roughness:.78,transparent:true,opacity:.76,depthTest:true});
+ const selected=new THREE.MeshStandardMaterial({color:0xffc267,roughness:.55,emissive:0x59300a,depthTest:true});
  const specs={
   trapezius:{ru:'Трапециевидная мышца',la:'Musculus trapezius',en:'Trapezius',view:'back',action:['Поднимает, приводит и вращает лопатку; участвует в движениях шеи.','Elevates, retracts and rotates the scapula; assists neck movement.'],shapes:[[0,2.88,-.26,.46,.36,.10,0]]},
   deltoid:{ru:'Дельтовидная мышца',la:'Musculus deltoideus',en:'Deltoid',view:'front',action:['Отводит плечо; передние и задние пучки участвуют в сгибании и разгибании.','Abducts the arm; anterior and posterior fibers assist flexion and extension.'],shapes:[[-.62,2.67,.08,.18,.32,.19,-.1],[.62,2.67,.08,.18,.32,.19,.1]]},
@@ -19,7 +19,7 @@ export function createMuscleLayer(scene){
   for(const [x,y,z,w,h,d,rz] of s.shapes){
    const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,20,16),neutral);
    mesh.position.set(x,y,z);mesh.scale.set(w,h,d);mesh.rotation.z=rz;
-   mesh.renderOrder=15;group.add(mesh);meshes[id].push(mesh);
+   group.add(mesh);meshes[id].push(mesh);
   }
  }
  function select(id){
