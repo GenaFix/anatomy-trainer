@@ -95,3 +95,11 @@ button:disabled{opacity:.5;cursor:default}
  .answer{min-height:43px}
  #feedback{min-height:28px;margin:8px 0}
 }
+
+.quiz-settings{margin:8px 0 12px}
+.quiz-settings label{font-size:13px;color:#c3d9f4}
+.quiz-settings select{max-width:100%;min-width:100px}
+@media(max-width:800px){
+ .quiz-settings{gap:6px}
+ .quiz-settings select{font-size:13px;padding:7px}
+}
