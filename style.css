@@ -106,3 +106,28 @@ button:disabled{opacity:.5;cursor:default}
 
 #touchRotate[hidden]{display:none!important}
 #touchRotate{margin:4px 0 8px}
+
+/* Compact quiz setup: two selectors on one row */
+.quiz-settings{
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);
+  gap:8px;
+  margin:5px 0 9px;
+  align-items:end;
+}
+.quiz-settings .setting-field{display:flex;align-items:center;gap:6px;min-width:0}
+.quiz-settings .setting-field label{font-size:12px;white-space:nowrap;flex:none}
+.quiz-settings .setting-field select{
+  flex:1;min-width:0;width:100%;max-width:none;
+  padding:7px 24px 7px 7px;font-size:13px;
+}
+@media(max-width:800px){
+  .quiz-settings{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:6px}
+  .quiz-settings .setting-field{gap:4px}
+  .quiz-settings .setting-field label{font-size:11px}
+  .quiz-settings .setting-field select{font-size:12px;padding:7px 3px}
+}
+@media(max-width:390px){
+  .quiz-settings .setting-field{flex-direction:column;align-items:stretch;gap:2px}
+  .quiz-settings .setting-field label{font-size:11px}
+}
