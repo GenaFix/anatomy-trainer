@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
-import {createMovementModel} from './movement.js?v=28fix2';
+import {createMovementModel} from './movement.js?v=28fix3';
 import {createVectorModel} from './vectors.js?v=28fix2';
 
 const $=id=>document.getElementById(id);
@@ -146,12 +146,12 @@ const movementNames={
   hipAdduction:['Аддукция бедра','Hip adduction'],
   ankleDorsi:['Тыльное сгибание стопы','Ankle dorsiflexion'],
   anklePlantar:['Подошвенное сгибание стопы','Ankle plantarflexion'],
-  wristFlex:['Сгибание кисти','Wrist flexion'],
-  wristExtend:['Разгибание кисти','Wrist extension'],
+  wristFlex:['Флексия кисти','Wrist flexion'],
+  wristExtend:['Экстензия кисти','Wrist extension'],
   neckRotateLeft:['Поворот головы влево','Head rotation left'],
   neckRotateRight:['Поворот головы вправо','Head rotation right'],
-  trunkSideLeft:['Наклон туловища влево','Left trunk lateral flexion'],
-  trunkSideRight:['Наклон туловища вправо','Right trunk lateral flexion'],
+  trunkSideLeft:['Латерофлексия туловища влево','Left trunk lateral flexion'],
+  trunkSideRight:['Латерофлексия туловища вправо','Right trunk lateral flexion'],
   scapElevate:['Подъём плечевого пояса','Shoulder girdle elevation'],
   scapDepress:['Опускание плечевого пояса','Shoulder girdle depression'],
   superior:['Краниально (верхний)','Superior (cranial)'],
