@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
-import {createMovementModel} from './movement.js?v=2922';
+import {createMovementModel} from './movement.js?v=2923';
 import {createVectorModel} from './vectors.js?v=292';
 
 const $=id=>document.getElementById(id);
@@ -165,18 +165,18 @@ const dictionary={
 };
 
 const compoundNames={
-  cranioMedial:['Краниомедиально','Craniomedial'],
-  cranioLateral:['Краниолатерально','Craniolateral'],
-  caudoMedial:['Каудомедиально','Caudomedial'],
-  caudoLateral:['Каудолатерально','Caudolateral'],
-  cranioVentral:['Краниовентрально','Cranioventral'],
-  cranioDorsal:['Краниодорсально','Craniodorsal'],
-  caudoVentral:['Каудовентрально','Caudoventral'],
-  caudoDorsal:['Каудодорсально','Caudodorsal'],
-  cranioLateroVentral:['Краниолатеровентрально','Craniolateroventral'],
-  cranioMedioVentral:['Краниомедиовентрально','Craniomedioventral'],
-  caudoLateroDorsal:['Каудолатеродорсально','Caudolaterodorsal'],
-  caudoMedioDorsal:['Каудомедиодорсально','Caudomediodorsal']
+  cranioMedial:['Кранио-медиально','Cranio-medial'],
+  cranioLateral:['Кранио-латерально','Cranio-lateral'],
+  caudoMedial:['Каудо-медиально','Caudo-medial'],
+  caudoLateral:['Каудо-латерально','Caudo-lateral'],
+  cranioVentral:['Кранио-вентрально','Cranio-ventral'],
+  cranioDorsal:['Кранио-дорсально','Cranio-dorsal'],
+  caudoVentral:['Каудо-вентрально','Caudo-ventral'],
+  caudoDorsal:['Каудо-дорсально','Caudo-dorsal'],
+  cranioLateroVentral:['Кранио-латеро-вентрально','Cranio-latero-ventral'],
+  cranioMedioVentral:['Кранио-медио-вентрально','Cranio-medio-ventral'],
+  caudoLateroDorsal:['Каудо-латеро-дорсально','Caudo-latero-dorsal'],
+  caudoMedioDorsal:['Каудо-медио-дорсально','Caudo-medio-dorsal']
 };
 const compoundDescriptions={
   cranioMedial:['К голове и к срединной плоскости.','Toward the head and midline.'],
