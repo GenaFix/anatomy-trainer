@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Anatomy Trainer 2.8</title>
-<link rel="stylesheet" href="./style.css?v=compact1">
+<link rel="stylesheet" href="./style.css?v=compact2">
 
 <script type="importmap">
 {
@@ -64,7 +64,7 @@
   </section>
 
   <section class="panel" id="quizPanel">
-    <h3>Проверка знаний</h3>
+    <div class="quiz-heading"><h3>Проверка знаний</h3><p id="counter" aria-live="polite">Подготовка вопросов...</p></div>
 
     <div class="controls quiz-settings">
       <div class="setting-field"><label for="topic">Тема:</label>
@@ -81,7 +81,6 @@
         <option value="10">10</option>
       </select></div>
     </div>
-    <p id="counter">Подготовка вопросов...</p>
 
     <h3 id="question"></h3>
 
@@ -113,6 +112,6 @@
 
 </main>
 
-<script type="module" src="./app.js?v=depth1"></script>
+<script type="module" src="./app.js?v=depth2"></script>
 </body>
 </html>
