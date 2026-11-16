@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=ec3';
-import {setupMuscleQuiz} from './muscle-study.js?v=ec3';
+import {createEcorche} from './ecorche.js?v=ec4';
+import {setupMuscleQuiz} from './muscle-study.js?v=ec4';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -626,6 +626,7 @@ function activateMode(enabled){
  muscleMode=enabled;
  controls.enablePan=enabled;
  $('muscleTools').classList.toggle('hidden',!enabled);
+ $('muscleGlobalSearch').classList.toggle('hidden',!enabled);
  $('muscleGestureHint').classList.toggle('hidden',!enabled);
  $('muscleBtn').classList.toggle('active',enabled);
  $('digitalBtn').classList.toggle('active',!enabled);
