@@ -64,13 +64,23 @@ export function setupMuscleQuiz(container,model,language){
   if(level==='medium')return shuffled([...q.correct,...wrong.slice(0,Math.max(0,6-q.correct.length))]);
   return shuffled([q.correct[Math.floor(Math.random()*q.correct.length)],...wrong.slice(0,3)]);
  }
- function highlightAnswer(q){
-  if(!model||typeof model.selectByName!=='function')return;
-  // Only attempt lookup using explicit model metadata, never pretend the mesh has been identified.
-  const found=q.correct.flatMap(i=>model.findByAnatomicalName?.(muscleNames[i][1])||[]);
-  if(found.length&&model.highlight){model.highlight(found);return;}
-  model.restore?.();
+ let visualStatus='';
+ function findMuscles(indices){
+   return [...new Set(indices.flatMap(i=>model.findByAnatomicalName?.(muscleNames[i][1])||[]))];
  }
+ function showHighlight(indices){
+   const found=findMuscles(indices);
+   if(found.length){
+     model.highlight(found);
+     visualStatus='3D: выделено объектов: '+found.length+'.';
+   }else{
+     model.restore?.();
+     visualStatus='3D: точное соответствие не найдено. Подсветка отключена.';
+   }
+   const status=section.querySelector('#muscleHighlightStatus');
+   if(status)status.textContent=visualStatus;
+ }
+ function highlightAnswer(q){showHighlight(q.correct);}
  function draw(){
   section.replaceChildren();
   const english=language()==='en';
@@ -83,6 +93,7 @@ export function setupMuscleQuiz(container,model,language){
   difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;checked.clear();answered=false;draw();};settings.append(difficulty);
   const details=el('details','muscle-diagnostics');details.append(el('summary','',english?'Model details':'Информация о модели'));
   const modelInfo=el('p','muscle-note',info);modelInfo.id='ecorcheInfo';details.append(modelInfo);
+  details.append(el('p','muscle-note','Примеры названий объектов GLB: '+(model.getNameSamples?.(8).join(' | ')||'пока недоступны')));
   const pickedInfo=el('p','muscle-note',meshInfo);pickedInfo.id='meshInfo';details.append(pickedInfo);section.append(details);
   const search=document.getElementById('muscleGlobalSearch');
   if(search){search.placeholder=english?'Find GLB object':'Поиск объекта GLB';search.oninput=()=>{const found=model.selectByName(search.value);meshInfo=found.length?'GLB: '+found.length:'';pickedInfo.textContent=meshInfo;};}
@@ -90,11 +101,11 @@ export function setupMuscleQuiz(container,model,language){
   if(position>=order.length){section.append(el('h4','muscle-question','Тест завершён'));const restart=el('button','','Новый тест');restart.onclick=()=>{reset();draw();};section.append(restart);return;}
   const q=order[position];const beginner=level==='easy';
   model.restore?.();
-  if(Number.isInteger(q.focus)){
-    const focusMeshes=model.findByAnatomicalName?.(muscleNames[q.focus][1])||[];
-    if(focusMeshes.length)model.highlight(focusMeshes);
-  }
+  visualStatus='';
+  if(Number.isInteger(q.focus))showHighlight([q.focus]);
   section.append(el('p','muscle-note',String(position+1)+' / '+order.length));
+  const highlightStatus=el('p','muscle-note',visualStatus||'3D: выделение доступно при совпадении названий объектов.');
+  highlightStatus.id='muscleHighlightStatus';section.append(highlightStatus);
   section.append(el('h4','muscle-question',questionText(q)));
   const choices=options(q);const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
   const result=el('p','muscle-note','');
