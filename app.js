@@ -125,6 +125,10 @@ const movementNames={
   posterior:['Дорсально (задний)','Posterior (dorsal)'],
   medial:['Медиально','Medial'],
   lateral:['Латерально','Lateral'],
+  proximal:['Проксимально','Proximal'],
+  distal:['Дистально','Distal'],
+  superficial:['Поверхностно','Superficial'],
+  deep:['Глубоко','Deep'],
   sagittal:['Сагиттальная плоскость','Sagittal plane'],
   frontal:['Фронтальная плоскость','Frontal plane'],
   transverse:['Поперечная плоскость','Transverse plane']
@@ -161,13 +165,17 @@ const descriptions={
   posterior:['Направление к задней поверхности тела.','Toward the back of the body.'],
   medial:['Направление к срединной линии тела.','Toward the body midline.'],
   lateral:['Направление от срединной линии тела.','Away from the body midline.'],
+  proximal:['Ближе к месту прикрепления конечности к туловищу.','Closer to the limb attachment to the trunk.'],
+  distal:['Дальше от места прикрепления конечности к туловищу.','Farther from the limb attachment to the trunk.'],
+  superficial:['Ближе к поверхности тела.','Closer to the body surface.'],
+  deep:['Дальше от поверхности тела, вглубь.','Farther from the body surface, inward.'],
   sagittal:['Разделяет тело на правую и левую части.','Divides the body into right and left parts.'],
   frontal:['Разделяет тело на переднюю и заднюю части.','Divides the body into front and back parts.'],
   transverse:['Разделяет тело на верхнюю и нижнюю части.','Divides the body into upper and lower parts.']
 };
 
 const allQuestions=Object.keys(movementNames);
-const directionIds=['superior','inferior','anterior','posterior','medial','lateral'];
+const directionIds=['superior','inferior','anterior','posterior','medial','lateral','proximal','distal','superficial','deep'];
 const planeIds=['sagittal','frontal','transverse'];
 const movementIds=['abduction','adduction','elbowFlex','elbowExtend','kneeFlex','kneeExtend'];
 
@@ -235,7 +243,9 @@ function choicesFor(correct){
     kneeFlex:'kneeExtend', kneeExtend:'kneeFlex',
     superior:'inferior', inferior:'superior',
     anterior:'posterior', posterior:'anterior',
-    medial:'lateral', lateral:'medial'
+    medial:'lateral', lateral:'medial',
+    proximal:'distal', distal:'proximal',
+    superficial:'deep', deep:'superficial'
   };
   const chosen=[correct];
   if(opposites[correct]) chosen.push(opposites[correct]);
