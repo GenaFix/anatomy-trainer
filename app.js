@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=28fix3';
-import {createVectorModel} from './vectors.js?v=28fix2';
+import {createVectorModel} from './vectors.js?v=depth1';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
