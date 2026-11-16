@@ -6,7 +6,7 @@ export function createVectorModel(scene) {
   const group = new THREE.Group();
   scene.add(group);
   group.visible = false;
-  const yellow = 0xffcc52;
+  const yellow = 0xffdf32;
   const blue = new THREE.MeshBasicMaterial({
     color: 0x38c6f4, side: THREE.DoubleSide,
     transparent: true, opacity: 0.27, depthWrite: false
@@ -94,7 +94,9 @@ export function createVectorModel(scene) {
       disposable.push(geometry,material);
     }
     // Стрелка располагается сбоку от слоёв, а не рядом с туловищем.
-    const start=outward?[-0.22,1.85,0.32]:[-0.22,1.85,1.15];
+    // Помещаем стрелку отдельно слева от среза тканей,
+    // чтобы она не перекрывалась слоями или фигурой.
+    const start=outward?[-2.05,1.85,0.32]:[-2.05,1.85,1.15];
     arrow(start, [0,0,outward?1:-1], 0.80);
   }
 
