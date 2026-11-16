@@ -455,6 +455,7 @@ export function createMovementModel(scene) {
     lastPhase = -1;
 
     buildArrow(id);
+    arrowGroup.visible = playing;
     applyPose(0, true);
   }
 
@@ -487,6 +488,7 @@ export function createMovementModel(scene) {
 
   function setPlaying(value) {
     playing = Boolean(value);
+    arrowGroup.visible = playing;
 
     if (!playing) {
       applyPose(0, false);
