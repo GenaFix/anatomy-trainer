@@ -534,12 +534,18 @@ export function createMovementModel(scene) {
     }
   }
 
+  function setNeutralPose() {
+    resetPose();
+    paintMovement(false);
+    lastPhase = -1;
+  }
+
   function setPlaying(value) {
     playing = Boolean(value);
     arrowGroup.visible = playing;
 
     if (!playing) {
-      applyPose(0, false);
+      setNeutralPose();
     }
   }
 
@@ -568,6 +574,7 @@ export function createMovementModel(scene) {
     movements,
     setMovement,
     setPlaying,
+    setNeutralPose,
     update,
     dispose,
 
