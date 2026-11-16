@@ -154,6 +154,10 @@ const movementNames={
   trunkSideRight:['Латерофлексия туловища вправо','Right trunk lateral flexion'],
   scapElevate:['Подъём плечевого пояса','Shoulder girdle elevation'],
   scapDepress:['Опускание плечевого пояса','Shoulder girdle depression'],
+  trunkFlex:['Флексия туловища','Trunk flexion'],
+  trunkExtend:['Экстензия туловища','Trunk extension'],
+  trunkRotateLeft:['Аксиальная ротация туловища влево','Left axial trunk rotation'],
+  trunkRotateRight:['Аксиальная ротация туловища вправо','Right axial trunk rotation'],
   superior:['Краниально (верхний)','Superior (cranial)'],
   inferior:['Каудально (нижний)','Inferior (caudal)'],
   anterior:['Вентрально (передний)','Anterior (ventral)'],
@@ -210,6 +214,10 @@ const descriptions={
   trunkSideRight:['Боковое сгибание туловища вправо.','Lateral flexion of the trunk to the right.'],
   scapElevate:['Движение плечевого пояса вверх.','Moving the shoulder girdle upward.'],
   scapDepress:['Движение плечевого пояса вниз.','Moving the shoulder girdle downward.'],
+  trunkFlex:['Наклон туловища вперёд в сагиттальной плоскости.','Forward bending of the trunk in the sagittal plane.'],
+  trunkExtend:['Разгибание туловища назад в сагиттальной плоскости.','Backward extension of the trunk in the sagittal plane.'],
+  trunkRotateLeft:['Поворот туловища вокруг продольной оси влево.','Rotation of the trunk around its longitudinal axis to the left.'],
+  trunkRotateRight:['Поворот туловища вокруг продольной оси вправо.','Rotation of the trunk around its longitudinal axis to the right.'],
   superior:['Направление к голове.','Toward the head.'],
   inferior:['Направление к стопам.','Toward the feet.'],
   anterior:['Направление к передней поверхности тела.','Toward the front of the body.'],
@@ -228,7 +236,7 @@ const descriptions={
 const allQuestions=Object.keys(movementNames);
 const directionIds=['superior','inferior','anterior','posterior','medial','lateral','proximal','distal','superficial','deep'];
 const planeIds=['sagittal','frontal','transverse'];
-const movementIds=['abduction','adduction','shoulderFlex','shoulderExtend','elbowFlex','elbowExtend','kneeFlex','kneeExtend','hipFlex','hipExtend','hipAbduction','hipAdduction','ankleDorsi','anklePlantar','wristFlex','wristExtend','neckRotateLeft','neckRotateRight','trunkSideLeft','trunkSideRight','scapElevate','scapDepress'];
+const movementIds=['abduction','adduction','shoulderFlex','shoulderExtend','elbowFlex','elbowExtend','kneeFlex','kneeExtend','hipFlex','hipExtend','hipAbduction','hipAdduction','ankleDorsi','anklePlantar','wristFlex','wristExtend','neckRotateLeft','neckRotateRight','trunkSideLeft','trunkSideRight','scapElevate','scapDepress','trunkFlex','trunkExtend','trunkRotateLeft','trunkRotateRight'];
 
 function shuffle(array){
   const a=[...array];
@@ -295,6 +303,8 @@ function choicesFor(correct){
     neckRotateLeft:'neckRotateRight', neckRotateRight:'neckRotateLeft',
     trunkSideLeft:'trunkSideRight', trunkSideRight:'trunkSideLeft',
     scapElevate:'scapDepress', scapDepress:'scapElevate',
+    trunkFlex:'trunkExtend', trunkExtend:'trunkFlex',
+    trunkRotateLeft:'trunkRotateRight', trunkRotateRight:'trunkRotateLeft',
     elbowFlex:'elbowExtend', elbowExtend:'elbowFlex',
     kneeFlex:'kneeExtend', kneeExtend:'kneeFlex',
     hipFlex:'hipExtend', hipExtend:'hipFlex',
