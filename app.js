@@ -4,7 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createMuscleLayer} from './muscles.js?v=2950';
+import {createEcorche} from './ecorche.js?v=ec1';
+import {setupMuscleQuiz} from './muscle-study.js?v=ec1';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -59,8 +60,18 @@ controls.maxDistance=12;
 
 const model=createMovementModel(scene);
 const vectors=createVectorModel(scene);
-const muscles=createMuscleLayer(scene);
+const ecorche=createEcorche(scene,camera,renderer.domElement);
 let muscleMode=false;
+let muscleStudy=null;
+let muscleReady=false;
+ecorche.ready.then(info=>{
+  muscleReady=true;
+  if(muscleStudy)muscleStudy.setInfo('GLB: '+info.meshCount+' объектов, с названиями: '+info.namedCount);
+  if(muscleMode)$('status').textContent='Оригинальная модель Écorché загружена. Выберите мышцу или объект.';
+}).catch(error=>{
+  if(muscleStudy)muscleStudy.setInfo('Не удалось загрузить GLB: '+error.message);
+  if(muscleMode)$('status').textContent='Ошибка загрузки Écorché. Проверьте доступ к CDN.';
+});
 // Демонстрация составного направления перемещением всей фигуры.
 // Неподвижный контур показывает исходное положение.
 const reference=new THREE.Group();
@@ -604,13 +615,7 @@ $('language').onchange=e=>{
 
 
 function renderMuscle(){
- const id=$('muscleSelect').value;
- const spec=muscles.specs[id];if(!spec)return;
- muscles.select(id);
- $('muscleTitle').textContent=language==='en'?spec.en:spec.ru;
- $('muscleLatin').textContent=spec.la;
- $('muscleAction').textContent=language==='en'?spec.action[1]:spec.action[0];
- setView(spec.view);
+ if(muscleStudy)muscleStudy.draw();
 }
 function activateMode(enabled){
  muscleMode=enabled;
@@ -618,24 +623,23 @@ function activateMode(enabled){
  $('digitalBtn').classList.toggle('active',!enabled);
  $('quizPanel').classList.toggle('hidden',enabled);
  $('musclePanel').classList.toggle('hidden',!enabled);
- muscles.group.visible=enabled;
+ model.group.visible=!enabled;
+ ecorche.root.visible=enabled;
  vectors.group.visible=false;
  reference.visible=false;
  if(enabled){
    model.setPlaying(false);
    model.clearCompound();
    model.setNeutralPose();
+   if(!muscleStudy)muscleStudy=setupMuscleQuiz($('musclePanel'),ecorche,()=>language);
    renderMuscle();
-   $('status').textContent=language==='en'?'Schematic muscle location. Rotate the model to inspect.':'Схематическое расположение мышцы. Поверните модель для осмотра.';
+   setView('front');
+   $('status').textContent=muscleReady?'Оригинальная модель Écorché загружена.':'Загрузка оригинальной модели Écorché...';
  }else{
+   ecorche.restore();
    beginTest(selectedQuestions());
  }
 }
-for(const [id,s] of Object.entries(muscles.specs)){
- const option=document.createElement('option');option.value=id;option.textContent=s.ru;
- $('muscleSelect').append(option);
-}
-$('muscleSelect').onchange=renderMuscle;
 $('muscleBtn').onclick=()=>activateMode(true);
 $('digitalBtn').onclick=()=>activateMode(false);
 
