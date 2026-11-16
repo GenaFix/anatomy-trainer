@@ -230,7 +230,11 @@ export function createMovementModel(scene) {
       joint: 'knee',
       from: 1.4,
       to: 0
-    }
+    },
+    hipFlex: {view:'right',joint:'hip',from:0,to:-1.05},
+    hipExtend: {view:'right',joint:'hip',from:-1.05,to:0},
+    ankleDorsi: {view:'right',joint:'ankle',from:0,to:-0.55},
+    anklePlantar: {view:'right',joint:'ankle',from:-0.55,to:0.45}
   };
 
   const arrowGroup = new THREE.Group();
@@ -368,6 +372,22 @@ export function createMovementModel(scene) {
       }
     }
 
+    if (spec.joint === 'hip') {
+      const center = new THREE.Vector3(-0.23, 1.55, 0.35);
+      const radius = 0.9;
+      for (let i = 0; i <= count; i++) {
+        const a = spec.from + (spec.to - spec.from) * i / count;
+        points.push(new THREE.Vector3(center.x, center.y-radius*Math.cos(a),center.z-radius*Math.sin(a)));
+      }
+    }
+    if (spec.joint === 'ankle') {
+      const center = new THREE.Vector3(-0.23, 0.04, 0.35);
+      const radius = 0.5;
+      for (let i = 0; i <= count; i++) {
+        const a = spec.from + (spec.to - spec.from) * i / count;
+        points.push(new THREE.Vector3(center.x,center.y-radius*Math.sin(a),center.z+radius*Math.cos(a)));
+      }
+    }
     if (points.length > 1) {
       addArrow(points);
     }
@@ -382,6 +402,7 @@ export function createMovementModel(scene) {
     for (const leg of Object.values(legs)) {
       leg.hip.rotation.set(0, 0, 0);
       leg.knee.rotation.set(0, 0, 0);
+      leg.ankle.rotation.set(0, 0, 0);
     }
   }
 
@@ -419,6 +440,14 @@ export function createMovementModel(scene) {
       arm.fingers.forEach(m => m.material = color);
     }
 
+    if (current === 'hipFlex' || current === 'hipExtend') {
+      leg.thigh.material = color;
+      leg.shin.material = color;
+      leg.foot.material = color;
+    }
+    if (current === 'ankleDorsi' || current === 'anklePlantar') {
+      leg.foot.material = color;
+    }
     if (current === 'kneeFlex' ||
         current === 'kneeExtend') {
       leg.shin.material = color;
@@ -443,6 +472,12 @@ export function createMovementModel(scene) {
 
     if (spec.joint === 'knee') {
       legs.right.knee.rotation.x = angle;
+    }
+    if (spec.joint === 'hip') {
+      legs.right.hip.rotation.x = angle;
+    }
+    if (spec.joint === 'ankle') {
+      legs.right.ankle.rotation.x = angle;
     }
 
     paintMovement(forward);
