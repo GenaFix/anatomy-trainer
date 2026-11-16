@@ -596,7 +596,7 @@ export function createMovementModel(scene) {
     if (!compoundAxes[id]) return;
     current = 'abduction';
     clearArrow();
-    arrowGroup.visible = false;
+    arrowGroup.visible = true;
     resetPose();
     const [lateral, vertical, depth] = compoundAxes[id];
     const useLeg = limb === 'leg';
@@ -617,9 +617,23 @@ export function createMovementModel(scene) {
     compound={id,limb:useLeg?'leg':'arm'};
     playing=true;
     lastPhase=-1;
-    applyCompound(0);
+    // Траектория кисти/стопы рассчитывается из реального поворота сустава.
+    const jointPos = useLeg ? legs.right.hip.position : arms.right.shoulder.position;
+    const jointWorld = useLeg ? new THREE.Vector3(-0.23,1.55,0) : new THREE.Vector3(-0.56,2.77,0);
+    const radius = useLeg ? 1.47 : 1.47;
+    const pts=[];
+    const q=new THREE.Quaternion();
+    for(let i=0;i<=32;i++){
+      q.copy(startQuat).slerp(endQuat,i/32);
+      const p=new THREE.Vector3(0,-radius,0).applyQuaternion(q).add(jointWorld);
+      // Незначительное смещение к зрителю для читаемости стрелки.
+      p.z+=0.18;
+      pts.push(p);
+    }
+    addArrow(pts);
+    applyCompound(0,true);
   }
-  function applyCompound(progress) {
+  function applyCompound(progress,forward=true) {
     if(!compound)return;
     resetPose();
     const target=compound.limb==='leg'?legs.right.hip:arms.right.shoulder;
@@ -631,10 +645,11 @@ export function createMovementModel(scene) {
     ]:[
       arms.right.upper,arms.right.forearm,arms.right.palm,...arms.right.fingers
     ];
-    for(const mesh of items)mesh.material=active;
+    for(const mesh of items)mesh.material=forward?active:body;
   }
   function clearCompound(){
     compound=null;
+    clearArrow();
     resetPose();
     paintMovement(false);
   }
@@ -673,7 +688,10 @@ export function createMovementModel(scene) {
       : 1 - smooth;
 
     if (Math.abs(progress - lastPhase) > 0.0001) {
-      if(compound)applyCompound(progress);
+      if(compound){
+        applyCompound(progress,forward);
+        arrowGroup.visible=forward;
+      }
       else applyPose(progress, forward);
       lastPhase = progress;
     }
