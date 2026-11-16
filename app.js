@@ -32,6 +32,25 @@ scene.add(light);
 const controls=new OrbitControls(
   camera,renderer.domElement
 );
+
+// На сенсорных устройствах обычный свайп прокручивает страницу.
+// Вращение модели включается отдельной кнопкой.
+const touchDevice=window.matchMedia('(pointer: coarse)').matches;
+const rotateBtn=$('touchRotate');
+let touchRotate=false;
+if(touchDevice){
+  rotateBtn.hidden=false;
+  controls.enabled=false;
+  renderer.domElement.style.touchAction='pan-y';
+  rotateBtn.onclick=()=>{
+    touchRotate=!touchRotate;
+    controls.enabled=touchRotate;
+    renderer.domElement.style.touchAction=touchRotate?'none':'pan-y';
+    rotateBtn.textContent=touchRotate?'Готово · прокрутка страницы':'Вращать 3D-модель';
+    rotateBtn.classList.toggle('active',touchRotate);
+    rotateBtn.setAttribute('aria-pressed',String(touchRotate));
+  };
+}
 controls.enableDamping=true;
 controls.enablePan=false;
 controls.minDistance=2;
