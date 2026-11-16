@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=ec1';
-import {setupMuscleQuiz} from './muscle-study.js?v=ec1';
+import {createEcorche} from './ecorche.js?v=ec2';
+import {setupMuscleQuiz} from './muscle-study.js?v=ec2';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -64,11 +64,13 @@ const ecorche=createEcorche(scene,camera,renderer.domElement);
 let muscleMode=false;
 let muscleStudy=null;
 let muscleReady=false;
+let muscleLoadError=null;
 ecorche.ready.then(info=>{
   muscleReady=true;
   if(muscleStudy)muscleStudy.setInfo('GLB: '+info.meshCount+' объектов, с названиями: '+info.namedCount);
   if(muscleMode)$('status').textContent='Оригинальная модель Écorché загружена. Выберите мышцу или объект.';
 }).catch(error=>{
+  muscleLoadError=error.message;
   if(muscleStudy)muscleStudy.setInfo('Не удалось загрузить GLB: '+error.message);
   if(muscleMode)$('status').textContent='Ошибка загрузки Écorché. Проверьте доступ к CDN.';
 });
@@ -633,8 +635,11 @@ function activateMode(enabled){
    model.setNeutralPose();
    if(!muscleStudy)muscleStudy=setupMuscleQuiz($('musclePanel'),ecorche,()=>language);
    renderMuscle();
+   if(muscleLoadError)muscleStudy.setInfo('Ошибка загрузки модели: '+muscleLoadError);
+   else if(muscleReady)muscleStudy.setInfo('Модель загружена: '+ecorche.meshes.length+' объектов');
+   else muscleStudy.setInfo('Загрузка 3D-модели мышц, подождите...');
    setView('front');
-   $('status').textContent=muscleReady?'Оригинальная модель Écorché загружена.':'Загрузка оригинальной модели Écorché...';
+   $('status').textContent=muscleLoadError?'Ошибка загрузки мышечной модели: '+muscleLoadError:(muscleReady?'Мышечная модель загружена.':'Загрузка оригинальной модели мышц...');
  }else{
    ecorche.restore();
    beginTest(selectedQuestions());
