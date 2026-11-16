@@ -9,6 +9,7 @@ export function createEcorche(scene,camera,canvas){
  const meshes=[];let picked=null;let onPick=()=>{};
  let phase='loading';
  const materialCache=new Map();
+ const hidden=new Set();
  function restore(){
    for(const [mesh,material] of materialCache){mesh.material=material;}
    materialCache.clear();
@@ -31,7 +32,7 @@ export function createEcorche(scene,camera,canvas){
    const r=canvas.getBoundingClientRect();
    pointer.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));
    ray.setFromCamera(pointer,camera);
-   const hit=ray.intersectObjects(meshes,false)[0];
+   const hit=ray.intersectObjects(meshes.filter(m=>m.visible),false)[0];
    if(hit){picked=hit.object;highlight([picked]);onPick(picked);}
  }
  canvas.addEventListener('click',click);
@@ -57,6 +58,10 @@ export function createEcorche(scene,camera,canvas){
    },undefined,error=>{phase='error';reject(error);});
  });
  return {root,ready,meshes,highlight,restore,get phase(){return phase;},
+   hidePicked(){if(!picked)return false;picked.visible=false;hidden.add(picked);restore();return true;},
+   showAll(){for(const mesh of hidden)mesh.visible=true;hidden.clear();restore();},
+   getPicked(){return picked;},
+   getPickedCenter(){if(!picked)return null;const bounds=new THREE.Box3().setFromObject(picked);return bounds.getCenter(new THREE.Vector3());},
    setOnPick(fn){onPick=fn;},
    selectByName(query){
      const q=query.toLowerCase().trim();
