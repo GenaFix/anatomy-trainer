@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Anatomy Trainer 2.9.4</title>
-<link rel="stylesheet" href="./style.css?v=ec2">
+<link rel="stylesheet" href="./style.css?v=ec3">
 
 <script type="importmap">
 {
@@ -53,6 +53,12 @@
     </div>
 
     <button id="touchRotate" type="button" hidden aria-pressed="false">Вращать 3D-модель</button>
+    <div id="muscleTools" class="controls hidden">
+      <button id="hideMuscleMesh" type="button">Скрыть выбранное</button>
+      <button id="restoreMuscleMeshes" type="button">Вернуть слои</button>
+      <button id="focusMuscleMesh" type="button">Приблизить выбранное</button>
+    </div>
+    <p id="muscleGestureHint" class="small muted hidden">Один палец: вращение. Два пальца: перемещение или масштабирование. Для прокрутки страницы нажмите «Готово».</p>
     <div id="stage">
       <div id="viewLabel">3D-модель</div>
     </div>
@@ -113,6 +119,6 @@
 
 </main>
 
-<script type="module" src="./app.js?v=ec2"></script>
+<script type="module" src="./app.js?v=ec3"></script>
 </body>
 </html>
