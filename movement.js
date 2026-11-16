@@ -72,21 +72,30 @@ export function createMovementModel(scene) {
     return object;
   }
 
+  // Анатомически более мягкие объёмы без внешних 3D-ресурсов.
+  function ellipsoid(parent,x,y,z,rx,ry,rz,material=body) {
+    const mesh=ball(parent,x,y,z,1,material);
+    mesh.scale.set(rx,ry,rz);
+    return mesh;
+  }
+
   // Туловище
   const torsoPivot = pivot(group, 0, 1.55, 0);
   const torso = new THREE.Group();
   torso.position.y = -1.55;
   torsoPivot.add(torso);
 
-  box(torso, 0, 2.3, 0, 0.9, 1.06, 0.38);
-  box(torso, 0, 1.67, 0, 0.71, 0.25, 0.4);
-  box(torso, 0, 2.96, 0, 0.18, 0.25, 0.18);
+  // Таз, поясница и грудная клетка видимы как отдельные объёмы.
+  // Вращение torsoPivot сохраняет целостность всех дочерних узлов.
+  ellipsoid(torso,0,1.64,0,0.43,0.24,0.26);
+  ellipsoid(torso,0,1.97,0,0.34,0.36,0.22);
+  ellipsoid(torso,0,2.49,0,0.49,0.48,0.29);
+  ellipsoid(torso,0,2.94,0,0.12,0.17,0.12);
 
   // Голова и лицо
   const head = pivot(torso, 0, 3.13, 0);
 
-  const skull = ball(head, 0, 0.23, 0, 0.26, face);
-  skull.scale.set(0.86, 1.15, 0.9);
+  const skull = ellipsoid(head,0,0.23,0,0.225,0.30,0.235,face);
 
   ball(head, -0.09, 0.27, 0.23, 0.025, dark);
   ball(head, 0.09, 0.27, 0.23, 0.025, dark);
@@ -114,6 +123,7 @@ export function createMovementModel(scene) {
     ball(shoulder, 0, 0, 0, 0.14);
 
     const upper = segment(shoulder, 0.68, 0.115);
+    upper.scale.set(1.12,1,1.08);
 
     const elbow = pivot(shoulder, 0, -0.72, 0);
     ball(elbow, 0, 0, 0, 0.105);
@@ -156,6 +166,7 @@ export function createMovementModel(scene) {
     ball(hip, 0, 0, 0, 0.15);
 
     const thigh = segment(hip, 0.72, 0.16);
+    thigh.scale.set(1.08,1,1.08);
 
     const knee = pivot(hip, 0, -0.79, 0);
     ball(knee, 0, 0, 0, 0.13);
@@ -253,7 +264,11 @@ export function createMovementModel(scene) {
     trunkSideLeft:{view:'front',joint:'trunkSide',from:0,to:0.3},
     trunkSideRight:{view:'front',joint:'trunkSide',from:0,to:-0.3},
     scapElevate:{view:'front',joint:'girdle',from:0,to:0.18},
-    scapDepress:{view:'front',joint:'girdle',from:0,to:-0.14}
+    scapDepress:{view:'front',joint:'girdle',from:0,to:-0.14},
+    trunkFlex:{view:'right',joint:'trunkSagittal',from:0,to:0.32},
+    trunkExtend:{view:'right',joint:'trunkSagittal',from:0,to:-0.25},
+    trunkRotateLeft:{view:'front',joint:'trunkRotate',from:0,to:0.45},
+    trunkRotateRight:{view:'front',joint:'trunkRotate',from:0,to:-0.45}
   });
   const arrowGroup = new THREE.Group();
   group.add(arrowGroup);
@@ -427,13 +442,15 @@ export function createMovementModel(scene) {
         points.push(new THREE.Vector3(center.x,center.y-radius*Math.sin(a),center.z+radius*Math.cos(a)));
       }
     }
-    if(spec.joint==='wrist'||spec.joint==='neck'||spec.joint==='trunkSide'||spec.joint==='girdle'){
+    if(spec.joint==='wrist'||spec.joint==='neck'||spec.joint==='trunkSide'||spec.joint==='girdle'||spec.joint==='trunkSagittal'||spec.joint==='trunkRotate'){
       for(let i=0;i<=count;i++){
         const t=i/count, a=spec.from+(spec.to-spec.from)*t;
         if(spec.joint==='wrist')points.push(new THREE.Vector3(-0.56,1.4-0.48*Math.cos(a),0.4-0.48*Math.sin(a)));
         if(spec.joint==='neck')points.push(new THREE.Vector3(0.4*Math.sin(a),3.66,0.4*Math.cos(a)));
         if(spec.joint==='trunkSide')points.push(new THREE.Vector3(-1.25*Math.sin(a),1.58+1.25*Math.cos(a),0.45));
         if(spec.joint==='girdle')points.push(new THREE.Vector3(-0.85,2.75+a,0.35));
+        if(spec.joint==='trunkSagittal')points.push(new THREE.Vector3(-0.1,1.55+1.3*Math.cos(a),0.45+1.3*Math.sin(a)));
+        if(spec.joint==='trunkRotate')points.push(new THREE.Vector3(0.7*Math.sin(a),2.45,0.7*Math.cos(a)));
       }
     }
     if (points.length > 1) {
@@ -552,6 +569,8 @@ export function createMovementModel(scene) {
     if(spec.joint==='wrist')arms.right.hand.rotation.x=angle;
     if(spec.joint==='neck')head.rotation.y=angle;
     if(spec.joint==='trunkSide')torsoPivot.rotation.z=angle;
+    if(spec.joint==='trunkSagittal')torsoPivot.rotation.x=angle;
+    if(spec.joint==='trunkRotate')torsoPivot.rotation.y=angle;
     if(spec.joint==='girdle'){
       arms.right.shoulder.position.y=2.77+angle;
       arms.left.shoulder.position.y=2.77+angle;
