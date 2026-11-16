@@ -88,6 +88,8 @@ $('resetView').onclick=()=>setView('front');
 const dictionary={
   ru:{
     question:'Как называется показанное движение?',
+    directionQuestion:'Как называется направление жёлтой стрелки?',
+    planeQuestion:'Какая анатомическая плоскость выделена?',
     next:'Следующий вопрос',
     restart:'Новый тест',
     repeat:'Повторить ошибки',
@@ -98,6 +100,8 @@ const dictionary={
   },
   en:{
     question:'What movement is shown?',
+    directionQuestion:'Which anatomical direction does the yellow arrow indicate?',
+    planeQuestion:'Which anatomical plane is highlighted?',
     next:'Next question',
     restart:'New test',
     repeat:'Retry mistakes',
@@ -228,7 +232,7 @@ function showQuestion(){
   const id=questions[index];
   $('counter').textContent=
     `${index+1} / ${questions.length} · ✓ ${score}`;
-  $('question').textContent=tr('question');
+  $('question').textContent=tr(planeIds.includes(id)?'planeQuestion':directionIds.includes(id)?'directionQuestion':'question');
   $('feedback').textContent='';
   $('answers').innerHTML='';
   $('next').disabled=true;
@@ -250,9 +254,9 @@ function showQuestion(){
   }
   $('status').textContent=visual
     ? (visual.type==='plane'
-      ? 'Определи выделенную анатомическую плоскость.'
-      : 'Определи направление жёлтой стрелки.')
-    : 'Определи движение по жёлтой стрелке.';
+      ? (language==='en'?'Identify the highlighted anatomical plane.':'Определи выделенную анатомическую плоскость.')
+      : (language==='en'?'Identify the arrow direction.':'Определи направление жёлтой стрелки.'))
+    : (language==='en'?'Identify the movement from the arrow.':'Определи движение по жёлтой стрелке.');
 
   for(const choice of choicesFor(id)){
     const button=document.createElement('button');
