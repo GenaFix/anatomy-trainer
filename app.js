@@ -146,6 +146,14 @@ const movementNames={
   hipAdduction:['Аддукция бедра','Hip adduction'],
   ankleDorsi:['Тыльное сгибание стопы','Ankle dorsiflexion'],
   anklePlantar:['Подошвенное сгибание стопы','Ankle plantarflexion'],
+  wristFlex:['Сгибание кисти','Wrist flexion'],
+  wristExtend:['Разгибание кисти','Wrist extension'],
+  neckRotateLeft:['Поворот головы влево','Head rotation left'],
+  neckRotateRight:['Поворот головы вправо','Head rotation right'],
+  trunkSideLeft:['Наклон туловища влево','Left trunk lateral flexion'],
+  trunkSideRight:['Наклон туловища вправо','Right trunk lateral flexion'],
+  scapElevate:['Подъём плечевого пояса','Shoulder girdle elevation'],
+  scapDepress:['Опускание плечевого пояса','Shoulder girdle depression'],
   superior:['Краниально (верхний)','Superior (cranial)'],
   inferior:['Каудально (нижний)','Inferior (caudal)'],
   anterior:['Вентрально (передний)','Anterior (ventral)'],
@@ -194,6 +202,14 @@ const descriptions={
   hipAdduction:['Приведение бедра к срединной линии тела.','Moving the thigh toward the body midline.'],
   ankleDorsi:['Подъём переднего отдела стопы к голени.','Moving the top of the foot toward the shin.'],
   anklePlantar:['Движение переднего отдела стопы вниз от голени.','Pointing the foot downward away from the shin.'],
+  wristFlex:['Сгибание кисти в лучезапястном суставе.','Flexion at the wrist.'],
+  wristExtend:['Разгибание кисти в лучезапястном суставе.','Extension at the wrist.'],
+  neckRotateLeft:['Поворот головы влево относительно туловища.','Turning the head to the person's left.'],
+  neckRotateRight:['Поворот головы вправо относительно туловища.','Turning the head to the person's right.'],
+  trunkSideLeft:['Боковое сгибание туловища влево.','Lateral flexion of the trunk to the left.'],
+  trunkSideRight:['Боковое сгибание туловища вправо.','Lateral flexion of the trunk to the right.'],
+  scapElevate:['Движение плечевого пояса вверх.','Moving the shoulder girdle upward.'],
+  scapDepress:['Движение плечевого пояса вниз.','Moving the shoulder girdle downward.'],
   superior:['Направление к голове.','Toward the head.'],
   inferior:['Направление к стопам.','Toward the feet.'],
   anterior:['Направление к передней поверхности тела.','Toward the front of the body.'],
@@ -212,7 +228,7 @@ const descriptions={
 const allQuestions=Object.keys(movementNames);
 const directionIds=['superior','inferior','anterior','posterior','medial','lateral','proximal','distal','superficial','deep'];
 const planeIds=['sagittal','frontal','transverse'];
-const movementIds=['abduction','adduction','shoulderFlex','shoulderExtend','elbowFlex','elbowExtend','kneeFlex','kneeExtend','hipFlex','hipExtend','hipAbduction','hipAdduction','ankleDorsi','anklePlantar'];
+const movementIds=['abduction','adduction','shoulderFlex','shoulderExtend','elbowFlex','elbowExtend','kneeFlex','kneeExtend','hipFlex','hipExtend','hipAbduction','hipAdduction','ankleDorsi','anklePlantar','wristFlex','wristExtend','neckRotateLeft','neckRotateRight','trunkSideLeft','trunkSideRight','scapElevate','scapDepress'];
 
 function shuffle(array){
   const a=[...array];
@@ -275,6 +291,10 @@ function choicesFor(correct){
   const opposites={
     abduction:'adduction', adduction:'abduction',
     shoulderFlex:'shoulderExtend', shoulderExtend:'shoulderFlex',
+    wristFlex:'wristExtend', wristExtend:'wristFlex',
+    neckRotateLeft:'neckRotateRight', neckRotateRight:'neckRotateLeft',
+    trunkSideLeft:'trunkSideRight', trunkSideRight:'trunkSideLeft',
+    scapElevate:'scapDepress', scapDepress:'scapElevate',
     elbowFlex:'elbowExtend', elbowExtend:'elbowFlex',
     kneeFlex:'kneeExtend', kneeExtend:'kneeFlex',
     hipFlex:'hipExtend', hipExtend:'hipFlex',
