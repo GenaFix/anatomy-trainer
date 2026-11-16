@@ -143,6 +143,7 @@ export function createMovementModel(scene) {
     arms[key] = {
       shoulder,
       elbow,
+      hand,
       upper,
       forearm,
       palm,
@@ -242,6 +243,16 @@ export function createMovementModel(scene) {
     anklePlantar: {view:'right',joint:'ankle',from:0,to:0.55}
   };
 
+  Object.assign(movements,{
+    wristFlex:{view:'right',joint:'wrist',from:0,to:-0.85},
+    wristExtend:{view:'right',joint:'wrist',from:0,to:0.75},
+    neckRotateLeft:{view:'front',joint:'neck',from:0,to:-0.8},
+    neckRotateRight:{view:'front',joint:'neck',from:0,to:0.8},
+    trunkSideLeft:{view:'front',joint:'trunkSide',from:0,to:0.3},
+    trunkSideRight:{view:'front',joint:'trunkSide',from:0,to:-0.3},
+    scapElevate:{view:'front',joint:'girdle',from:0,to:0.18},
+    scapDepress:{view:'front',joint:'girdle',from:0,to:-0.14}
+  });
   const arrowGroup = new THREE.Group();
   group.add(arrowGroup);
 
@@ -414,6 +425,15 @@ export function createMovementModel(scene) {
         points.push(new THREE.Vector3(center.x,center.y-radius*Math.sin(a),center.z+radius*Math.cos(a)));
       }
     }
+    if(spec.joint==='wrist'||spec.joint==='neck'||spec.joint==='trunkSide'||spec.joint==='girdle'){
+      for(let i=0;i<=count;i++){
+        const t=i/count, a=spec.from+(spec.to-spec.from)*t;
+        if(spec.joint==='wrist')points.push(new THREE.Vector3(-0.56,1.4-0.48*Math.cos(a),0.4-0.48*Math.sin(a)));
+        if(spec.joint==='neck')points.push(new THREE.Vector3(0.4*Math.sin(a),3.66,0.4*Math.cos(a)));
+        if(spec.joint==='trunkSide')points.push(new THREE.Vector3(-1.25*Math.sin(a),1.58+1.25*Math.cos(a),0.45));
+        if(spec.joint==='girdle')points.push(new THREE.Vector3(-0.85,2.75+a,0.35));
+      }
+    }
     if (points.length > 1) {
       addArrow(points);
     }
@@ -423,8 +443,12 @@ export function createMovementModel(scene) {
     for (const arm of Object.values(arms)) {
       arm.shoulder.rotation.set(0, 0, 0);
       arm.elbow.rotation.set(0, 0, 0);
+      arm.hand.rotation.set(0,0,0);
+      arm.shoulder.position.y=2.77;
     }
 
+    head.rotation.set(0,0,0);
+    torso.rotation.set(0,0,0);
     for (const leg of Object.values(legs)) {
       leg.hip.rotation.set(0, 0, 0);
       leg.knee.rotation.set(0, 0, 0);
@@ -476,6 +500,14 @@ export function createMovementModel(scene) {
     if (current === 'ankleDorsi' || current === 'anklePlantar') {
       leg.foot.material = color;
     }
+    if(current==='wristFlex'||current==='wristExtend'){
+      arm.palm.material=color;
+      arm.fingers.forEach(m=>m.material=color);
+    }
+    if(current==='scapElevate'||current==='scapDepress'){
+      arm.upper.material=color;
+      arm.forearm.material=color;
+    }
     if (current === 'kneeFlex' ||
         current === 'kneeExtend') {
       leg.shin.material = color;
@@ -515,6 +547,13 @@ export function createMovementModel(scene) {
       legs.right.hip.rotation.z = angle;
     }
 
+    if(spec.joint==='wrist')arms.right.hand.rotation.x=angle;
+    if(spec.joint==='neck')head.rotation.y=angle;
+    if(spec.joint==='trunkSide')torso.rotation.z=angle;
+    if(spec.joint==='girdle'){
+      arms.right.shoulder.position.y=2.77+angle;
+      arms.left.shoulder.position.y=2.77+angle;
+    }
     paintMovement(forward);
   }
 
