@@ -52,17 +52,14 @@ export function createMovementModel(scene) {
   }
 
   function segment(parent, length, radius) {
-    return addMesh(
+    const mesh=addMesh(
       parent,
-      new THREE.CylinderGeometry(
-        radius * 0.9,
-        radius,
-        length,
-        18
-      ),
+      new THREE.SphereGeometry(1,24,16),
       body,
-      new THREE.Vector3(0, -length / 2, 0)
+      new THREE.Vector3(0,-length/2,0)
     );
+    mesh.scale.set(radius,length/2+0.025,radius*0.94);
+    return mesh;
   }
 
   function pivot(parent, x, y, z) {
@@ -131,26 +128,20 @@ export function createMovementModel(scene) {
     const forearm = segment(elbow, 0.6, 0.09);
     const hand = pivot(elbow, 0, -0.65, 0);
 
-    const palm = box(
-      hand, 0, -0.13, 0.01,
-      0.18, 0.27, 0.09
-    );
-
-    const fingers = [];
-
-    for (let i = 0; i < 4; i++) {
-      fingers.push(
-        box(
-          hand,
-          (i - 1.5) * 0.043,
-          -0.32,
-          0.015,
-          0.033,
-          0.12,
-          0.045
-        )
+    // Ладонь и пальцы имеют округлую форму.
+    // Большой палец расположен на лучевой стороне кисти.
+    const palm=ellipsoid(hand,0,-0.135,0.012,0.104,0.16,0.062);
+    const fingers=[];
+    for(let i=0;i<4;i++){
+      const finger=ellipsoid(
+        hand,(i-1.5)*0.046,-0.337+(i===0||i===3?0.015:0),
+        0.012,0.019,i===1||i===2?0.105:0.088,0.024
       );
+      fingers.push(finger);
     }
+    const thumb=ellipsoid(hand,side*0.128,-0.155,0.052,0.038,0.095,0.037);
+    thumb.rotation.z=side*0.55;
+    fingers.push(thumb);
 
     arms[key] = {
       shoulder,
@@ -175,10 +166,15 @@ export function createMovementModel(scene) {
 
     const ankle = pivot(knee, 0, -0.72, 0);
 
-    const foot = box(
-      ankle, 0, -0.045, 0.16,
-      0.24, 0.14, 0.45
-    );
+    // Пятка, свод и передний отдел стопы.
+    const foot=ellipsoid(ankle,0,-0.055,0.165,0.135,0.092,0.265);
+    ellipsoid(foot,0,-0.09,0.62,0.88,0.55,0.42);
+    // Пальцы стопы размещены относительно локальных координат меша.
+    for(let i=0;i<5;i++){
+      const toe=ellipsoid(ankle,(i-2)*0.049,-0.075,0.405,
+        i===2?0.033:0.027,0.034,0.078);
+      toe.material=body;
+    }
 
     legs[key] = {
       hip,
@@ -190,7 +186,7 @@ export function createMovementModel(scene) {
     };
   }
 
-  // Шесть направленных движений
+  // Направленные движения
   const movements = {
     abduction: {
       ru: 'Абдукция плеча',
