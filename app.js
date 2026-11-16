@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2923';
-import {createVectorModel} from './vectors.js?v=292';
+import {createVectorModel} from './vectors.js?v=2924';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -213,8 +213,8 @@ const movementNames={
   neckRotateRight:['Аксиальная ротация головы вправо','Head rotation right'],
   trunkSideLeft:['Латерофлексия туловища влево','Left trunk lateral flexion'],
   trunkSideRight:['Латерофлексия туловища вправо','Right trunk lateral flexion'],
-  scapElevate:['Подъём плечевого пояса','Shoulder girdle elevation'],
-  scapDepress:['Опускание плечевого пояса','Shoulder girdle depression'],
+  scapElevate:['Элевация плечевого пояса','Shoulder girdle elevation'],
+  scapDepress:['Депрессия плечевого пояса','Shoulder girdle depression'],
   trunkFlex:['Флексия туловища','Trunk flexion'],
   trunkExtend:['Экстензия туловища','Trunk extension'],
   trunkRotateLeft:['Аксиальная ротация туловища влево','Left axial trunk rotation'],
