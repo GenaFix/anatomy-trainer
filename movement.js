@@ -576,9 +576,73 @@ export function createMovementModel(scene) {
     paintMovement(forward);
   }
 
+
+  // Составные направления: перемещается конечность относительно туловища.
+  // Координаты модели: +Y краниально, +Z вентрально, -X анатомически вправо.
+  const compoundAxes = {
+    cranioMedial:[1,1,0],cranioLateral:[-1,1,0],
+    caudoMedial:[1,-1,0],caudoLateral:[-1,-1,0],
+    cranioVentral:[0,1,1],cranioDorsal:[0,1,-1],
+    caudoVentral:[0,-1,1],caudoDorsal:[0,-1,-1],
+    cranioLateroVentral:[-1,1,1],cranioMedioVentral:[1,1,1],
+    caudoLateroDorsal:[-1,-1,-1],caudoMedioDorsal:[1,-1,-1]
+  };
+  let compound = null;
+  const down = new THREE.Vector3(0,-1,0);
+  const startQuat = new THREE.Quaternion();
+  const endQuat = new THREE.Quaternion();
+  const poseQuat = new THREE.Quaternion();
+  function setCompound(id, limb='arm') {
+    if (!compoundAxes[id]) return;
+    current = 'abduction';
+    clearArrow();
+    arrowGroup.visible = false;
+    resetPose();
+    const [lateral, vertical, depth] = compoundAxes[id];
+    const useLeg = limb === 'leg';
+    // Начальное положение зависит от направления: медиальное движение
+    // начинается из отведения, каудальное из приподнятого положения.
+    const start = new THREE.Vector3(
+      lateral > 0 ? -0.66 : -0.16,
+      vertical > 0 ? -0.94 : -0.38,
+      depth > 0 ? -0.23 : depth < 0 ? 0.23 : 0
+    ).normalize();
+    const end = new THREE.Vector3(
+      lateral > 0 ? -0.12 : -0.70,
+      vertical > 0 ? -0.38 : -0.96,
+      depth > 0 ? 0.40 : depth < 0 ? -0.40 : 0
+    ).normalize();
+    startQuat.setFromUnitVectors(down,start);
+    endQuat.setFromUnitVectors(down,end);
+    compound={id,limb:useLeg?'leg':'arm'};
+    playing=true;
+    lastPhase=-1;
+    applyCompound(0);
+  }
+  function applyCompound(progress) {
+    if(!compound)return;
+    resetPose();
+    const target=compound.limb==='leg'?legs.right.hip:arms.right.shoulder;
+    poseQuat.copy(startQuat).slerp(endQuat,progress);
+    target.quaternion.copy(poseQuat);
+    paintMovement(false);
+    const items=compound.limb==='leg'?[
+      legs.right.thigh,legs.right.shin,legs.right.foot
+    ]:[
+      arms.right.upper,arms.right.forearm,arms.right.palm,...arms.right.fingers
+    ];
+    for(const mesh of items)mesh.material=active;
+  }
+  function clearCompound(){
+    compound=null;
+    resetPose();
+    paintMovement(false);
+  }
+
   function setMovement(id) {
     if (!movements[id]) return;
 
+    clearCompound();
     current = id;
     lastPhase = -1;
 
@@ -609,7 +673,8 @@ export function createMovementModel(scene) {
       : 1 - smooth;
 
     if (Math.abs(progress - lastPhase) > 0.0001) {
-      applyPose(progress, forward);
+      if(compound)applyCompound(progress);
+      else applyPose(progress, forward);
       lastPhase = progress;
     }
   }
@@ -653,6 +718,8 @@ export function createMovementModel(scene) {
     group,
     movements,
     setMovement,
+    setCompound,
+    clearCompound,
     setPlaying,
     setNeutralPose,
     update,
