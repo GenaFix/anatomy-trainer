@@ -183,3 +183,25 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 .muscle-answers .muscle-choice.correct{background:#176d58!important}
 .muscle-answers .muscle-choice.wrong{background:#80394e!important}
 @media(max-width:600px){.muscle-answers.easy{grid-template-columns:minmax(0,1fr)}}
+
+/* Compact muscle quiz, readable on phones */
+.topbar-tools{min-width:0}
+.muscle-global-search{min-width:0;flex:1 1 150px;max-width:240px;padding:8px 10px;font-size:14px;color:#fff;background:#24456b;border:1px solid #6b9dcc;border-radius:8px}
+.muscle-study{gap:8px}
+.muscle-compact-settings{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:7px}
+.muscle-compact-settings select{min-width:0;width:100%;padding:9px 24px 9px 8px;font-size:14px}
+.muscle-question{font-size:18px;line-height:1.35;margin:5px 0 3px}
+.muscle-diagnostics{font-size:12px;color:#b4c7df}
+.muscle-diagnostics summary{cursor:pointer}
+.muscle-diagnostics p{margin-top:5px}
+.muscle-answers.easy .muscle-choice{font-size:17px;line-height:1.35;min-height:62px;padding:13px 11px}
+.muscle-answers:not(.easy) .muscle-choice{font-size:15px;line-height:1.35;min-height:44px;padding:9px 8px}
+.muscle-choice input{width:18px;height:18px;accent-color:#42d2f4}
+@media(max-width:800px){
+ .muscle-global-search{max-width:none;flex:1 1 130px}
+ .muscle-compact-settings{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .muscle-compact-settings select{font-size:13px;padding:9px 16px 9px 6px}
+ .muscle-question{font-size:19px}
+ .muscle-answers.easy .muscle-choice{font-size:18px;min-height:64px}
+ .muscle-answers:not(.easy) .muscle-choice{font-size:16px}
+}
