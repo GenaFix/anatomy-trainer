@@ -64,6 +64,10 @@ export function createVectorModel(scene) {
     posterior: {type:'direction', start:[-0.7,2.1,0.9], dir:[0,0,-1], view:'right'},
     medial: {type:'direction', start:[-1.35,2.05,0.55], dir:[1,0,0], view:'front'},
     lateral: {type:'direction', start:[-0.75,2.05,0.55], dir:[-1,0,0], view:'front'},
+    proximal: {type:'direction', start:[-0.56,1.8,0.55], dir:[0,1,0], view:'front'},
+    distal: {type:'direction', start:[-0.56,2.5,0.55], dir:[0,-1,0], view:'front'},
+    superficial: {type:'direction', start:[-0.7,2.25,0.05], dir:[0,0,1], view:'right'},
+    deep: {type:'direction', start:[-0.7,2.25,1.05], dir:[0,0,-1], view:'right'},
     sagittal: {type:'plane', view:'oblique'},
     frontal: {type:'plane', view:'oblique'},
     transverse: {type:'plane', view:'oblique'}
