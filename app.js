@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
-import {createMovementModel} from './movement.js?v=2935';
+import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
 
 const $=id=>document.getElementById(id);
@@ -323,6 +323,51 @@ const combinationDescriptions={
   comboTrunkFlexRotateLeft:["Туловище сгибается и поворачивается влево.","The trunk flexes and rotates left."],
   comboTrunkExtendRotateRight:["Туловище разгибается и поворачивается вправо.","The trunk extends and rotates right."]
 };
+// 2.9.4: additional combined-movement quiz items.
+const addedCombinations={
+  extrashoulderFlexelbowFlex:["Флексия плеча + флексия локтя","Shoulder flexion + elbow flexion"],
+  extrashoulderFlexelbowExtend:["Флексия плеча + экстензия локтя","Shoulder flexion + elbow extension"],
+  extrashoulderFlexwristFlex:["Флексия плеча + флексия кисти","Shoulder flexion + wrist flexion"],
+  extrashoulderFlexwristExtend:["Флексия плеча + экстензия кисти","Shoulder flexion + wrist extension"],
+  extrashoulderFlexsupinate:["Флексия плеча + супинация предплечья","Shoulder flexion + forearm supination"],
+  extrashoulderFlexpronate:["Флексия плеча + пронация предплечья","Shoulder flexion + forearm pronation"],
+  extrashoulderExtendelbowFlex:["Экстензия плеча + флексия локтя","Shoulder extension + elbow flexion"],
+  extrashoulderExtendelbowExtend:["Экстензия плеча + экстензия локтя","Shoulder extension + elbow extension"],
+  extrashoulderExtendwristFlex:["Экстензия плеча + флексия кисти","Shoulder extension + wrist flexion"],
+  extrashoulderExtendwristExtend:["Экстензия плеча + экстензия кисти","Shoulder extension + wrist extension"],
+  extrashoulderExtendsupinate:["Экстензия плеча + супинация предплечья","Shoulder extension + forearm supination"],
+  extrashoulderExtendpronate:["Экстензия плеча + пронация предплечья","Shoulder extension + forearm pronation"],
+  extrahipFlexkneeExtend:["Флексия бедра + экстензия колена","Hip flexion + knee extension"],
+  extrahipExtendkneeFlex:["Экстензия бедра + флексия колена","Hip extension + knee flexion"],
+  extrahipExtendkneeExtend:["Экстензия бедра + экстензия колена","Hip extension + knee extension"],
+  extrahipAbductkneeFlex:["Абдукция бедра + флексия колена","Hip abduction + knee flexion"],
+  extrahipAbductkneeExtend:["Абдукция бедра + экстензия колена","Hip abduction + knee extension"],
+  extrahipAdductkneeFlex:["Аддукция бедра + флексия колена","Hip adduction + knee flexion"],
+  extrahipAdductkneeExtend:["Аддукция бедра + экстензия колена","Hip adduction + knee extension"],
+  extrahipFlexankleDorsi:["Флексия бедра + тыльная флексия стопы","Hip flexion + ankle dorsiflexion"],
+  extrahipFlexanklePlantar:["Флексия бедра + подошвенная флексия стопы","Hip flexion + ankle plantarflexion"],
+  extrahipExtendankleDorsi:["Экстензия бедра + тыльная флексия стопы","Hip extension + ankle dorsiflexion"],
+  extrahipExtendanklePlantar:["Экстензия бедра + подошвенная флексия стопы","Hip extension + ankle plantarflexion"],
+  extraankleDorsiinvert:["Тыльная флексия стопы + инверсия стопы","Ankle dorsiflexion + foot inversion"],
+  extraanklePlantarevert:["Подошвенная флексия стопы + эверсия стопы","Ankle plantarflexion + foot eversion"],
+  extrakneeFlexankleDorsi:["Флексия колена + тыльная флексия стопы","Knee flexion + ankle dorsiflexion"],
+  extrakneeFlexanklePlantar:["Флексия колена + подошвенная флексия стопы","Knee flexion + ankle plantarflexion"],
+  extrakneeExtendankleDorsi:["Экстензия колена + тыльная флексия стопы","Knee extension + ankle dorsiflexion"],
+  extrakneeExtendanklePlantar:["Экстензия колена + подошвенная флексия стопы","Knee extension + ankle plantarflexion"],
+  extratrunkFlexrotateRight:["Флексия туловища + ротация вправо","Trunk flexion + right rotation"],
+  extratrunkExtendrotateLeft:["Экстензия туловища + ротация влево","Trunk extension + left rotation"],
+  extratrunkSideLeftrotateLeft:["Латерофлексия туловища влево + ротация влево","Trunk left lateral flexion + left rotation"],
+  extratrunkSideLeftrotateRight:["Латерофлексия туловища влево + ротация вправо","Trunk left lateral flexion + right rotation"],
+  extratrunkSideRightrotateLeft:["Латерофлексия туловища вправо + ротация влево","Trunk right lateral flexion + left rotation"],
+  extratrunkSideRightrotateRight:["Латерофлексия туловища вправо + ротация вправо","Trunk right lateral flexion + right rotation"],
+  extraneckLefttrunkFlex:["Ротация головы влево + флексия туловища","Head left rotation + trunk flexion"],
+  extraneckLefttrunkExtend:["Ротация головы влево + экстензия туловища","Head left rotation + trunk extension"],
+  extraneckRighttrunkFlex:["Ротация головы вправо + флексия туловища","Head right rotation + trunk flexion"],
+  extraneckRighttrunkExtend:["Ротация головы вправо + экстензия туловища","Head right rotation + trunk extension"],
+  extrashoulderAbductelbowFlex:["Абдукция плеча + флексия локтя","Shoulder abduction + elbow flexion"]
+};
+Object.assign(combinationNames,addedCombinations);
+for(const [id,names] of Object.entries(addedCombinations))combinationDescriptions[id]=[names[0]+'.',names[1]+'.'];
 const combinationIds=Object.keys(combinationNames);
 Object.assign(movementNames,combinationNames);
 Object.assign(descriptions,combinationDescriptions);
