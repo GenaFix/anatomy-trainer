@@ -158,3 +158,19 @@ button:disabled{opacity:.5;cursor:default}
 .muscle-choice{font-size:12px;display:flex;align-items:center;gap:5px;padding:5px;cursor:pointer}
 .muscle-choice input{flex-shrink:0}
 @media(max-width:600px){.muscle-answers{grid-template-columns:1fr}}
+
+/* Mobile: never let the muscle checklist enlarge the viewport */
+html,body{width:100%;max-width:100%;overflow-x:clip}
+main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-width:100%}
+.workspace{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+#stage{width:100%;min-width:0}
+#musclePanel select,#musclePanel input{max-width:100%;min-width:0}
+.muscle-answers{min-width:0;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
+.muscle-choice{min-width:0;overflow-wrap:anywhere;white-space:normal}
+.muscle-study>button{white-space:normal}
+@media(max-width:800px){
+ .workspace{grid-template-columns:minmax(0,1fr)}
+ .muscle-answers{grid-template-columns:minmax(0,1fr)}
+ .topbar{min-width:0}
+ .topbar h1{overflow-wrap:anywhere}
+}
