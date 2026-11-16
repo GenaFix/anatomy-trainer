@@ -217,3 +217,11 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 @media(max-width:600px){
  #stage .muscle-global-search{width:min(46%,175px);font-size:13px;padding:8px}
 }
+
+/* 2.9.4.2: Search in controls, never covering anatomical model */
+#stage .muscle-global-search{position:static;top:auto;right:auto;box-shadow:none}
+.model-interaction-row{display:flex;align-items:center;gap:8px;min-width:0;margin:7px 0}
+.model-interaction-row #touchRotate{flex:0 1 auto;margin:0}
+.model-interaction-row .muscle-global-search{flex:1 1 110px;min-width:0;width:auto;max-width:none;font-size:14px;padding:9px 10px}
+#viewControls .muscle-global-search{flex:1 1 140px;min-width:110px;width:auto;max-width:240px;margin-left:auto;font-size:13px}
+@media(max-width:800px){.model-interaction-row #touchRotate{max-width:58%;white-space:normal}.model-interaction-row .muscle-global-search{max-width:none;width:auto}}
