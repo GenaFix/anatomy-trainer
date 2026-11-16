@@ -340,7 +340,7 @@ export function createMovementModel(scene) {
           new THREE.Vector3(
             center.x,
             center.y - radius * Math.cos(a),
-            center.z + radius * Math.sin(a)
+            center.z - radius * Math.sin(a)
           )
         );
       }
@@ -362,7 +362,7 @@ export function createMovementModel(scene) {
           new THREE.Vector3(
             center.x,
             center.y - radius * Math.cos(a),
-            center.z + radius * Math.sin(a)
+            center.z - radius * Math.sin(a)
           )
         );
       }
@@ -479,10 +479,7 @@ export function createMovementModel(scene) {
       ? smooth
       : 1 - smooth;
 
-    if (
-      Math.abs(progress - lastPhase) > 0.0001 ||
-      Math.abs(progress - lastPhase) < 0.0001
-    ) {
+    if (Math.abs(progress - lastPhase) > 0.0001) {
       applyPose(progress, forward);
       lastPhase = progress;
     }
