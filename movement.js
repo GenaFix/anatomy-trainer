@@ -328,6 +328,51 @@ export function createMovementModel(scene) {
     comboTrunkFlexRotateLeft:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(.27*p,.35*p,0,'YXZ');}},
     comboTrunkExtendRotateRight:{view:'oblique',parts:'torso',pose:p=>{torsoPivot.rotation.set(-.22*p,-.35*p,0,'YXZ');}}
   };
+  // Additional combined movements: two successive, visible phases.
+  const firstPhase=p=>Math.min(1,p/.55);
+  const secondPhase=p=>Math.max(0,Math.min(1,(p-.45)/.55));
+  Object.assign(combinations,{
+    extrashoulderFlexelbowFlex:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=-.9*A;arms.right.elbow.rotation.x=-1.2*B}},
+    extrashoulderFlexelbowExtend:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=-.9*A;arms.right.elbow.rotation.x=-1.2*(1-B)}},
+    extrashoulderFlexwristFlex:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=-.9*A;arms.right.hand.rotation.x=-.6*B}},
+    extrashoulderFlexwristExtend:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=-.9*A;arms.right.hand.rotation.x=.6*B}},
+    extrashoulderFlexsupinate:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=-.9*A;arms.right.elbow.rotation.y=1.1*B}},
+    extrashoulderFlexpronate:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=-.9*A;arms.right.elbow.rotation.y=-1.1*B}},
+    extrashoulderExtendelbowFlex:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=.5*A;arms.right.elbow.rotation.x=-1.2*B}},
+    extrashoulderExtendelbowExtend:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=.5*A;arms.right.elbow.rotation.x=-1.2*(1-B)}},
+    extrashoulderExtendwristFlex:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=.5*A;arms.right.hand.rotation.x=-.6*B}},
+    extrashoulderExtendwristExtend:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=.5*A;arms.right.hand.rotation.x=.6*B}},
+    extrashoulderExtendsupinate:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=.5*A;arms.right.elbow.rotation.y=1.1*B}},
+    extrashoulderExtendpronate:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.x=.5*A;arms.right.elbow.rotation.y=-1.1*B}},
+    extrahipFlexkneeExtend:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.x=-.85*A;legs.right.knee.rotation.x=1.1*(1-B)}},
+    extrahipExtendkneeFlex:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.x=.45*A;legs.right.knee.rotation.x=1.1*B}},
+    extrahipExtendkneeExtend:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.x=.45*A;legs.right.knee.rotation.x=1.1*(1-B)}},
+    extrahipAbductkneeFlex:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.z=-.65*A;legs.right.knee.rotation.x=1.1*B}},
+    extrahipAbductkneeExtend:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.z=-.65*A;legs.right.knee.rotation.x=1.1*(1-B)}},
+    extrahipAdductkneeFlex:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.z=.4*A;legs.right.knee.rotation.x=1.1*B}},
+    extrahipAdductkneeExtend:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.z=.4*A;legs.right.knee.rotation.x=1.1*(1-B)}},
+    extrahipFlexankleDorsi:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.x=-.85*A;legs.right.ankle.rotation.x=-.5*B}},
+    extrahipFlexanklePlantar:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.x=-.85*A;legs.right.ankle.rotation.x=.5*B}},
+    extrahipExtendankleDorsi:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.x=.45*A;legs.right.ankle.rotation.x=-.5*B}},
+    extrahipExtendanklePlantar:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.hip.rotation.x=.45*A;legs.right.ankle.rotation.x=.5*B}},
+    extraankleDorsiinvert:{view:'oblique',parts:'foot',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.ankle.rotation.x=-.5*A;legs.right.subtalar.rotation.z=-.52*B}},
+    extraanklePlantarevert:{view:'oblique',parts:'foot',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.ankle.rotation.x=.5*A;legs.right.subtalar.rotation.z=.52*B}},
+    extrakneeFlexankleDorsi:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.knee.rotation.x=1.1*A;legs.right.ankle.rotation.x=-.5*B}},
+    extrakneeFlexanklePlantar:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.knee.rotation.x=1.1*A;legs.right.ankle.rotation.x=.5*B}},
+    extrakneeExtendankleDorsi:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.knee.rotation.x=1.1*(1-A);legs.right.ankle.rotation.x=-.5*B}},
+    extrakneeExtendanklePlantar:{view:'oblique',parts:'leg',pose:p=>{const A=firstPhase(p),B=secondPhase(p);legs.right.knee.rotation.x=1.1*(1-A);legs.right.ankle.rotation.x=.5*B}},
+    extratrunkFlexrotateRight:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);torsoPivot.rotation.x=.3*A;torsoPivot.rotation.y=-.45*B}},
+    extratrunkExtendrotateLeft:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);torsoPivot.rotation.x=-.28*A;torsoPivot.rotation.y=.45*B}},
+    extratrunkSideLeftrotateLeft:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);torsoPivot.rotation.z=.25*A;torsoPivot.rotation.y=.45*B}},
+    extratrunkSideLeftrotateRight:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);torsoPivot.rotation.z=.25*A;torsoPivot.rotation.y=-.45*B}},
+    extratrunkSideRightrotateLeft:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);torsoPivot.rotation.z=-.25*A;torsoPivot.rotation.y=.45*B}},
+    extratrunkSideRightrotateRight:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);torsoPivot.rotation.z=-.25*A;torsoPivot.rotation.y=-.45*B}},
+    extraneckLefttrunkFlex:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);head.rotation.y=.65*A;torsoPivot.rotation.x=.3*B}},
+    extraneckLefttrunkExtend:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);head.rotation.y=.65*A;torsoPivot.rotation.x=-.28*B}},
+    extraneckRighttrunkFlex:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);head.rotation.y=-.65*A;torsoPivot.rotation.x=.3*B}},
+    extraneckRighttrunkExtend:{view:'oblique',parts:'torso',pose:p=>{const A=firstPhase(p),B=secondPhase(p);head.rotation.y=-.65*A;torsoPivot.rotation.x=-.28*B}},
+    extrashoulderAbductelbowFlex:{view:'oblique',parts:'arm',pose:p=>{const A=firstPhase(p),B=secondPhase(p);arms.right.shoulder.rotation.z=-.75*A;arms.right.elbow.rotation.x=-1.1*B}}
+  });
   for(const [id,spec] of Object.entries(combinations))movements[id]={view:spec.view,joint:'combination',from:0,to:1};
   function paintCombination(parts,forward){
     const mat=forward?active:body;
