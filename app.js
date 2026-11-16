@@ -134,6 +134,8 @@ const dictionary={
 const movementNames={
   abduction:['Абдукция плеча','Shoulder abduction'],
   adduction:['Аддукция плеча','Shoulder adduction'],
+  shoulderFlex:['Сгибание в плечевом суставе (флексия)','Shoulder flexion'],
+  shoulderExtend:['Разгибание в плечевом суставе (экстензия)','Shoulder extension'],
   elbowFlex:['Флексия локтя','Elbow flexion'],
   elbowExtend:['Экстензия локтя','Elbow extension'],
   kneeFlex:['Флексия колена','Knee flexion'],
@@ -168,6 +170,8 @@ const descriptions={
     'Приведение плеча к туловищу.',
     'Movement of the arm toward the trunk.'
   ],
+  shoulderFlex:['Движение плеча вперёд относительно туловища в сагиттальной плоскости.','Moving the upper arm forward relative to the trunk in the sagittal plane.'],
+  shoulderExtend:['Движение плеча назад относительно туловища в сагиттальной плоскости.','Moving the upper arm backward relative to the trunk in the sagittal plane.'],
   elbowFlex:[
     'Уменьшение угла в локтевом суставе.',
     'Decreasing the angle at the elbow.'
@@ -208,7 +212,7 @@ const descriptions={
 const allQuestions=Object.keys(movementNames);
 const directionIds=['superior','inferior','anterior','posterior','medial','lateral','proximal','distal','superficial','deep'];
 const planeIds=['sagittal','frontal','transverse'];
-const movementIds=['abduction','adduction','elbowFlex','elbowExtend','kneeFlex','kneeExtend','hipFlex','hipExtend','hipAbduction','hipAdduction','ankleDorsi','anklePlantar'];
+const movementIds=['abduction','adduction','shoulderFlex','shoulderExtend','elbowFlex','elbowExtend','kneeFlex','kneeExtend','hipFlex','hipExtend','hipAbduction','hipAdduction','ankleDorsi','anklePlantar'];
 
 function shuffle(array){
   const a=[...array];
@@ -270,6 +274,7 @@ function choicesFor(correct){
     directionIds.includes(correct)?directionIds:movementIds;
   const opposites={
     abduction:'adduction', adduction:'abduction',
+    shoulderFlex:'shoulderExtend', shoulderExtend:'shoulderFlex',
     elbowFlex:'elbowExtend', elbowExtend:'elbowFlex',
     kneeFlex:'kneeExtend', kneeExtend:'kneeFlex',
     hipFlex:'hipExtend', hipExtend:'hipFlex',
