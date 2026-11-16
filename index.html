@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Anatomy Trainer 2.9.2.8</title>
-<link rel="stylesheet" href="./style.css?v=compact291">
+<title>Anatomy Trainer 2.9.3</title>
+<link rel="stylesheet" href="./style.css?v=2930">
 
 <script type="importmap">
 {
@@ -21,7 +21,7 @@
 <main>
 
 <header class="topbar">
-  <h1>🦴 Anatomy Trainer 2.9.2.8</h1>
+  <h1>🦴 Anatomy Trainer 2.9.3</h1>
   <div class="controls">
     <label for="language">Язык:</label>
     <select id="language">
@@ -71,6 +71,7 @@
       <select id="topic">
         <option value="all">Все темы</option>
         <option value="movements">Движения суставов</option>
+        <option value="combinations">Комбинированные движения</option>
         <option value="directions">Анатомические направления</option>
         <option value="compound">Составные направления</option>
         <option value="planes">Анатомические плоскости</option>
@@ -89,9 +90,10 @@
 
     <div id="feedback"></div>
 
+    <div class="quiz-actions"><button id="replay" type="button">↻ Повторить анимацию</button>
     <button id="next" disabled>
       Следующий вопрос
-    </button>
+    </button></div>
 
     <div id="resultTools" class="hidden">
       <button id="repeat">
@@ -113,6 +115,6 @@
 
 </main>
 
-<script type="module" src="./app.js?v=2928"></script>
+<script type="module" src="./app.js?v=2930"></script>
 </body>
 </html>
