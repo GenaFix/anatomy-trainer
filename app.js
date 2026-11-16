@@ -131,6 +131,34 @@ const dictionary={
   }
 };
 
+const compoundNames={
+  cranioMedial:['Краниомедиально','Craniomedial'],
+  cranioLateral:['Краниолатерально','Craniolateral'],
+  caudoMedial:['Каудомедиально','Caudomedial'],
+  caudoLateral:['Каудолатерально','Caudolateral'],
+  cranioVentral:['Краниовентрально','Cranioventral'],
+  cranioDorsal:['Краниодорсально','Craniodorsal'],
+  caudoVentral:['Каудовентрально','Caudoventral'],
+  caudoDorsal:['Каудодорсально','Caudodorsal'],
+  cranioLateroVentral:['Краниолатеровентрально','Craniolateroventral'],
+  cranioMedioVentral:['Краниомедиовентрально','Craniomedioventral'],
+  caudoLateroDorsal:['Каудолатеродорсально','Caudolaterodorsal'],
+  caudoMedioDorsal:['Каудомедиодорсально','Caudomediodorsal']
+};
+const compoundDescriptions={
+  cranioMedial:['К голове и к срединной плоскости.','Toward the head and midline.'],
+  cranioLateral:['К голове и от срединной плоскости.','Toward the head and away from the midline.'],
+  caudoMedial:['К стопам и к срединной плоскости.','Toward the feet and midline.'],
+  caudoLateral:['К стопам и от срединной плоскости.','Toward the feet and away from the midline.'],
+  cranioVentral:['К голове и к передней поверхности.','Toward the head and anterior surface.'],
+  cranioDorsal:['К голове и к задней поверхности.','Toward the head and posterior surface.'],
+  caudoVentral:['К стопам и к передней поверхности.','Toward the feet and anterior surface.'],
+  caudoDorsal:['К стопам и к задней поверхности.','Toward the feet and posterior surface.'],
+  cranioLateroVentral:['К голове, от срединной плоскости и вперёд.','Toward the head, laterally and anteriorly.'],
+  cranioMedioVentral:['К голове, к срединной плоскости и вперёд.','Toward the head, medially and anteriorly.'],
+  caudoLateroDorsal:['К стопам, от срединной плоскости и назад.','Toward the feet, laterally and posteriorly.'],
+  caudoMedioDorsal:['К стопам, к срединной плоскости и назад.','Toward the feet, medially and posteriorly.']
+};
 const movementNames={
   abduction:['Абдукция плеча','Shoulder abduction'],
   adduction:['Аддукция плеча','Shoulder adduction'],
@@ -233,8 +261,13 @@ const descriptions={
   transverse:['Разделяет тело на верхнюю и нижнюю части.','Divides the body into upper and lower parts.']
 };
 
+Object.assign(movementNames,compoundNames);
+Object.assign(descriptions,compoundDescriptions);
+const compoundTwoIds=['cranioMedial','cranioLateral','caudoMedial','caudoLateral','cranioVentral','cranioDorsal','caudoVentral','caudoDorsal'];
+const compoundThreeIds=['cranioLateroVentral','cranioMedioVentral','caudoLateroDorsal','caudoMedioDorsal'];
+const compoundIds=[...compoundTwoIds,...compoundThreeIds];
 const allQuestions=Object.keys(movementNames);
-const directionIds=['superior','inferior','anterior','posterior','medial','lateral','proximal','distal','superficial','deep'];
+const directionIds=['superior','inferior','anterior','posterior','medial','lateral','proximal','distal','superficial','deep',...compoundIds];
 const planeIds=['sagittal','frontal','transverse'];
 const movementIds=['abduction','adduction','shoulderFlex','shoulderExtend','elbowFlex','elbowExtend','kneeFlex','kneeExtend','hipFlex','hipExtend','hipAbduction','hipAdduction','ankleDorsi','anklePlantar','wristFlex','wristExtend','neckRotateLeft','neckRotateRight','trunkSideLeft','trunkSideRight','scapElevate','scapDepress','trunkFlex','trunkExtend','trunkRotateLeft','trunkRotateRight'];
 
@@ -250,14 +283,14 @@ function shuffle(array){
 let language='ru';
 let questions=shuffle(allQuestions);
 const topicLabels={
-  ru:{all:'Все темы',movements:'Движения суставов',directions:'Анатомические направления',planes:'Анатомические плоскости',count:'Вопросов:',allCount:'Все'},
-  en:{all:'All topics',movements:'Joint movements',directions:'Anatomical directions',planes:'Anatomical planes',count:'Questions:',allCount:'All'}
+  ru:{all:'Все темы',movements:'Движения суставов',directions:'Анатомические направления',planes:'Анатомические плоскости',compound:'Составные направления',count:'Вопросов:',allCount:'Все'},
+  en:{all:'All topics',movements:'Joint movements',directions:'Anatomical directions',planes:'Anatomical planes',compound:'Compound directions',count:'Questions:',allCount:'All'}
 };
 function selectedQuestions(){
   const topic=$('topic').value;
   const pool=topic==='movements'?movementIds:
     topic==='directions'?directionIds:
-    topic==='planes'?planeIds:allQuestions;
+    topic==='planes'?planeIds:topic==='compound'?compoundIds:allQuestions;
   const count=$('questionCount').value;
   return shuffle(pool).slice(0,count==='all'?pool.length:Number(count));
 }
@@ -295,6 +328,8 @@ function explanation(id){
 
 function choicesFor(correct){
   const pool=planeIds.includes(correct)?planeIds:
+    compoundTwoIds.includes(correct)?compoundTwoIds:
+    compoundThreeIds.includes(correct)?compoundThreeIds:
     directionIds.includes(correct)?directionIds:movementIds;
   const opposites={
     abduction:'adduction', adduction:'abduction',
@@ -314,7 +349,13 @@ function choicesFor(correct){
     anterior:'posterior', posterior:'anterior',
     medial:'lateral', lateral:'medial',
     proximal:'distal', distal:'proximal',
-    superficial:'deep', deep:'superficial'
+    superficial:'deep', deep:'superficial',
+    cranioMedial:'cranioLateral',cranioLateral:'cranioMedial',
+    caudoMedial:'caudoLateral',caudoLateral:'caudoMedial',
+    cranioVentral:'cranioDorsal',cranioDorsal:'cranioVentral',
+    caudoVentral:'caudoDorsal',caudoDorsal:'caudoVentral',
+    cranioLateroVentral:'cranioMedioVentral',cranioMedioVentral:'cranioLateroVentral',
+    caudoLateroDorsal:'caudoMedioDorsal',caudoMedioDorsal:'caudoLateroDorsal'
   };
   const chosen=[correct];
   if(opposites[correct]) chosen.push(opposites[correct]);
