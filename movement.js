@@ -16,6 +16,7 @@ export function createMovementModel(scene) {
   const face = makeMaterial('#dcb59d');
   const dark = makeMaterial('#344b65');
   const active = makeMaterial('#39e2ad');
+  const palmMarkerMaterial = new THREE.MeshBasicMaterial({color:0xffb347});
 
   const arrowMaterial = new THREE.MeshBasicMaterial({
     color: '#ffcc52',
@@ -163,6 +164,8 @@ export function createMovementModel(scene) {
     // Ладонь и пальцы имеют округлую форму.
     // Большой палец расположен на лучевой стороне кисти.
     const palm=ellipsoid(hand,0,-0.135,0.012,0.104,0.16,0.062);
+    // Маркер ладонной поверхности, вращается вместе с кистью.
+    if(key==='right')box(hand,0,-0.135,0.078,0.075,0.18,0.012,palmMarkerMaterial);
     const fingers=[];
     for(let i=0;i<4;i++){
       const finger=ellipsoid(
@@ -301,10 +304,12 @@ export function createMovementModel(scene) {
   });
 
   // 2.9.3: учебные сочетания движений, без спорных клинических вариантов.
+  const primaryPhase=p=>Math.min(1,p/0.55);
+  const secondaryPhase=p=>Math.max(0,Math.min(1,(p-0.45)/0.55));
   const combinations={
     comboShoulderFlexAbduct:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-.85*p,0,-.55*p,'XYZ');}},
     comboShoulderFlexExternal:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-.95*p,-.55*p,0,'XYZ');arms.right.elbow.rotation.x=-.65*p;}},
-    comboElbowFlexSupinate:{view:'oblique',parts:'forearm',pose:p=>{arms.right.elbow.rotation.set(-1.25*p,-.85*p,0,'XYZ');}},
+    comboElbowFlexSupinate:{view:'oblique',parts:'forearm',pose:p=>{arms.right.elbow.rotation.x=-1.25*primaryPhase(p);arms.right.hand.rotation.y=1.3*secondaryPhase(p);}},
     comboHipFlexAbduct:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.85*p,0,-.45*p,'XYZ');}},
     comboHipFlexExternal:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.8*p,-.5*p,0,'XYZ');legs.right.knee.rotation.x=.55*p;}},
     comboHipFlexKneeFlex:{view:'right',parts:'leg',pose:p=>{legs.right.hip.rotation.x=-.85*p;legs.right.knee.rotation.x=1.05*p;}},
@@ -801,6 +806,7 @@ export function createMovementModel(scene) {
       face,
       dark,
       active,
+      palmMarkerMaterial,
       arrowMaterial
     ].forEach(material => material.dispose());
   }
