@@ -309,7 +309,7 @@ export function createMovementModel(scene) {
   const combinations={
     comboShoulderFlexAbduct:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-.85*p,0,-.55*p,'XYZ');}},
     comboShoulderFlexExternal:{view:'oblique',parts:'arm',pose:p=>{arms.right.shoulder.rotation.set(-.95*p,-.55*p,0,'XYZ');arms.right.elbow.rotation.x=-.65*p;}},
-    comboElbowFlexSupinate:{view:'oblique',parts:'forearm',pose:p=>{arms.right.elbow.rotation.x=-1.25*primaryPhase(p);arms.right.hand.rotation.y=1.3*secondaryPhase(p);}},
+    comboElbowFlexSupinate:{view:'oblique',parts:'forearm',pose:p=>{arms.right.elbow.rotation.x=-1.25*primaryPhase(p);arms.right.elbow.rotation.y=1.3*secondaryPhase(p);}},
     comboHipFlexAbduct:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.85*p,0,-.45*p,'XYZ');}},
     comboHipFlexExternal:{view:'oblique',parts:'leg',pose:p=>{legs.right.hip.rotation.set(-.8*p,-.5*p,0,'XYZ');legs.right.knee.rotation.x=.55*p;}},
     comboHipFlexKneeFlex:{view:'right',parts:'leg',pose:p=>{legs.right.hip.rotation.x=-.85*p;legs.right.knee.rotation.x=1.05*p;}},
