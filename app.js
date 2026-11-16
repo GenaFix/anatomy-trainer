@@ -599,7 +599,7 @@ $('language').onchange=e=>{
   // Новый тест, чтобы переключение языка
   // не меняло варианты во время ответа.
   updateSettingsLanguage();
-  beginTest(selectedQuestions());
+  if(muscleMode)renderMuscle();else beginTest(selectedQuestions());
 };
 
 
