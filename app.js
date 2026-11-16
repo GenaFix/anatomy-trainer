@@ -299,6 +299,34 @@ Object.assign(descriptions,compoundDescriptions);
 const compoundTwoIds=['cranioMedial','cranioLateral','caudoMedial','caudoLateral','cranioVentral','cranioDorsal','caudoVentral','caudoDorsal'];
 const compoundThreeIds=['cranioLateroVentral','cranioMedioVentral','caudoLateroDorsal','caudoMedioDorsal'];
 const compoundIds=[...compoundTwoIds,...compoundThreeIds];
+const combinationNames={
+  comboShoulderFlexAbduct:["Флексия + абдукция плеча","Shoulder flexion + abduction"],
+  comboShoulderFlexExternal:["Флексия + наружная ротация плеча","Shoulder flexion + external rotation"],
+  comboElbowFlexSupinate:["Флексия локтя + супинация предплечья","Elbow flexion + forearm supination"],
+  comboHipFlexAbduct:["Флексия + абдукция бедра","Hip flexion + abduction"],
+  comboHipFlexExternal:["Флексия + наружная ротация бедра","Hip flexion + external rotation"],
+  comboHipFlexKneeFlex:["Флексия бедра + флексия колена","Hip flexion + knee flexion"],
+  comboAnklePlantarInvert:["Подошвенная флексия + инверсия стопы","Plantarflexion + inversion"],
+  comboAnkleDorsiEvert:["Тыльная флексия + эверсия стопы","Dorsiflexion + eversion"],
+  comboTrunkFlexRotateLeft:["Флексия туловища + ротация влево","Trunk flexion + left rotation"],
+  comboTrunkExtendRotateRight:["Экстензия туловища + ротация вправо","Trunk extension + right rotation"]
+};
+const combinationDescriptions={
+  comboShoulderFlexAbduct:["Правая рука движется вперёд и латерально.","The right arm moves forward and laterally."],
+  comboShoulderFlexExternal:["Правое плечо сгибается и вращается наружу.","The right shoulder flexes and externally rotates."],
+  comboElbowFlexSupinate:["Правый локоть сгибается, предплечье супинируется.","The right elbow flexes and the forearm supinates."],
+  comboHipFlexAbduct:["Правое бедро движется вперёд и латерально.","The right thigh moves forward and laterally."],
+  comboHipFlexExternal:["Правое бедро сгибается и вращается наружу.","The right hip flexes and externally rotates."],
+  comboHipFlexKneeFlex:["Правое бедро и колено одновременно сгибаются.","The right hip and knee flex together."],
+  comboAnklePlantarInvert:["Правая стопа направляется вниз и инвертируется.","The right foot points down and inverts."],
+  comboAnkleDorsiEvert:["Правая стопа направляется вверх и эвертируется.","The right foot dorsiflexes and everts."],
+  comboTrunkFlexRotateLeft:["Туловище сгибается и поворачивается влево.","The trunk flexes and rotates left."],
+  comboTrunkExtendRotateRight:["Туловище разгибается и поворачивается вправо.","The trunk extends and rotates right."]
+};
+const combinationIds=Object.keys(combinationNames);
+Object.assign(movementNames,combinationNames);
+Object.assign(descriptions,combinationDescriptions);
+
 const allQuestions=Object.keys(movementNames);
 const directionIds=['superior','inferior','anterior','posterior','medial','lateral','proximal','distal','superficial','deep',...compoundIds];
 const planeIds=['sagittal','frontal','transverse'];
@@ -316,14 +344,14 @@ function shuffle(array){
 let language='ru';
 let questions=shuffle(allQuestions);
 const topicLabels={
-  ru:{all:'Все темы',movements:'Движения суставов',directions:'Анатомические направления',planes:'Анатомические плоскости',compound:'Составные направления',count:'Вопросов:',allCount:'Все'},
-  en:{all:'All topics',movements:'Joint movements',directions:'Anatomical directions',planes:'Anatomical planes',compound:'Compound directions',count:'Questions:',allCount:'All'}
+  ru:{all:'Все темы',movements:'Движения суставов',directions:'Анатомические направления',planes:'Анатомические плоскости',compound:'Составные направления',combinations:'Комбинированные движения',count:'Вопросов:',allCount:'Все'},
+  en:{all:'All topics',movements:'Joint movements',directions:'Anatomical directions',planes:'Anatomical planes',compound:'Compound directions',combinations:'Combined movements',count:'Questions:',allCount:'All'}
 };
 function selectedQuestions(){
   const topic=$('topic').value;
   const pool=topic==='movements'?movementIds:
     topic==='directions'?directionIds:
-    topic==='planes'?planeIds:topic==='compound'?compoundIds:allQuestions;
+    topic==='planes'?planeIds:topic==='compound'?compoundIds:topic==='combinations'?combinationIds:allQuestions;
   const count=$('questionCount').value;
   return shuffle(pool).slice(0,count==='all'?pool.length:Number(count));
 }
@@ -360,7 +388,7 @@ function explanation(id){
 }
 
 function choicesFor(correct){
-  const pool=planeIds.includes(correct)?planeIds:
+  const pool=combinationIds.includes(correct)?combinationIds:planeIds.includes(correct)?planeIds:
     compoundTwoIds.includes(correct)?compoundTwoIds:
     compoundThreeIds.includes(correct)?compoundThreeIds:
     directionIds.includes(correct)?directionIds:movementIds;
@@ -408,6 +436,7 @@ function showQuestion(){
   $('feedback').textContent='';
   $('answers').innerHTML='';
   $('next').disabled=true;
+  $('replay').disabled=Boolean(vectors.specs[id])&&!compoundDirections[id];
   $('next').textContent=tr('next');
   $('resultTools').classList.add('hidden');
 
@@ -415,9 +444,10 @@ function showQuestion(){
   model.clearCompound();
   const visual=vectors.specs[id];
   const isCompound=Boolean(compoundDirections[id]);
+  const isCombination=combinationIds.includes(id);
   if(isCompound){
     vectors.show(null);
-    const limb = index % 2 === 0 ? 'arm' : 'leg';
+    const limb = 'arm';
     model.setCompound(id,limb);
     clockStart=performance.now();
     setView(compoundDirections[id][2] ? 'oblique' : 'front');
@@ -439,7 +469,9 @@ function showQuestion(){
     ? (visual.type==='plane'
       ? (language==='en'?'Identify the highlighted anatomical plane.':'Определи выделенную анатомическую плоскость.')
       : (language==='en'?'Identify the arrow direction.':'Определи направление жёлтой стрелки.'))
-    : (language==='en'?'Identify the movement from the arrow.':'Определи движение по жёлтой стрелке.');
+    : isCombination
+    ? (language==='en'?'Identify the combined movement.':'Определи сочетание движений.')
+    : (language==='en'?'Identify the movement from the animation.':'Определи движение по анимации.');
 
   for(const choice of choicesFor(id)){
     const button=document.createElement('button');
@@ -490,6 +522,7 @@ function showResult(){
       ?`Mistakes: ${mistakes.length}`
       :`Ошибок: ${mistakes.length}`;
   $('next').classList.add('hidden');
+  $('replay').disabled=true;
   $('resultTools').classList.remove('hidden');
   $('repeat').disabled=mistakes.length===0;
 }
@@ -510,6 +543,7 @@ $('next').onclick=()=>{
   else showQuestion();
 };
 
+$('replay').onclick=()=>{clockStart=performance.now();model.replay();};
 $('restart').onclick=()=>beginTest(selectedQuestions());
 $('topic').onchange=()=>beginTest(selectedQuestions());
 $('questionCount').onchange=()=>beginTest(selectedQuestions());
