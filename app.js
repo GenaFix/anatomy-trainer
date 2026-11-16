@@ -58,6 +58,39 @@ controls.maxDistance=12;
 
 const model=createMovementModel(scene);
 const vectors=createVectorModel(scene);
+// Демонстрация составного направления перемещением всей фигуры.
+// Неподвижный контур показывает исходное положение.
+const reference=new THREE.Group();
+scene.add(reference);
+const referenceMat=new THREE.MeshBasicMaterial({color:0x4bd7f5,transparent:true,opacity:0.45,depthWrite:false});
+const referenceLine=new THREE.LineSegments(
+ new THREE.EdgesGeometry(new THREE.BoxGeometry(1.45,3.8,0.9)),
+ new THREE.LineBasicMaterial({color:0x4bd7f5,transparent:true,opacity:0.3,depthTest:false})
+);
+referenceLine.position.y=1.9;
+reference.add(referenceLine);
+reference.visible=false;
+const compoundDirections={
+ cranioMedial:[1,1,0],cranioLateral:[-1,1,0],
+ caudoMedial:[1,-1,0],caudoLateral:[-1,-1,0],
+ cranioVentral:[0,1,1],cranioDorsal:[0,1,-1],
+ caudoVentral:[0,-1,1],caudoDorsal:[0,-1,-1],
+ cranioLateroVentral:[-1,1,1],cranioMedioVentral:[1,1,1],
+ caudoLateroDorsal:[-1,-1,-1],caudoMedioDorsal:[1,-1,-1]
+};
+let activeCompound=null;
+function resetCompound(){
+ activeCompound=null;
+ model.group.position.set(0,0,0);
+ reference.visible=false;
+}
+function updateCompound(time){
+ if(!activeCompound)return;
+ const t=(1-Math.cos(time*Math.PI/2.2))/2;
+ const v=compoundDirections[activeCompound];
+ const mag=Math.hypot(...v);
+ model.group.position.set(v[0]/mag*0.65*t,v[1]/mag*0.65*t,v[2]/mag*0.65*t);
+}
 
 function resize(){
   const w=stage.clientWidth;
@@ -107,7 +140,7 @@ $('resetView').onclick=()=>setView('front');
 const dictionary={
   ru:{
     question:'Как называется показанное движение?',
-    directionQuestion:'Как называется направление жёлтой стрелки?',
+    directionQuestion:'Какое анатомическое направление показано?',
     planeQuestion:'Какая анатомическая плоскость выделена?',
     next:'Следующий вопрос',
     restart:'Новый тест',
@@ -119,7 +152,7 @@ const dictionary={
   },
   en:{
     question:'What movement is shown?',
-    directionQuestion:'Which anatomical direction does the yellow arrow indicate?',
+    directionQuestion:'Which anatomical direction is shown?',
     planeQuestion:'Which anatomical plane is highlighted?',
     next:'Next question',
     restart:'New test',
@@ -378,10 +411,16 @@ function showQuestion(){
   $('next').textContent=tr('next');
   $('resultTools').classList.add('hidden');
 
+  resetCompound();
   const visual=vectors.specs[id];
+  const isCompound=Boolean(compoundDirections[id]);
   if(visual){
     model.setPlaying(false);
-    vectors.show(id);
+    vectors.show(isCompound?null:id);
+    if(isCompound){
+      activeCompound=id;
+      reference.visible=true;
+    }
     clockStart=performance.now();
     setView(visual.view);
   }else{
@@ -392,7 +431,7 @@ function showQuestion(){
     setView(model.movements[id].view);
   }
   $('status').textContent=visual
-    ? (visual.type==='plane'
+    ? (isCompound ? (language==='en'?'The figure moves relative to its original position.':'Фигура перемещается относительно исходного положения.') : visual.type==='plane'
       ? (language==='en'?'Identify the highlighted anatomical plane.':'Определи выделенную анатомическую плоскость.')
       : (language==='en'?'Identify the arrow direction.':'Определи направление жёлтой стрелки.'))
     : (language==='en'?'Identify the movement from the arrow.':'Определи движение по жёлтой стрелке.');
@@ -435,6 +474,7 @@ function showResult(){
   finished=true;
   model.setPlaying(false);
   vectors.show(null);
+  resetCompound();
   $('counter').textContent=tr('finished');
   $('question').textContent=
     `${tr('result')}: ${score} / ${questions.length}`;
@@ -482,7 +522,8 @@ let lastTime=performance.now();
 function animate(now){
   requestAnimationFrame(animate);
   if(!finished){
-    if(!vectors.group.visible) model.update((now-clockStart)/1000);
+    if(activeCompound) updateCompound((now-clockStart)/1000);
+    else if(!vectors.group.visible) model.update((now-clockStart)/1000);
   }
   controls.update();
   renderer.render(scene,camera);
