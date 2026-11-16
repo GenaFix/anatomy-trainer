@@ -16,9 +16,6 @@ export function createMovementModel(scene) {
   const face = makeMaterial('#dcb59d');
   const dark = makeMaterial('#344b65');
   const active = makeMaterial('#39e2ad');
-  const palmMarkerMaterial = new THREE.MeshBasicMaterial({color:0xffb347});
-  const footMedialMaterial = new THREE.MeshBasicMaterial({color:0xffb347});
-  const footLateralMaterial = new THREE.MeshBasicMaterial({color:0x28d6e5});
 
   const arrowMaterial = new THREE.MeshBasicMaterial({
     color: '#ffcc52',
@@ -166,8 +163,6 @@ export function createMovementModel(scene) {
     // Ладонь и пальцы имеют округлую форму.
     // Большой палец расположен на лучевой стороне кисти.
     const palm=ellipsoid(hand,0,-0.135,0.012,0.104,0.16,0.062);
-    // Маркер ладонной поверхности, вращается вместе с кистью.
-    if(key==='right')box(hand,0,-0.135,0.078,0.075,0.18,0.012,palmMarkerMaterial);
     const fingers=[];
     for(let i=0;i<4;i++){
       const finger=ellipsoid(
@@ -207,19 +202,23 @@ export function createMovementModel(scene) {
     // Отдельный узел предплюсны: инверсия/эверсия не поворачивает голень.
     // +Z направлено к пальцам, +Y к тылу стопы.
     const subtalar = pivot(ankle,0,0,0);
-    const foot=ellipsoid(subtalar,0,-0.055,0.165,0.135,0.092,0.265);
-    // Пятка и передний отдел имеют разную форму, чтобы наклон был заметен.
-    ellipsoid(subtalar,0,-0.065,-0.025,0.105,0.088,0.115);
-    ellipsoid(subtalar,0,-0.07,0.305,0.155,0.064,0.14);
+    // У стопы широкая медиальная сторона и отдельный большой палец.
+    // +X соответствует медиальному краю правой стопы модели.
+    const medialSign=key==='right'?1:-1;
+    const foot=ellipsoid(subtalar,0,-0.055,0.14,0.126,0.091,0.237);
+    // Пятка, свод и широкая асимметричная плюсневая область.
+    ellipsoid(subtalar,0,-0.06,-0.045,0.102,0.083,0.105);
+    const forefoot=ellipsoid(subtalar,medialSign*0.014,-0.066,0.304,0.153,0.064,0.128);
+    forefoot.rotation.y=-medialSign*0.08;
+    // Большой палец на медиальном крае длиннее и заметно шире остальных.
+    const toeXs=[0.121,0.053,-0.013,-0.075,-0.125];
+    const toeLengths=[0.122,0.112,0.099,0.086,0.073];
     for(let i=0;i<5;i++){
-      ellipsoid(subtalar,(i-2)*0.055,-0.075,0.423,
-        i===2?0.031:0.026,0.031,0.075);
-    }
-    if(key==='right'){
-      // Медиальный край справа от стопы модели (+X), латеральный слева (-X).
-      // Метки привязаны к subtalar и поворачиваются вместе со стопой.
-      box(subtalar,0.112,0.006,0.245,0.035,0.014,0.25,footMedialMaterial);
-      box(subtalar,-0.112,0.006,0.245,0.035,0.014,0.25,footLateralMaterial);
+      const x=medialSign*toeXs[i];
+      const z=0.433+(i===0?0.015:i===1?0.009:-(i-1)*0.011);
+      const toe=ellipsoid(subtalar,x,-0.069,z,
+        i===0?0.039:0.026,i===0?0.035:0.027,toeLengths[i]*0.58);
+      toe.rotation.y=medialSign*(i===0?-0.07:0.03);
     }
 
     legs[key] = {
@@ -818,9 +817,6 @@ export function createMovementModel(scene) {
       face,
       dark,
       active,
-      palmMarkerMaterial,
-      footMedialMaterial,
-      footLateralMaterial,
       arrowMaterial
     ].forEach(material => material.dispose());
   }
