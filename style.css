@@ -174,3 +174,12 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
  .topbar{min-width:0}
  .topbar h1{overflow-wrap:anywhere}
 }
+
+#muscleTools{gap:6px;margin:6px 0}
+#muscleTools button{flex:1 1 125px;font-size:12px;padding:9px 7px}
+#muscleGestureHint{margin:4px 0 8px}
+.muscle-answers.easy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible}
+.muscle-answers.easy .muscle-choice{font-size:14px;padding:12px 8px;border:1px solid #537da9;border-radius:9px;background:#29476d}
+.muscle-answers .muscle-choice.correct{background:#176d58!important}
+.muscle-answers .muscle-choice.wrong{background:#80394e!important}
+@media(max-width:600px){.muscle-answers.easy{grid-template-columns:minmax(0,1fr)}}
