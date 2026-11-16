@@ -64,11 +64,23 @@ export function createEcorche(scene,camera,canvas){
    getPickedCenter(){if(!picked)return null;const bounds=new THREE.Box3().setFromObject(picked);return bounds.getCenter(new THREE.Vector3());},
    setOnPick(fn){onPick=fn;},
    findByAnatomicalName(name){
-     const normalized=s=>String(s||'').toLowerCase().replace(/[^a-z]+/g,' ').trim();
-     const key=normalized(name);
+     // Match only exact anatomical names or exact names with side suffixes.
+     // Do not highlight unrelated parts through substring matching.
+     const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+     const key=norm(name);
      if(!key)return [];
-     return meshes.filter(mesh=>{const label=normalized(mesh.name);return label===key||label.startsWith(key+' ')||label.endsWith(' '+key);});
+     const aliases=new Set([key,'musculus '+key,'muscle '+key,'m '+key]);
+     const side=new Set(['l','r','left','right','sinister','dexter','001','002']);
+     return meshes.filter(mesh=>{
+       const label=norm(mesh.name);
+       if(aliases.has(label))return true;
+       const tokens=label.split(' ');
+       if(tokens.length>1&&side.has(tokens[tokens.length-1])&&aliases.has(tokens.slice(0,-1).join(' ')))return true;
+       if(tokens.length>1&&side.has(tokens[0])&&aliases.has(tokens.slice(1).join(' ')))return true;
+       return false;
+     });
    },
+   getNameSamples(limit=12){return meshes.filter(mesh=>mesh.name).slice(0,limit).map(mesh=>mesh.name);},
    selectByName(query){
      const q=query.toLowerCase().trim();
      if(!q)return [];
