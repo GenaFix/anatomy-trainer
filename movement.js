@@ -120,7 +120,8 @@ export function createMovementModel(scene) {
     ball(shoulder, 0, 0, 0, 0.14);
 
     const upper = segment(shoulder, 0.68, 0.115);
-    upper.scale.set(1.12,1,1.08);
+    upper.scale.x *= 1.12;
+    upper.scale.z *= 1.08;
 
     const elbow = pivot(shoulder, 0, -0.72, 0);
     ball(elbow, 0, 0, 0, 0.105);
@@ -157,7 +158,8 @@ export function createMovementModel(scene) {
     ball(hip, 0, 0, 0, 0.15);
 
     const thigh = segment(hip, 0.72, 0.16);
-    thigh.scale.set(1.08,1,1.08);
+    thigh.scale.x *= 1.08;
+    thigh.scale.z *= 1.08;
 
     const knee = pivot(hip, 0, -0.79, 0);
     ball(knee, 0, 0, 0, 0.13);
