@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
-import {createMovementModel} from './movement.js?v=2933';
+import {createMovementModel} from './movement.js?v=2934';
 import {createVectorModel} from './vectors.js?v=2924';
 
 const $=id=>document.getElementById(id);
