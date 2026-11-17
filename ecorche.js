@@ -84,6 +84,14 @@ export function createEcorche(scene,camera,canvas){
      const key=norm(name);
      if(!key)return [];
      const aliases=new Set([key,'musculus '+key,'muscle '+key,'m '+key]);
+     // Accept exact scientific labels, with common authoring prefixes.
+     // Never infer anatomy from arbitrary partial names.
+     if(key==='fibularis brevis')aliases.add('peroneus brevis');
+     if(key==='fibularis longus')aliases.add('peroneus longus');
+     if(key==='trapezius')aliases.add('trapezius muscle');
+     if(key==='sternocleidomastoid')aliases.add('sternocleidomastoideus');
+     if(key==='scalenus anterior')aliases.add('anterior scalene');
+     if(key==='longus colli')aliases.add('longus colli muscle');
      const side=new Set(['l','r','left','right','sinister','dexter','001','002']);
      return meshes.filter(mesh=>{
        const label=norm(mesh.name);
