@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=2949';
-import {setupMuscleQuiz} from './muscle-study.js?v=2949';
+import {createEcorche} from './ecorche.js?v=29410';
+import {setupMuscleQuiz} from './muscle-study.js?v=29410';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -57,7 +57,7 @@ if(touchDevice){
     touchRotate=!touchRotate;
     controls.enabled=touchRotate;
     renderer.domElement.style.touchAction=touchRotate?'none':'pan-y';
-    rotateBtn.textContent=touchRotate?'Готово · прокрутка страницы':'Вращать 3D-модель';
+    rotateBtn.textContent=touchRotate?(language==='en'?'Done · scroll page':'Готово · прокрутка страницы'):(language==='en'?'Rotate 3D model':'Вращать 3D-модель');
     rotateBtn.classList.toggle('active',touchRotate);
     rotateBtn.setAttribute('aria-pressed',String(touchRotate));
   };
@@ -80,12 +80,12 @@ let muscleReady=false;
 let muscleLoadError=null;
 ecorche.ready.then(info=>{
   muscleReady=true;
-  if(muscleStudy)muscleStudy.setInfo('GLB: '+info.meshCount+' объектов, с названиями: '+info.namedCount);
-  if(muscleMode)$('status').textContent='Оригинальная модель Écorché загружена. Выберите мышцу или объект.';
+  if(muscleStudy)muscleStudy.setInfo(language==='en'?('GLB: '+info.meshCount+' objects, named: '+info.namedCount):('GLB: '+info.meshCount+' объектов, с названиями: '+info.namedCount));
+  if(muscleMode)$('status').textContent=language==='en'?'Original Écorché model loaded. Select a muscle or object.':'Оригинальная модель Écorché загружена. Выберите мышцу или объект.';
 }).catch(error=>{
   muscleLoadError=error.message;
   if(muscleStudy)muscleStudy.setInfo('Не удалось загрузить GLB: '+error.message);
-  if(muscleMode)$('status').textContent='Ошибка загрузки Écorché. Проверьте доступ к CDN.';
+  if(muscleMode)$('status').textContent=language==='en'?'Failed to load Écorché. Check CDN access.':'Ошибка загрузки Écorché. Проверьте доступ к CDN.';
 });
 // Демонстрация составного направления перемещением всей фигуры.
 // Неподвижный контур показывает исходное положение.
@@ -152,7 +152,7 @@ function setView(name){
   camera.position.set(...views[name]);
   controls.target.set(0,1.7,0);
   controls.update();
-  $('viewLabel').textContent=viewNames[name];
+  $('viewLabel').textContent=language==='en'?englishViewNames[name]:viewNames[name];
   document.querySelectorAll('[data-view]').forEach(b=>{
     b.classList.toggle(
       'active',b.dataset.view===name
@@ -192,6 +192,62 @@ const dictionary={
     finished:'Test completed'
   }
 };
+
+
+const uiLabels={
+ digitalBtn:['Движения и направления','Movements and directions'],
+ muscleBtn:['Изучение мышц','Muscle study'],
+ resetView:['Сброс','Reset'],
+ hideMuscleMesh:['Скрыть выбранное','Hide selected'],
+ restoreMuscleMeshes:['Вернуть слои','Restore layers'],
+ focusMuscleMesh:['Приблизить выбранное','Focus on selected'],
+ touchRotate:['Вращать 3D-модель','Rotate 3D model'],
+ viewLabel:['3D-модель','3D model']
+};
+const viewButtons={
+ front:['Спереди','Front'],back:['Сзади','Back'],
+ right:['Справа','Right'],left:['Слева','Left']
+};
+const englishViewNames={
+ front:'Front view',back:'Back view',
+ right:'Person’s right side',left:'Person’s left side',
+ oblique:'Oblique view of anatomical plane'
+};
+function translateInterface(){
+ const en=language==='en';
+ for(const [id,pair] of Object.entries(uiLabels)){
+   const node=$(id);
+   if(!node)continue;
+   if(id==='touchRotate'&&touchRotate){
+     node.textContent=en?'Done · scroll page':'Готово · прокрутка страницы';
+   }else if(id==='viewLabel'){
+     // The camera label is set by setView().
+   }else node.textContent=pair[en?1:0];
+ }
+ for(const b of document.querySelectorAll('[data-view]')){
+   const pair=viewButtons[b.dataset.view];
+   if(pair)b.textContent=pair[en?1:0];
+ }
+ const search=$('muscleGlobalSearch');
+ search.placeholder=en?'Find GLB object':'Поиск объекта GLB';
+ search.setAttribute('aria-label',search.placeholder);
+ const hint=$('muscleGestureHint');
+ hint.textContent=en
+  ?'One finger: rotate. Two fingers: pan or zoom. On desktop: left mouse button rotates, right button pans. Tap “Done” to scroll the page.'
+  :'Один палец: вращение. Два пальца: перемещение или масштабирование. На компьютере: левая кнопка вращает, правая перемещает. Для прокрутки страницы нажмите «Готово».';
+ const langLabel=document.querySelector('label[for="language"]');
+ if(langLabel)langLabel.textContent=en?'Language:':'Язык:';
+ const heading=document.querySelector('#quizPanel .quiz-heading h3');
+ if(heading)heading.textContent=en?'Knowledge check':'Проверка знаний';
+ const topicLabel=document.querySelector('label[for="topic"]');
+ if(topicLabel)topicLabel.textContent=en?'Topic:':'Тема:';
+ const footer=document.querySelector('main > p.small.muted');
+ if(footer)footer.textContent=en
+  ?'Interactive quiz on movements, anatomical directions and planes. Animations are schematic and are not intended for clinical joint assessment.'
+  :'Интерактивный тест движений, направлений и анатомических плоскостей. Анимации схематические и не предназначены для клинической оценки суставов.';
+ const selectedView=document.querySelector('[data-view].active')?.dataset.view||'front';
+ $('viewLabel').textContent=en?englishViewNames[selectedView]:viewNames[selectedView];
+}
 
 const compoundNames={
   cranioMedial:['Кранио-медиально','Cranio-medial'],
@@ -625,6 +681,7 @@ $('language').onchange=e=>{
   // Новый тест, чтобы переключение языка
   // не меняло варианты во время ответа.
   updateSettingsLanguage();
+  translateInterface();
   if(muscleMode)renderMuscle();else beginTest(selectedQuestions());
 };
 
@@ -634,6 +691,7 @@ function renderMuscle(){
 }
 function activateMode(enabled){
  muscleMode=enabled;
+ translateInterface();
  controls.enablePan=enabled;
  $('muscleTools').classList.toggle('hidden',!enabled);
  $('muscleGlobalSearch').classList.toggle('hidden',!enabled);
@@ -652,11 +710,11 @@ function activateMode(enabled){
    model.setNeutralPose();
    if(!muscleStudy)muscleStudy=setupMuscleQuiz($('musclePanel'),ecorche,()=>language);
    renderMuscle();
-   if(muscleLoadError)muscleStudy.setInfo('Ошибка загрузки модели: '+muscleLoadError);
-   else if(muscleReady)muscleStudy.setInfo('Модель загружена: '+ecorche.meshes.length+' объектов');
-   else muscleStudy.setInfo('Загрузка 3D-модели мышц, подождите...');
+   if(muscleLoadError)muscleStudy.setInfo((language==='en'?'Model loading error: ':'Ошибка загрузки модели: ')+muscleLoadError);
+   else if(muscleReady)muscleStudy.setInfo((language==='en'?'Model loaded: ':'Модель загружена: ')+ecorche.meshes.length+(language==='en'?' objects':' объектов'));
+   else muscleStudy.setInfo(language==='en'?'Loading 3D muscle model, please wait...':'Загрузка 3D-модели мышц, подождите...');
    setView('front');
-   $('status').textContent=muscleLoadError?'Ошибка загрузки мышечной модели: '+muscleLoadError:(muscleReady?'Мышечная модель загружена.':'Загрузка оригинальной модели мышц...');
+   $('status').textContent=muscleLoadError?(language==='en'?'Muscle model loading error: ':'Ошибка загрузки мышечной модели: ')+muscleLoadError:(muscleReady?(language==='en'?'Muscle model loaded.':'Мышечная модель загружена.'):(language==='en'?'Loading original muscle model...':'Загрузка оригинальной модели мышц...'));
  }else{
    ecorche.restore();
    beginTest(selectedQuestions());
@@ -667,15 +725,15 @@ $('digitalBtn').onclick=()=>activateMode(false);
 
 $('hideMuscleMesh').onclick=()=>{
  const ok=ecorche.hidePicked();
- if(muscleStudy)muscleStudy.setMeshInfo(ok?'Выбранная поверхность скрыта. Можно выбрать следующую.':'Сначала нажмите на объект модели.');
+ if(muscleStudy)muscleStudy.setMeshInfo(language==='en'?(ok?'Selected surface hidden. Select another object.':'Select an object on the model first.'):(ok?'Выбранная поверхность скрыта. Можно выбрать следующую.':'Сначала нажмите на объект модели.'));
 };
 $('restoreMuscleMeshes').onclick=()=>{
  ecorche.showAll();
- if(muscleStudy)muscleStudy.setMeshInfo('Все поверхности восстановлены.');
+ if(muscleStudy)muscleStudy.setMeshInfo(language==='en'?'All surfaces restored.':'Все поверхности восстановлены.');
 };
 $('focusMuscleMesh').onclick=()=>{
  const center=ecorche.getPickedCenter();
- if(!center){if(muscleStudy)muscleStudy.setMeshInfo('Сначала выберите мышцу на модели.');return;}
+ if(!center){if(muscleStudy)muscleStudy.setMeshInfo(language==='en'?'Select a muscle on the model first.':'Сначала выберите мышцу на модели.');return;}
  const delta=center.clone().sub(controls.target);
  controls.target.copy(center);
  camera.position.add(delta);
@@ -700,5 +758,6 @@ $('status').textContent=
 
 resize();
 updateSettingsLanguage();
+translateInterface();
 beginTest(selectedQuestions());
 requestAnimationFrame(animate);
