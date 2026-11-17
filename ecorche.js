@@ -9,9 +9,11 @@ export function createEcorche(scene,camera,canvas){
  const meshes=[];let picked=null;let onPick=()=>{};
  let phase='loading';
  const materialCache=new Map();
+ const renderOrderCache=new Map();
  const hidden=new Set();
  function restore(){
-   for(const [mesh,material] of materialCache){mesh.material=material;}
+   for(const [mesh,material] of materialCache){mesh.material=material;mesh.renderOrder=renderOrderCache.get(mesh)??0;}
+   renderOrderCache.clear();
    materialCache.clear();
  }
  function highlight(targets){
@@ -20,11 +22,23 @@ export function createEcorche(scene,camera,canvas){
    for(const mesh of meshes){
      if(!selected.has(mesh))continue;
      materialCache.set(mesh,mesh.material);
-     const base=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;
-     const copy=base?.clone?.()||new THREE.MeshStandardMaterial();
-     if(copy.color)copy.color.set('#ffbf58');
-     if(copy.emissive)copy.emissive.set('#673700');
-     mesh.material=copy;
+     renderOrderCache.set(mesh,mesh.renderOrder);
+     // Draw a clearly visible diagnostic overlay even when the anatomical
+     // mesh lies beneath another surface layer in the source GLB.
+     const makeHighlight=base=>{
+       const copy=base?.clone?.()||new THREE.MeshStandardMaterial();
+       if(copy.color)copy.color.set('#ffe34d');
+       if(copy.emissive)copy.emissive.set('#ff9c00');
+       if('emissiveIntensity' in copy)copy.emissiveIntensity=1.4;
+       copy.depthTest=false;
+       copy.depthWrite=false;
+       copy.transparent=false;
+       copy.opacity=1;
+       copy.needsUpdate=true;
+       return copy;
+     };
+     mesh.material=Array.isArray(mesh.material)?mesh.material.map(makeHighlight):makeHighlight(mesh.material);
+     mesh.renderOrder=999;
    }
  }
  function click(e){
