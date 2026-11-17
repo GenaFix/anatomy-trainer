@@ -115,6 +115,17 @@ export function createEcorche(scene,camera,canvas){
  const mappingKey='anatomy-trainer-ecorche-mappings-v1';
  try{for(const [key,paths] of Object.entries(JSON.parse(localStorage.getItem(mappingKey)||'{}')))if(Array.isArray(paths))manualMappings.set(key,paths);}catch(_error){}
  const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+ // Conservative automatic index: resolve a whole muscle and its explicitly
+ // named heads/parts, never a substring of another muscle or a tendon.
+ function anatomicalBase(name){
+   let value=norm(name);
+   value=value.replace(/^(?:musculus|muscle|m) /,'');
+   value=value.replace(/^(?:left|right) /,'');
+   value=value.replace(/^(?:(?:long|short|medial|lateral|superficial|deep|superior|inferior|upper|middle|lower|ascending|descending|transverse|acromial|clavicular|spinal|sternocostal|abdominal|humeral|ulnar|radial|sternal|costal|vertebral|iliac|ischial|pubic|anterior|posterior|proximal|distal)(?: [a-z]+){0,2} (?:head|part|portion|belly|slip) of )/,'');
+   value=value.replace(/^(?:left|right) /,'');
+   value=value.replace(/ muscle$/,'');
+   return value;
+ }
  function meshPath(mesh){const parts=[];let node=mesh;while(node&&node!==root){parts.unshift((node.name||'(unnamed)')+'#'+(node.parent?.children.indexOf(node)??0));node=node.parent;}return parts.join('/');}
  function saveMappings(){try{localStorage.setItem(mappingKey,JSON.stringify(Object.fromEntries(manualMappings)));}catch(_error){}}
  function mapSelected(name){if(!picked||!name)return false;const key=norm(name);const paths=manualMappings.get(key)||[];const path=meshPath(picked);if(!paths.includes(path))paths.push(path);manualMappings.set(key,paths);saveMappings();return true;}
@@ -199,6 +210,10 @@ export function createEcorche(scene,camera,canvas){
      const names=new Set(verified);
      return meshes.filter(mesh=>names.has(mesh.name)||manual.has(meshPath(mesh)));
    }
+   // Match the full anatomical base only. Parts/heads are accepted when
+   // their source labels explicitly identify the same muscle.
+   const auto=meshes.filter(mesh=>anatomicalBase(mesh.name)===key||manual.has(meshPath(mesh)));
+   if(auto.length)return auto;
    const aliases=new Set([key,'musculus '+key,'muscle '+key,'m '+key]);
      // Accept exact scientific labels, with common authoring prefixes.
      // Never infer anatomy from arbitrary partial names.
