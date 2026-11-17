@@ -24,7 +24,25 @@ export const muscleNames=[
  ['Полуперепончатая','Semimembranosus'],['Длинная приводящая','Adductor longus'],
  ['Большая приводящая','Adductor magnus'],['Икроножная','Gastrocnemius'],
  ['Камбаловидная','Soleus'],['Передняя большеберцовая','Tibialis anterior'],
- ['Задняя большеберцовая','Tibialis posterior']
+ ['Задняя большеберцовая','Tibialis posterior'],
+ ['Длинная головка трёхглавой мышцы плеча','Long head of triceps brachii'],
+ ['Плечевая мышца','Brachialis'],
+ ['Подколенная','Popliteus'],
+ ['Длинный разгибатель большого пальца стопы','Extensor hallucis longus'],
+ ['Длинный сгибатель большого пальца стопы','Flexor hallucis longus'],
+ ['Длинный разгибатель пальцев стопы','Extensor digitorum longus'],
+ ['Длинный сгибатель пальцев стопы','Flexor digitorum longus'],
+ ['Короткая малоберцовая','Fibularis brevis'],
+ ['Длинная малоберцовая','Fibularis longus'],
+ ['Гребенчатая','Pectineus'],
+ ['Тонкая','Gracilis'],
+ ['Портняжная','Sartorius'],
+ ['Квадратная мышца поясницы','Quadratus lumborum'],
+ ['Грудино-ключично-сосцевидная','Sternocleidomastoid'],
+ ['Лестничная передняя','Scalenus anterior'],
+ ['Длинная мышца шеи','Longus colli'],
+ ['Клювовидно-плечевая','Coracobrachialis'],
+ ['Подключичная','Subclavius']
 ];
 // Small initial validated question bank. Each relationship refers to one action.
 export const questions=[
@@ -43,7 +61,23 @@ const anatomyQuestions=[
  {topic:'attachments',text:'Какая мышца прикрепляется к малому бугорку плечевой кости?',correct:[13],note:'Подлопаточная мышца прикрепляется к малому бугорку плечевой кости.'},
  {topic:'attachments',text:'Какая мышца прикрепляется к большому бугорку плечевой кости?',correct:[11,12,10],note:'Надостная, подостная и малая круглая мышцы прикрепляются к фасеткам большого бугорка плечевой кости.'},
  {topic:'functions',text:'Какая мышца является главным пронатором предплечья в дистальном отделе?',correct:[19],note:'Квадратный пронатор выполняет пронацию предплечья.'},
- {topic:'functions',text:'Какая мышца разгибает локоть?',correct:[15],note:'Трёхглавая мышца плеча выполняет разгибание в локтевом суставе.'}
+ {topic:'functions',text:'Какая мышца разгибает локоть?',correct:[15],note:'Трёхглавая мышца плеча выполняет разгибание в локтевом суставе.'},
+ {topic:'attachments',text:"Какая мышца начинается от подсуставного бугорка лопатки?",correct:[15],note:"Длинная головка трёхглавой мышцы плеча начинается от подсуставного бугорка лопатки."},
+ {topic:'attachments',text:"Какая мышца начинается от надсуставного бугорка лопатки?",correct:[14],note:"Длинная головка двуглавой мышцы плеча начинается от надсуставного бугорка лопатки."},
+ {topic:'attachments',text:"Какая мышца прикрепляется к дельтовидной бугристости плечевой кости?",correct:[7],note:"Дельтовидная мышца прикрепляется к дельтовидной бугристости плечевой кости."},
+ {topic:'attachments',text:"Какая мышца прикрепляется к бугристости лучевой кости?",correct:[14],note:"Двуглавая мышца плеча прикрепляется к бугристости лучевой кости."},
+ {topic:'attachments',text:"Какая мышца прикрепляется к локтевому отростку?",correct:[15],note:"Трёхглавая мышца плеча прикрепляется к локтевому отростку локтевой кости."},
+ {topic:'attachments',text:"Какая мышца начинается от латеральной поверхности подвздошной кости и отводит бедро?",correct:[32],note:"Средняя ягодичная мышца начинается от наружной поверхности подвздошной кости."},
+ {topic:'attachments',text:"Какая мышца прикрепляется к пяточной кости через ахиллово сухожилие?",correct:[46],note:"Икроножная мышца прикрепляется к пяточной кости через пяточное сухожилие совместно с камбаловидной."},
+ {topic:'functions',text:"Какая мышца преимущественно выполняет тыльное сгибание стопы и её инверсию?",correct:[48],note:"Передняя большеберцовая мышца участвует в тыльном сгибании и инверсии стопы."},
+ {topic:'functions',text:"Какая мышца преимущественно выполняет подошвенное сгибание стопы независимо от положения колена?",correct:[47],note:"Камбаловидная мышца выполняет подошвенное сгибание стопы и не пересекает коленный сустав."},
+ {topic:'functions',text:"Какая мышца сгибает локоть независимо от положения предплечья?",correct:[16],note:"Плечевая мышца является мощным сгибателем локтя при пронации и супинации."},
+ {topic:'functions',text:"Какая мышца разгибает колено и одновременно сгибает бедро?",correct:[37],note:"Прямая мышца бедра пересекает тазобедренный и коленный суставы."},
+ {topic:'functions',text:"Какая мышца разгибает большой палец стопы?",correct:[53],note:"Длинный разгибатель большого пальца стопы разгибает большой палец."},
+ {topic:'functions',text:"Какая мышца сгибает большой палец стопы?",correct:[54],note:"Длинный сгибатель большого пальца стопы сгибает большой палец."},
+ {topic:'functions',text:"Какая мышца выполняет боковое сгибание поясничного отдела позвоночника?",correct:[62],note:"Квадратная мышца поясницы участвует в латерофлексии поясничного отдела."},
+ {topic:'functions',text:"Какая мышца поворачивает голову в противоположную сторону при одностороннем сокращении?",correct:[63],note:"Грудино-ключично-сосцевидная мышца вращает голову в противоположную сторону."},
+ {topic:'functions',text:"Какая мышца сгибает и приводит плечо в плечевом суставе?",correct:[66],note:"Клювовидно-плечевая мышца участвует в сгибании и приведении плеча."}
 ];
 const englishQuestionTexts=[
  'Which muscle acts as a synergist of the trapezius during scapular retraction?',
@@ -55,7 +89,23 @@ const englishQuestionTexts=[
  'Which muscle inserts on the lesser tubercle of the humerus?',
  'Which muscle inserts on the greater tubercle of the humerus?',
  'Which muscle is the main pronator of the distal forearm?',
- 'Which muscle extends the elbow?'
+ 'Which muscle extends the elbow?',
+ "Which muscle originates from the infraglenoid tubercle of the scapula?",
+ "Which muscle has a long head originating from the supraglenoid tubercle of the scapula?",
+ "Which muscle inserts on the deltoid tuberosity of the humerus?",
+ "Which muscle inserts on the radial tuberosity?",
+ "Which muscle inserts on the olecranon?",
+ "Which hip abductor originates from the outer surface of the ilium?",
+ "Which muscle inserts into the calcaneus via the Achilles tendon?",
+ "Which muscle dorsiflexes and inverts the foot?",
+ "Which muscle plantarflexes the ankle regardless of knee position?",
+ "Which muscle flexes the elbow in both pronation and supination?",
+ "Which muscle extends the knee and flexes the hip?",
+ "Which muscle extends the great toe?",
+ "Which muscle flexes the great toe?",
+ "Which muscle laterally flexes the lumbar spine?",
+ "Which muscle rotates the head to the opposite side when contracting unilaterally?",
+ "Which muscle flexes and adducts the arm at the shoulder?"
 ];
 const englishNotes=[
  'The rhomboids assist the middle trapezius fibers during scapular retraction.',
@@ -67,13 +117,29 @@ const englishNotes=[
  'Subscapularis inserts on the lesser tubercle of the humerus.',
  'Supraspinatus, infraspinatus and teres minor insert on facets of the greater tubercle.',
  'Pronator quadratus pronates the forearm.',
- 'Triceps brachii extends the elbow.'
+ 'Triceps brachii extends the elbow.',
+ "The long head of triceps brachii originates from the infraglenoid tubercle.",
+ "The long head of biceps brachii originates from the supraglenoid tubercle.",
+ "The deltoid inserts on the deltoid tuberosity.",
+ "Biceps brachii inserts on the radial tuberosity.",
+ "Triceps brachii inserts on the olecranon.",
+ "Gluteus medius originates from the external surface of the ilium.",
+ "Gastrocnemius joins soleus in the calcaneal tendon.",
+ "Tibialis anterior dorsiflexes and inverts the foot.",
+ "Soleus plantarflexes the ankle and does not cross the knee.",
+ "Brachialis flexes the elbow in either forearm position.",
+ "Rectus femoris crosses both the hip and knee joints.",
+ "Extensor hallucis longus extends the great toe.",
+ "Flexor hallucis longus flexes the great toe.",
+ "Quadratus lumborum contributes to lumbar lateral flexion.",
+ "Sternocleidomastoid rotates the head contralaterally.",
+ "Coracobrachialis flexes and adducts the arm."
 ];
 export function setupMuscleQuiz(container,model,language){
  let level='easy',topic='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false;
  const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x;};
  const section=el('div','muscle-study');container.append(section);
- const shuffled=(arr)=>[...arr].sort(()=>Math.random()-.5);
+ const shuffled=(arr)=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
  const active=()=>anatomyQuestions.filter(q=>topic==='all'||q.topic===topic);
  function reset(){order=shuffled(active());position=0;checked.clear();answered=false;}
  reset();
@@ -85,9 +151,10 @@ export function setupMuscleQuiz(container,model,language){
  function options(q){
   const all=muscleNames.map((_,i)=>i).filter(i=>i!==q.focus);
   const wrong=shuffled(all.filter(i=>!q.correct.includes(i)));
+  const eligible=q.correct.filter(i=>i!==q.focus);
   if(level==='expert')return all;
   if(level==='medium')return shuffled([...q.correct,...wrong.slice(0,Math.max(0,6-q.correct.length))]);
-  return shuffled([q.correct[Math.floor(Math.random()*q.correct.length)],...wrong.slice(0,3)]);
+  return shuffled([eligible[Math.floor(Math.random()*eligible.length)],...wrong.slice(0,3)]);
  }
  let visualStatus='';
  function findMuscles(indices){
@@ -114,7 +181,7 @@ export function setupMuscleQuiz(container,model,language){
   for(const [v,ru,en] of [['all','Все вопросы','All questions'],['relations','Синергисты и антагонисты','Synergists and antagonists'],['attachments','Начало и прикрепление','Origins and insertions'],['functions','Функции мышц','Muscle functions']]){const o=el('option','',english?en:ru);o.value=v;categories.append(o);}
   categories.value=topic;categories.onchange=()=>{topic=categories.value;reset();draw();};settings.append(categories);
   const difficulty=el('select','muscle-dropdown');difficulty.setAttribute('aria-label','Сложность');
-  for(const [v,ru,en] of [['easy','Начальный: 4 варианта','Beginner: 4 choices'],['medium','Средний: 6 вариантов','Intermediate: 6 choices'],['expert','Эксперт: все 50 мышц','Expert: all 50 muscles']]){const o=el('option','',english?en:ru);o.value=v;difficulty.append(o);}
+  for(const [v,ru,en] of [['easy','Начальный: 4 варианта','Beginner: 4 choices'],['medium','Средний: 6 вариантов','Intermediate: 6 choices'],['expert','Эксперт: все '+muscleNames.length+' мышц','Expert: all '+muscleNames.length+' muscles']]){const o=el('option','',english?en:ru);o.value=v;difficulty.append(o);}
   difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;checked.clear();answered=false;draw();};settings.append(difficulty);
   const details=el('details','muscle-diagnostics');details.append(el('summary','',english?'Model details':'Информация о модели'));
   const modelInfo=el('p','muscle-note',info);modelInfo.id='ecorcheInfo';details.append(modelInfo);
@@ -129,7 +196,7 @@ export function setupMuscleQuiz(container,model,language){
   visualStatus='';
   if(Number.isInteger(q.focus))showHighlight([q.focus]);
   section.append(el('p','muscle-note',String(position+1)+' / '+order.length));
-  const highlightStatus=el('p','muscle-note',visualStatus||english?'3D: highlighting requires matching object names.':'3D: выделение доступно при совпадении названий объектов.');
+  const highlightStatus=el('p','muscle-note',visualStatus||(english?'3D: highlighting requires matching object names.':'3D: выделение доступно при совпадении названий объектов.'));
   highlightStatus.id='muscleHighlightStatus';section.append(highlightStatus);
   section.append(el('h4','muscle-question',questionText(q)));
   const choices=options(q);const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
@@ -138,7 +205,7 @@ export function setupMuscleQuiz(container,model,language){
   next.onclick=()=>{position++;checked.clear();answered=false;model.restore?.();draw();};
   function evaluate(){
    if(answered||!checked.size)return;
-   const expected=new Set(q.correct);
+   const expected=new Set(beginner?choices.filter(i=>q.correct.includes(i)):q.correct);
    const correct=beginner?checked.size===1&&expected.has([...checked][0]):checked.size===expected.size&&[...expected].every(i=>checked.has(i));
    result.textContent=(correct?'✓ ':'✗ ')+(english?englishNotes[anatomyQuestions.indexOf(q)]||q.note:q.note);
    panel.querySelectorAll('label').forEach(label=>{
