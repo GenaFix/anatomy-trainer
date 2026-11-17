@@ -94,6 +94,10 @@ export function createEcorche(scene,camera,canvas){
      const key=norm(name);
      const manual=new Set(manualMappings.get(key)||[]);
      if(!key)return [];
+     // Brachialis and biceps brachii are visually close in this GLB. Do not
+     // trust an unverified name match for brachialis: only user-confirmed
+     // object mappings may highlight it.
+     if(key==='brachialis')return meshes.filter(mesh=>manual.has(meshPath(mesh)));
      const aliases=new Set([key,'musculus '+key,'muscle '+key,'m '+key]);
      // Accept exact scientific labels, with common authoring prefixes.
      // Never infer anatomy from arbitrary partial names.
@@ -111,13 +115,8 @@ export function createEcorche(scene,camera,canvas){
        const tokens=label.split(' ');
        if(tokens.length>1&&side.has(tokens[tokens.length-1])&&aliases.has(tokens.slice(0,-1).join(' ')))return true;
        if(tokens.length>1&&side.has(tokens[0])&&aliases.has(tokens.slice(1).join(' ')))return true;
-       // Some GLBs place the anatomical name on the parent object rather than the mesh.
-       let parent=mesh.parent;
-       while(parent&&parent!==root){
-         const parentLabel=norm(parent.name);
-         if(aliases.has(parentLabel))return true;
-         parent=parent.parent;
-       }
+       // Parent names are not reliable muscle identities: a parent can
+       // contain several adjacent anatomical structures.
        return false;
      });
    },
