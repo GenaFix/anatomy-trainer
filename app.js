@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=2946';
-import {setupMuscleQuiz} from './muscle-study.js?v=2946';
+import {createEcorche} from './ecorche.js?v=2947';
+import {setupMuscleQuiz} from './muscle-study.js?v=2947';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -69,6 +69,28 @@ controls.touches.ONE=THREE.TOUCH.ROTATE;
 controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
 controls.minDistance=2;
 controls.maxDistance=12;
+const panModeBtn=$('panMode');
+let panMode=false;
+function setPanMode(on){
+ panMode=Boolean(on);
+ controls.mouseButtons.LEFT=panMode?THREE.MOUSE.PAN:THREE.MOUSE.ROTATE;
+ controls.mouseButtons.RIGHT=panMode?THREE.MOUSE.ROTATE:THREE.MOUSE.PAN;
+ controls.touches.ONE=panMode?THREE.TOUCH.PAN:THREE.TOUCH.ROTATE;
+ controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
+ panModeBtn.classList.toggle('active',panMode);
+ panModeBtn.setAttribute('aria-pressed',String(panMode));
+ panModeBtn.textContent=panMode?'✓ Перемещение':'Перемещать модель';
+ if(touchDevice&&panMode&&!touchRotate){
+   touchRotate=true;
+   controls.enabled=true;
+   renderer.domElement.style.touchAction='none';
+   rotateBtn.textContent='Готово · прокрутка страницы';
+   rotateBtn.classList.add('active');
+   rotateBtn.setAttribute('aria-pressed','true');
+ }
+}
+panModeBtn.onclick=()=>setPanMode(!panMode);
+
 
 const model=createMovementModel(scene);
 const vectors=createVectorModel(scene);
@@ -634,6 +656,8 @@ function renderMuscle(){
 function activateMode(enabled){
  muscleMode=enabled;
  controls.enablePan=enabled;
+ panModeBtn.classList.toggle('hidden',!enabled);
+ if(!enabled)setPanMode(false);
  $('muscleTools').classList.toggle('hidden',!enabled);
  $('muscleGlobalSearch').classList.toggle('hidden',!enabled);
  $('muscleGestureHint').classList.toggle('hidden',!enabled);
