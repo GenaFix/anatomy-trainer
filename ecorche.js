@@ -11,6 +11,13 @@ export function createEcorche(scene,camera,canvas){
  const materialCache=new Map();
  const renderOrderCache=new Map();
  const hidden=new Set();
+ const manualMappings=new Map();
+ const mappingKey='anatomy-trainer-ecorche-mappings-v1';
+ try{for(const [key,paths] of Object.entries(JSON.parse(localStorage.getItem(mappingKey)||'{}')))if(Array.isArray(paths))manualMappings.set(key,paths);}catch(_error){}
+ const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+ function meshPath(mesh){const parts=[];let node=mesh;while(node&&node!==root){parts.unshift((node.name||'(unnamed)')+'#'+(node.parent?.children.indexOf(node)??0));node=node.parent;}return parts.join('/');}
+ function saveMappings(){try{localStorage.setItem(mappingKey,JSON.stringify(Object.fromEntries(manualMappings)));}catch(_error){}}
+ function mapSelected(name){if(!picked||!name)return false;const key=norm(name);const paths=manualMappings.get(key)||[];const path=meshPath(picked);if(!paths.includes(path))paths.push(path);manualMappings.set(key,paths);saveMappings();return true;}
  function restore(){
    for(const [mesh,material] of materialCache){mesh.material=material;mesh.renderOrder=renderOrderCache.get(mesh)??0;}
    renderOrderCache.clear();
@@ -77,11 +84,15 @@ export function createEcorche(scene,camera,canvas){
    getPicked(){return picked;},
    getPickedCenter(){if(!picked)return null;const bounds=new THREE.Box3().setFromObject(picked);return bounds.getCenter(new THREE.Vector3());},
    setOnPick(fn){onPick=fn;},
+   mapSelected,
+   getPickedPath(){return picked?meshPath(picked):'';},
+   getMappingCount(){return [...manualMappings.values()].reduce((n,arr)=>n+arr.length,0);},
+   clearMappings(){manualMappings.clear();saveMappings();},
    findByAnatomicalName(name){
      // Match only exact anatomical names or exact names with side suffixes.
      // Do not highlight unrelated parts through substring matching.
-     const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
      const key=norm(name);
+     const manual=new Set(manualMappings.get(key)||[]);
      if(!key)return [];
      const aliases=new Set([key,'musculus '+key,'muscle '+key,'m '+key]);
      // Accept exact scientific labels, with common authoring prefixes.
@@ -94,11 +105,19 @@ export function createEcorche(scene,camera,canvas){
      if(key==='longus colli')aliases.add('longus colli muscle');
      const side=new Set(['l','r','left','right','sinister','dexter','001','002']);
      return meshes.filter(mesh=>{
+       if(manual.has(meshPath(mesh)))return true;
        const label=norm(mesh.name);
        if(aliases.has(label))return true;
        const tokens=label.split(' ');
        if(tokens.length>1&&side.has(tokens[tokens.length-1])&&aliases.has(tokens.slice(0,-1).join(' ')))return true;
        if(tokens.length>1&&side.has(tokens[0])&&aliases.has(tokens.slice(1).join(' ')))return true;
+       // Some GLBs place the anatomical name on the parent object rather than the mesh.
+       let parent=mesh.parent;
+       while(parent&&parent!==root){
+         const parentLabel=norm(parent.name);
+         if(aliases.has(parentLabel))return true;
+         parent=parent.parent;
+       }
        return false;
      });
    },
