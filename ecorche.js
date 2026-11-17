@@ -3,6 +3,106 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
 
 const SOURCE='https://cdn.jsdelivr.net/gh/Charleeh/ecorche@main/model/ecorche.meshopt.glb';
+// Exact mesh names verified against the original ecorche.meshopt.glb.
+// A muscle can comprise multiple heads/parts and both anatomical sides.
+const VERIFIED_GROUPS={
+ "trapezius": [
+  "Ascending part of left trapezius",
+  "Ascending part of right trapezius",
+  "Descending part of left trapezius",
+  "Descending part of right trapezius",
+  "Transverse part of left trapezius",
+  "Transverse part of right trapezius"
+ ],
+ "brachialis": [
+  "Left brachialis",
+  "Right brachialis"
+ ],
+ "biceps brachii": [
+  "Long head of left biceps brachii",
+  "Long head of right biceps brachii",
+  "Short head of left biceps brachii",
+  "Short head of right biceps brachii"
+ ],
+ "triceps brachii": [
+  "Lateral head of left triceps brachii",
+  "Lateral head of right triceps brachii",
+  "Long head of left triceps brachii",
+  "Long head of right triceps brachii",
+  "Medial head of left triceps brachii",
+  "Medial head of right triceps brachii"
+ ],
+ "deltoid": [
+  "Acromial part of left deltoid",
+  "Acromial part of right deltoid",
+  "Clavicular part of left deltoid",
+  "Clavicular part of right deltoid",
+  "Spinal part of left deltoid",
+  "Spinal part of right deltoid"
+ ],
+ "rhomboid major": [
+  "Left rhomboid major",
+  "Right rhomboid major"
+ ],
+ "rhomboid minor": [
+  "Left rhomboid minor",
+  "Right rhomboid minor"
+ ],
+ "serratus anterior": [
+  "Left serratus anterior",
+  "Right serratus anterior"
+ ],
+ "infraspinatus": [
+  "Left infraspinatus muscle",
+  "Right infraspinatus muscle"
+ ],
+ "supraspinatus": [
+  "Left supraspinatus",
+  "Right supraspinatus"
+ ],
+ "subscapularis": [
+  "Left subscapularis",
+  "Right subscapularis"
+ ],
+ "levator scapulae": [
+  "Left levator scapulae",
+  "Right levator scapulae"
+ ],
+ "pronator quadratus": [
+  "Left pronator quadratus",
+  "Right pronator quadratus"
+ ],
+ "pronator teres": [
+  "Humeral head of left pronator teres",
+  "Humeral head of right pronator teres",
+  "Ulnar head of left pronator teres",
+  "Ulnar head of right pronator teres"
+ ],
+ "pectoralis major": [
+  "Abdominal part of left pectoralis major",
+  "Abdominal part of right pectoralis major",
+  "Clavicular part of left pectoralis major",
+  "Clavicular part of right pectoralis major",
+  "Sternocostal part of left pectoralis major",
+  "Sternocostal part of right pectoralis major"
+ ],
+ "pectoralis minor": [
+  "Left pectoralis minor",
+  "Right pectoralis minor"
+ ],
+ "teres major": [
+  "Left teres major",
+  "Right teres major"
+ ],
+ "teres minor": [
+  "Left teres minor",
+  "Right teres minor"
+ ],
+ "scapula": [
+  "Left scapula",
+  "Right scapula"
+ ]
+};
 export function createEcorche(scene,camera,canvas){
  const root=new THREE.Group();scene.add(root);root.visible=false;
  const ray=new THREE.Raycaster();const pointer=new THREE.Vector2();
@@ -94,11 +194,12 @@ export function createEcorche(scene,camera,canvas){
      const key=norm(name);
      const manual=new Set(manualMappings.get(key)||[]);
      if(!key)return [];
-     // Brachialis and biceps brachii are visually close in this GLB. Do not
-     // trust an unverified name match for brachialis: only user-confirmed
-     // object mappings may highlight it.
-     if(key==='brachialis')return meshes.filter(mesh=>manual.has(meshPath(mesh)));
-     const aliases=new Set([key,'musculus '+key,'muscle '+key,'m '+key]);
+     const verified=VERIFIED_GROUPS[key];
+   if(verified){
+     const names=new Set(verified);
+     return meshes.filter(mesh=>names.has(mesh.name)||manual.has(meshPath(mesh)));
+   }
+   const aliases=new Set([key,'musculus '+key,'muscle '+key,'m '+key]);
      // Accept exact scientific labels, with common authoring prefixes.
      // Never infer anatomy from arbitrary partial names.
      if(key==='fibularis brevis')aliases.add('peroneus brevis');
