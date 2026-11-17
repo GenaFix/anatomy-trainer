@@ -225,3 +225,6 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 .model-interaction-row .muscle-global-search{flex:1 1 110px;min-width:0;width:auto;max-width:none;font-size:14px;padding:9px 10px}
 #viewControls .muscle-global-search{flex:1 1 140px;min-width:110px;width:auto;max-width:240px;margin-left:auto;font-size:13px}
 @media(max-width:800px){.model-interaction-row #touchRotate{max-width:58%;white-space:normal}.model-interaction-row .muscle-global-search{max-width:none;width:auto}}
+
+/* Bilingual muscle answers */
+.muscle-choice-name{display:inline-flex;flex-direction:column;gap:3px;min-width:0;vertical-align:middle}.muscle-choice-translation{font-size:.82em;opacity:.78;font-weight:400;line-height:1.25}
