@@ -433,8 +433,8 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
  function reset(){order=shuffled(active());if(testSize!=='all')order=order.slice(0,Number(testSize));position=0;checked.clear();answered=false;currentChoices=[];}
  reset();
  function bilingualMuscleNames(prompt){
-  const words=[...prompt.matchAll(/[\\p{L}\\p{N}]+/gu)].map(m=>({text:m[0],start:m.index,end:m.index+m[0].length,stem:stem(m[0])}));
-  const candidates=muscleNames.map(([ru,en])=>({en,roots:ru.split(/[\\s,]+/).map(stem).filter(x=>x&&x!=='мышц')}))
+  const words=[...prompt.matchAll(/[\p{L}\p{N}]+/gu)].map(m=>({text:m[0],start:m.index,end:m.index+m[0].length,stem:stem(m[0])}));
+  const candidates=muscleNames.map(([ru,en])=>({en,roots:ru.split(/[\s,]+/).map(stem).filter(x=>x&&x!=='мышц')}))
    .sort((a,b)=>b.roots.length-a.roots.length);
   const matches=[];
   for(const candidate of candidates){
