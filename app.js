@@ -112,10 +112,8 @@ controls.enableDamping=true;
 controls.enablePan=false;
 controls.screenSpacePanning=true;
 controls.touches.ONE=THREE.TOUCH.ROTATE;
-// На iPhone жест OrbitControls DOLLY_PAN иногда обрабатывает
-// только перемещение двумя пальцами. Масштабирование ниже задаётся
-// отдельным pinch-обработчиком, поэтому нативный жест оставляем для pan.
-controls.touches.TWO=THREE.TOUCH.PAN;
+// Для исходного режима оставляем штатные жесты OrbitControls.
+controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
 controls.minDistance=2;
 controls.maxDistance=12;
 
@@ -781,6 +779,7 @@ function activateMode(enabled){
  document.body.classList.toggle('muscle-mode',enabled);
  translateInterface();
  controls.enablePan=enabled;
+ controls.touches.TWO=enabled?THREE.TOUCH.PAN:THREE.TOUCH.DOLLY_PAN;
  $('muscleTools').classList.toggle('hidden',!enabled);
  $('muscleGlobalSearch').classList.toggle('hidden',!enabled);
  $('muscleGestureHint').classList.toggle('hidden',!enabled);
