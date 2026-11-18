@@ -92,7 +92,7 @@ const anatomyQuestions=[
  {topic:"origins",text:"От каких поперечных отростков шейных позвонков начинается мышца, поднимающая лопатку?",textEn:"From which cervical transverse processes does levator scapulae originate?",correct:[3],note:"Она начинается от задних бугорков поперечных отростков C1–C4.",noteEn:"It originates from the posterior tubercles of the transverse processes of C1–C4."},
  {topic:"insertions",text:"Куда прикрепляется мышца, поднимающая лопатку?",textEn:"Where does levator scapulae attach?",correct:[3],note:"Она прикрепляется к верхнему углу и прилегающему медиальному краю лопатки.",noteEn:"It attaches to the superior angle and adjacent medial border of the scapula."},
  {topic:"functions",text:"Какая мышца поднимает лопатку и помогает вращать её вниз?",textEn:"Which muscle elevates the scapula and assists downward rotation?",correct:[3],note:"Это мышца, поднимающая лопатку.",noteEn:"This is levator scapulae."},
- {topic:"origins",text:"Сколько верхних рёбер охватывает зубцами передняя зубчатая мышца в описании атласа?",textEn:"How many upper ribs does serratus anterior arise from in the atlas description?",correct:[4],note:"Атлас указывает 8–9 зубцов от наружной поверхности I–IX рёбер с вариацией числа зубцов.",noteEn:"The atlas describes 8–9 slips from the outer surfaces of ribs I–IX, with variation in the number of slips."},
+ {topic:"origins",text:"Какая мышца начинается от наружных поверхностей I–IX рёбер, образуя обычно 8–9 зубцов?",textEn:"Which muscle originates by usually 8–9 slips from the outer surfaces of ribs I–IX?",correct:[4],note:"Передняя зубчатая мышца начинается от наружных поверхностей I–IX рёбер; число зубцов обычно составляет 8–9 и может варьировать.",noteEn:"Serratus anterior originates by slips from the outer surfaces of ribs I–IX; the number is usually 8–9 and can vary."},
  {topic:"insertions",text:"Куда прикрепляется передняя зубчатая мышца?",textEn:"Where does serratus anterior attach?",correct:[4],note:"Она прикрепляется к передней поверхности медиального края и нижнего угла лопатки.",noteEn:"It attaches to the anterior surface of the medial border and inferior angle of the scapula."},
  {topic:"functions",text:"Какая мышца обеспечивает протракцию и верхнюю ротацию лопатки, удерживая её у грудной клетки?",textEn:"Which muscle protracts and upwardly rotates the scapula while holding it against the thorax?",correct:[4],note:"Это функция передней зубчатой мышцы.",noteEn:"This is an action of serratus anterior."},
  {topic:"origins",text:"От какой структуры начинается подключичная мышца?",textEn:"What is the origin of subclavius?",correct:[66],note:"Подключичная мышца начинается от I ребра и его хряща.",noteEn:"Subclavius originates from the first rib and its costal cartilage."},
@@ -116,7 +116,7 @@ const anatomyQuestions=[
  {topic:"origins",text:"От какого бугорка лопатки начинается длинная головка трёхглавой мышцы плеча?",textEn:"From which scapular tubercle does the long head of triceps brachii originate?",correct:[15],note:"От подсуставного бугорка лопатки.",noteEn:"From the infraglenoid tubercle of the scapula."},
  {topic:"insertions",text:"Куда прикрепляется трёхглавая мышца плеча?",textEn:"Where does triceps brachii attach?",correct:[15],note:"Общее сухожилие прикрепляется к локтевому отростку локтевой кости.",noteEn:"Its common tendon attaches to the olecranon of the ulna."},
  {topic:"functions",text:"Какое основное действие выполняет трёхглавая мышца плеча в локтевом суставе?",textEn:"What is the main action of triceps brachii at the elbow?",correct:[15],note:"Разгибание предплечья в локтевом суставе.",noteEn:"Extension of the forearm at the elbow."},
- {topic:"origins",text:"К каким костным ориентирам прикрепляются три части дельтовидной мышцы в области плечевого пояса?",textEn:"Which shoulder-girdle landmarks give origin to the three parts of deltoid?",correct:[7],note:"К латеральной трети ключицы, акромиону и ости лопатки.",noteEn:"The lateral third of the clavicle, acromion, and spine of the scapula."},
+ {topic:"origins",text:"Какая мышца начинается от латеральной трети ключицы, акромиона и ости лопатки?",textEn:"Which muscle originates from the lateral third of the clavicle, the acromion, and the spine of the scapula?",correct:[7],note:"Это места начала дельтовидной мышцы: ключичная часть начинается от латеральной трети ключицы, акромиальная — от акромиона, а остистая — от ости лопатки.",noteEn:"These are the origins of the deltoid: its clavicular part arises from the lateral third of the clavicle, the acromial part from the acromion, and the spinal part from the scapular spine."},
  {topic:"insertions",text:"Куда прикрепляется дельтовидная мышца на плечевой кости?",textEn:"Where does deltoid attach on the humerus?",correct:[7],note:"К дельтовидной бугристости плечевой кости.",noteEn:"To the deltoid tuberosity of the humerus."},
  {topic:"functions",text:"Какая мышца преимущественно отводит плечо, а её передняя и задняя части помогают сгибанию и разгибанию?",textEn:"Which muscle primarily abducts the arm, with anterior and posterior parts assisting flexion and extension?",correct:[7],note:"Это дельтовидная мышца.",noteEn:"This is deltoid."},
  {topic:"origins",text:"От каких частей лопатки начинается большая круглая мышца?",textEn:"From which parts of the scapula does teres major originate?",correct:[9],note:"От задней поверхности нижнего угла лопатки и прилегающей части латерального края.",noteEn:"From the posterior surface of the inferior angle and adjacent lateral border of the scapula."},
@@ -378,16 +378,33 @@ function baseQuestionText(question,english){
   const plural=question.correct.length>1;
   const description=maskedFact(question,english);
   if(question.topic==='functions'){
-   if(english)prompt=(plural?'Which muscles match this functional description':'Which muscle matches this functional description')+': “'+description+'”?';
-   else prompt=(plural?'Какие мышцы соответствуют описанию функции':'Какая мышца соответствует описанию функции')+': «'+description+'»?';
+   const action=description.replace(/^(?:она|эта мышца|they|this muscle|it)\s+/i,'');
+   const cleanAction=action.replace(/[.;]+\s*$/,'');
+   if(english)prompt=plural?'Which muscles perform these actions: “'+cleanAction+'”?':'Which muscle '+cleanAction.charAt(0).toLowerCase()+cleanAction.slice(1)+'?';
+   else prompt=plural?'Какие мышцы выполняют эти действия: «'+cleanAction+'»?':'Какая мышца '+cleanAction.charAt(0).toLowerCase()+cleanAction.slice(1)+'?';
   }else if(question.topic==='origins'&&!english&&/^от\s/i.test(description)){
-   const origin=description.replace(/^от\s+/i,'');
+   const origin=description.replace(/^от\s+/i,'').replace(/[.;]+$/,'');
    prompt=plural?'Какие мышцы начинаются от '+origin+'?':'Какая мышца начинается от '+origin+'?';
   }else if(question.topic==='origins'&&english&&/^from\s/i.test(description)){
-   const origin=description.replace(/^from\s+/i,'');
+   const origin=description.replace(/^from\s+/i,'').replace(/[.;]+$/,'');
    prompt=plural?'Which muscles originate from '+origin+'?':'Which muscle originates from '+origin+'?';
-  }else if(english)prompt=(plural?'Which muscles match the following description':'Which muscle matches the following description')+(question.topic==='origins'?' of the origin: ':' of the insertion: ')+'“'+description+'”?';
-  else prompt=(plural?'Какие мышцы соответствуют описанию':'Какая мышца соответствует описанию')+(question.topic==='origins'?' места начала: ':' места прикрепления: ')+'«'+description+'»?';
+  }else if(question.topic==='insertions'){
+   let attachment=english
+    ?description.replace(/^(?:it|they|the common tendon|its parts)\s+(?:attaches?|inserts?)\s*/i,'')
+    :description.replace(/^(?:она|они|её части|ее части|общее сухожилие|сухожилие)\s+прикрепля(?:ется|ются)\s*/i,'');
+   attachment=attachment.replace(/^\s*[—–-]\s*/,'').replace(/;\s*[—–-]\s*/g,'; ').replace(/[.;]+\s*$/,'').trim();
+   const lower=attachment.charAt(0).toLowerCase()+attachment.slice(1);
+   if(english){
+    if(/^to\s/i.test(attachment))prompt=plural?'Which muscles attach to these sites: '+attachment.replace(/^to\s+/i,'')+'?':'Which muscle attaches '+lower+'?';
+    else if(/^through\s/i.test(attachment))prompt=plural?'Which muscles attach through these structures: '+lower+'?':'Which muscle attaches '+lower+'?';
+    else prompt=plural?'Which muscles attach at these sites: '+lower+'?':'Which muscle has its insertion at: '+lower+'?';
+   }else{
+    if(/^(?:к|ко)\s/i.test(attachment))prompt=plural?'Какие мышцы прикрепляются '+lower+'?':'Какая мышца прикрепляется '+lower+'?';
+    else if(/^через\s/i.test(attachment))prompt=plural?'Какие мышцы прикрепляются '+lower+'?':'Какая мышца прикрепляется '+lower+'?';
+    else prompt=plural?'Какие мышцы прикрепляются в указанных местах: '+lower+'?':'Какая мышца имеет место прикрепления: '+lower+'?';
+   }
+  }else if(english)prompt=(plural?'Which muscles have their origins at':'Which muscle has its origin at')+': “'+description.replace(/[.;]+$/,'')+'”?';
+  else prompt=(plural?'Какие мышцы имеют начало в указанных местах':'Какая мышца имеет начало в')+': «'+description.replace(/[.;]+$/,'')+'»?';
  }
  return prompt;
 }
