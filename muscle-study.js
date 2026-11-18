@@ -438,7 +438,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
    const status=section.querySelector('#muscleHighlightStatus');
    if(status)status.textContent=visualStatus;
  }
- function highlightAnswer(){const indices=[...checked];showHighlight(indices);onAnswerFocus(indices);}
+ function highlightAnswer(indices){showHighlight(indices);onAnswerFocus(indices);}
  function draw(){
   section.replaceChildren();
   const english=language()==='en',bilingual=language()==='both';
@@ -510,9 +510,10 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   }
   function evaluate(){
    if(answered||!checked.size)return;
+   const expected=choices.filter(i=>q.correct.includes(i));
    answered=true;
    restoreAnswerFeedback();
-   highlightAnswer(q);
+   highlightAnswer([...expected]);
   }
   choices.forEach(i=>{
    const label=el('label','muscle-choice');
@@ -542,7 +543,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   check.onclick=evaluate;
   if(!beginner)section.append(check);
   section.append(result);
-  if(answered){restoreAnswerFeedback();showHighlight([...checked]);onAnswerFocus([...checked]);}
+  if(answered){const expected=choices.filter(i=>q.correct.includes(i));restoreAnswerFeedback();showHighlight(expected);onAnswerFocus(expected);}
   section.append(details);
   next.disabled=!answered;
   section.append(next);
