@@ -87,7 +87,7 @@ const anatomyQuestions=[
  {topic:"origins",text:"Какая мышца начинается от передней поверхности III–V рёбер и прикрепляется к клювовидному отростку лопатки?",textEn:"Which muscle originates from the anterior surfaces of ribs 3–5 and attaches to the coracoid process of the scapula?",correct:[6],note:"Это малая грудная мышца.",noteEn:"This is pectoralis minor."},
  {topic:"functions",text:"Какая мышца смещает лопатку каудально и способствует её отведению (абдукции)?",textEn:"Which muscle draws the scapula caudally and contributes to scapular abduction?",correct:[6],note:"Это действия малой грудной мышцы, перечисленные в атласе.",noteEn:"This is an action of pectoralis minor."},
  {topic:"origins",text:"От каких позвонков начинаются большая и малая ромбовидные мышцы?",textEn:"From which vertebrae do the rhomboid major and minor originate?",correct:[1],note:"Большая ромбовидная начинается от верхних грудных остистых отростков, малая — от нижней выйной связки и остистых отростков C7–T1.",noteEn:"Rhomboid major originates from upper thoracic spinous processes. Rhomboid minor originates from the lower nuchal ligament and C7–T1 spinous processes."},
- {topic:"insertions",text:"К какому краю лопатки прикрепляются ромбовидные мышцы?",textEn:"Which scapular border do the rhomboid muscles attach to?",correct:[1],note:"Большая и малая ромбовидные прикрепляются к медиальному краю лопатки.",noteEn:"Rhomboid major and minor attach to the medial border of the scapula."},
+ {topic:"insertions",text:"Какие мышцы прикрепляются к медиальному краю лопатки?",textEn:"Which muscles attach to the medial border of the scapula?",correct:[1,2],note:"Большая и малая ромбовидные прикрепляются к медиальному краю лопатки.",noteEn:"Rhomboid major and minor attach to the medial border of the scapula."},
  {topic:"functions",text:"Какую мышцу следует выбрать для ретракции и подъёма лопатки с вращением её нижнего угла медиально?",textEn:"Which muscle should be selected for scapular retraction and elevation with medial rotation of its inferior angle?",correct:[1],note:"Ромбовидные мышцы приближают лопатку к позвоночнику и участвуют в её подъёме и вращении вниз.",noteEn:"The rhomboids move the scapula cranially and medially, contributing to elevation and retraction."},
  {topic:"origins",text:"От каких поперечных отростков шейных позвонков начинается мышца, поднимающая лопатку?",textEn:"From which cervical transverse processes does levator scapulae originate?",correct:[3],note:"Она начинается от задних бугорков поперечных отростков C1–C4.",noteEn:"It originates from the posterior tubercles of the transverse processes of C1–C4."},
  {topic:"insertions",text:"Куда прикрепляется мышца, поднимающая лопатку?",textEn:"Where does levator scapulae attach?",correct:[3],note:"Она прикрепляется к верхнему углу и прилегающему медиальному краю лопатки.",noteEn:"It attaches to the superior angle and adjacent medial border of the scapula."},
@@ -130,7 +130,6 @@ const anatomyQuestions=[
  {topic:'relations',kind:'synergists',focus:0,movement:'Подъём лопатки',correct:[3],note:'Мышца, поднимающая лопатку, содействует верхним пучкам трапециевидной мышцы.'},
  {topic:'attachments',text:'Какая мышца начинается в надостной ямке лопатки?',correct:[11],note:'Надостная мышца начинается в надостной ямке лопатки.'},
  {topic:'attachments',text:'Какая мышца начинается в подостной ямке лопатки?',correct:[12],note:'Подостная мышца начинается в подостной ямке лопатки.'},
- {topic:'attachments',text:'Какая мышца начинается на передней поверхности лопатки в подлопаточной ямке?',correct:[13],note:'Подлопаточная мышца начинается в подлопаточной ямке.'},
  {topic:'attachments',text:'Какая мышца прикрепляется к малому бугорку плечевой кости?',correct:[13],note:'Подлопаточная мышца прикрепляется к малому бугорку плечевой кости.'},
  {topic:'attachments',text:'Какая мышца прикрепляется к большому бугорку плечевой кости?',correct:[11,12,10],note:'Надостная, подостная и малая круглая мышцы прикрепляются к фасеткам большого бугорка плечевой кости.'},
  {topic:'functions',text:'Какая мышца является главным пронатором предплечья в дистальном отделе?',correct:[19],note:'Квадратный пронатор выполняет пронацию предплечья.'},
@@ -150,7 +149,6 @@ const anatomyQuestions=[
  {topic:'functions',text:"Какая мышца сгибает большой палец стопы?",correct:[54],note:"Длинный сгибатель большого пальца стопы сгибает большой палец."},
  {topic:'functions',text:"Какая мышца выполняет боковое сгибание поясничного отдела позвоночника?",correct:[62],note:"Квадратная мышца поясницы участвует в латерофлексии поясничного отдела."},
  {topic:'functions',text:"Какая мышца поворачивает голову в противоположную сторону при одностороннем сокращении?",correct:[63],note:"Грудино-ключично-сосцевидная мышца вращает голову в противоположную сторону."},
- {topic:'functions',text:"Какая мышца сгибает и приводит плечо в плечевом суставе?",correct:[66],note:"Клювовидно-плечевая мышца участвует в сгибании и приведении плеча."}
 ];
 // Atlas sections 2.22–2.52, printed pages 294–544. Items are paraphrased from
 // the atlas's muscle descriptions and grouped test functions; they are not a
@@ -165,7 +163,7 @@ const atlasContinuation=[
  {topic:'origins',muscles:['Longus colli'],text:'От каких отделов позвоночника начинается длинная мышца шеи?',textEn:'Which vertebral regions give origin to longus colli?',note:'По частям: от тел C5–T3, поперечных отростков C2–C5 и тел трёх верхних грудных позвонков.',noteEn:'By parts: from vertebral bodies C5–T3, transverse processes C2–C5, and the bodies of the upper three thoracic vertebrae.'},
  {topic:'insertions',muscles:['Longus colli'],text:'К каким позвонкам прикрепляются части длинной мышцы шеи?',textEn:'Where do the parts of longus colli insert?',note:'К телам C2–C3, переднему бугорку атланта C1 и передним бугоркам поперечных отростков трёх нижних шейных позвонков.',noteEn:'To the bodies of C2–C3, anterior tubercle of the atlas C1, and anterior tubercles of the three lower cervical transverse processes.'},
  {topic:'functions',muscles:['Longus colli'],text:'Какое основное действие выполняет длинная мышца шеи?',textEn:'What is the principal action of longus colli?',note:'Сгибает шейный отдел; одностороннее сокращение также участвует в ипсилатеральном наклоне.',noteEn:'It flexes the neck; unilateral contraction also contributes to ipsilateral lateral flexion.'},
- {topic:'origins',muscles:['Longus capitis'],text:'Откуда начинается длинная мышца головы?',textEn:'Where does longus capitis originate?',note:'От передних бугорков поперечных отростков C3–C6.',noteEn:'From the anterior tubercles of the transverse processes of C3–C6.'},
+ {topic:'origins',muscles:['Longus capitis'],text:'Откуда начинается длинная мышца головы?',textEn:'Where does longus capitis originate?',note:'От передних бугорков поперечных отростков шейных позвонков C3–C6.',noteEn:'From the anterior tubercles of the transverse processes of C3–C6.'},
  {topic:'insertions',muscles:['Longus capitis'],text:'Куда прикрепляется длинная мышца головы?',textEn:'Where does longus capitis insert?',note:'К базилярной части затылочной кости.',noteEn:'To the basilar part of the occipital bone.'},
  {topic:'functions',muscles:['Longus capitis'],text:'Какое движение головы выполняет длинная мышца головы?',textEn:'What head movement does longus capitis produce?',note:'Сгибает голову и верхний шейный отдел.',noteEn:'It flexes the head and upper cervical spine.'},
  {topic:'insertions',muscles:['Middle scalene','Posterior scalene'],text:'К каким рёбрам прикрепляются средняя и задняя лестничные мышцы?',textEn:'Which ribs receive the insertions of middle and posterior scalene?',note:'Использована стандартная анатомическая номенклатура: средняя лестничная прикрепляется к I ребру, задняя — ко II ребру. В разделе 2.24 атласа русские подписи и отдельное описание места прикрепления задней лестничной расходятся с этим стандартом, поэтому этот пункт требует редакторской сверки с автором.',noteEn:'Standard anatomical nomenclature is used here: middle scalene inserts on rib 1 and posterior scalene on rib 2. In section 2.24, the Russian labels and the posterior scalene insertion description in the atlas conflict with this standard, so this point needs editorial verification against the author.'},
@@ -345,17 +343,71 @@ const englishNotes=[
  "Sternocleidomastoid rotates the head contralaterally.",
  "Coracobrachialis flexes and adducts the arm."
 ];
+const sourceReviewRequired=question=>/требует(?: редакторской)? сверки|requires (?:editorial )?review/i.test((question.note||'')+' '+(question.noteEn||''));
+const escapeRegExp=value=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function russianMusclePattern(name){
+ const words=name.toLowerCase().replace(/[(),]/g,' ').split(/\s+/).filter(Boolean);
+ const hasNoun=words.includes('мышца');
+ const parts=words.map(word=>{
+  if(word==='мышца')return 'мышц[а-яё]*';
+  const stem=word.length>5?word.slice(0,-2):word.slice(0,-1);
+  return escapeRegExp(stem)+'[а-яё]*';
+ });
+ let pattern=parts.join('[\\s,–-]+');
+ if(!hasNoun)pattern+='(?:\\s+мышц[а-яё]*)?';
+ pattern+='(?=$|[\\s,;:.!?])';
+ if(!hasNoun)pattern+='(?!\\s+(?:ямк|фасц|поверхност|отрост|бугор|кра[йяею]|ребр|кости|кост|лини|сустав|губер|головк|хрящ|фаланг)[а-яё]*)';
+ return new RegExp(pattern,'giu');
+}
+function maskedFact(question,english){
+ const index=question._sourceIndex??anatomyQuestions.indexOf(question);
+ let fact=english?(question.noteEn||englishNotes[index-legacyQuestionOffset]||question.note||''):(question.note||'');
+ for(const muscleIndex of question.correct||[]){
+  const name=muscleNames[muscleIndex]?.[english?1:0];
+  if(!name)continue;
+  const pattern=english?new RegExp('\\b'+escapeRegExp(name)+'\\b','gi'):russianMusclePattern(name);
+  fact=fact.replace(pattern,'__________');
+ }
+ return fact.replace(/\s+/g,' ').replace(/\s+([,.;:])/g,'$1').replace(/([,;])\s*([,;])/g,'$2').trim();
+}
+function baseQuestionText(question,english){
+ const index=question._sourceIndex??anatomyQuestions.indexOf(question);
+ let prompt=english?question.textEn||englishQuestionTexts[index-legacyQuestionOffset]||question.text||'Identify the muscle.':question.text||((question.kind==='synergists'?'Какая мышца является синергистом трапециевидной мышцы при движении «':'Какая мышца является антагонистом трапециевидной мышцы при движении «')+question.movement+'»?');
+ const asksForMuscle=english?/\bwhich muscles?\b/i.test(prompt):/какая мышца|какие мышцы/i.test(prompt);
+ if(['origins','insertions'].includes(question.topic)&&!asksForMuscle){
+  const plural=question.correct.length>1;
+  const description=maskedFact(question,english);
+  if(english)prompt=(plural?'Which muscles match the following description':'Which muscle matches the following description')+(question.topic==='origins'?' of the origin: ':' of the insertion: ')+'“'+description+'”?';
+  else prompt=(plural?'Какие мышцы соответствуют описанию':'Какая мышца соответствует описанию')+(question.topic==='origins'?' места начала: ':' места прикрепления: ')+'«'+description+'»?';
+ }
+ return prompt;
+}
 export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
  let answerCount='4',topic='all',testSize='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false,settingsExpanded=false;
  const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x;};
  const section=el('div','muscle-study');container.append(section);
  const shuffled=(arr)=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
- const active=()=>anatomyQuestions.filter(q=>topic==='all'||q.topic===topic);
+ const active=()=>{
+  const english=language()==='en',unique=[],byPrompt=new Map();
+  for(const source of anatomyQuestions){
+   if(sourceReviewRequired(source))continue;
+   const key=source.topic+'|'+baseQuestionText(source,english).toLocaleLowerCase().replace(/[ё]/g,'е').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+   const existing=byPrompt.get(key);
+   if(existing){
+    existing.correct=[...new Set([...existing.correct,...source.correct])];
+    for(const field of ['note','noteEn'])if(source[field]&&existing[field]!==source[field])existing[field]=[existing[field],source[field]].filter(Boolean).join(' ');
+   }else{
+    const item={...source,correct:[...source.correct],_sourceIndex:anatomyQuestions.indexOf(source)};
+    byPrompt.set(key,item);unique.push(item);
+   }
+  }
+  return unique.filter(q=>topic==='all'||q.topic===topic);
+ };
  function reset(){order=shuffled(active());if(testSize!=='all')order=order.slice(0,Number(testSize));position=0;checked.clear();answered=false;}
  reset();
  function questionText(q){
   const english=language()==='en';
-  let prompt=english?q.textEn||englishQuestionTexts[anatomyQuestions.indexOf(q)-legacyQuestionOffset]||q.text||'Identify the muscle.':q.text||((q.kind==='synergists'?'Какая мышца является синергистом трапециевидной мышцы при движении «':'Какая мышца является антагонистом трапециевидной мышцы при движении «')+q.movement+'»?');
+  let prompt=baseQuestionText(q,english);
   if(q.correct.length>1)prompt=(english?(answerCount==='4'?'Choose one correct option. ':'Select all correct options shown. '):(answerCount==='4'?'Выберите один правильный вариант. ':'Отметьте все правильные варианты из показанных. '))+prompt;
   return prompt;
  }
@@ -446,7 +498,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
    if(answered||!checked.size)return;
    const expected=new Set(choices.filter(i=>q.correct.includes(i)));
    const correct=beginner?checked.size===1&&expected.has([...checked][0]):checked.size===expected.size&&[...expected].every(i=>checked.has(i));
-   result.textContent=(correct?'✓ ':'✗ ')+(english?q.noteEn||englishNotes[anatomyQuestions.indexOf(q)-legacyQuestionOffset]||q.note:q.note);
+   result.textContent=(correct?'✓ ':'✗ ')+(english?q.noteEn||englishNotes[(q._sourceIndex??anatomyQuestions.indexOf(q))-legacyQuestionOffset]||q.note:q.note);
    panel.querySelectorAll('label').forEach(label=>{
     const index=Number(label.dataset.index);
     if(expected.has(index))label.classList.add('correct');
