@@ -353,10 +353,10 @@ function russianMusclePattern(name){
   const stem=word.length>5?word.slice(0,-2):word.slice(0,-1);
   return escapeRegExp(stem)+'[а-яё]*';
  });
- let pattern=parts.join('[\\s,–-]+');
- if(!hasNoun)pattern+='(?:\\s+мышц[а-яё]*)?';
- pattern+='(?=$|[\\s,;:.!?])';
- if(!hasNoun)pattern+='(?!\\s+(?:ямк|фасц|поверхност|отрост|бугор|кра[йяею]|ребр|кости|кост|лини|сустав|губер|головк|хрящ|фаланг)[а-яё]*)';
+ let pattern=parts.join('[\s,–-]+');
+ if(!hasNoun)pattern+='(?:\s+мышц[а-яё]*)?';
+ pattern+='(?=$|[\s,;:.!?])';
+ if(!hasNoun)pattern+='(?!\s+(?:ямк|фасц|поверхност|отрост|бугор|кра[йяею]|ребр|кости|кост|лини|сустав|губер|головк|хрящ|фаланг)[а-яё]*)';
  return new RegExp(pattern,'giu');
 }
 function maskedFact(question,english){
@@ -380,11 +380,11 @@ function baseQuestionText(question,english){
   if(question.topic==='functions'){
    if(english)prompt=(plural?'Which muscles match this functional description':'Which muscle matches this functional description')+': “'+description+'”?';
    else prompt=(plural?'Какие мышцы соответствуют описанию функции':'Какая мышца соответствует описанию функции')+': «'+description+'»?';
-  }else if(question.topic==='origins'&&!english&&/^от\\s/i.test(description)){
-   const origin=description.replace(/^от\\s+/i,'');
+  }else if(question.topic==='origins'&&!english&&/^от\s/i.test(description)){
+   const origin=description.replace(/^от\s+/i,'');
    prompt=plural?'Какие мышцы начинаются от '+origin+'?':'Какая мышца начинается от '+origin+'?';
-  }else if(question.topic==='origins'&&english&&/^from\\s/i.test(description)){
-   const origin=description.replace(/^from\\s+/i,'');
+  }else if(question.topic==='origins'&&english&&/^from\s/i.test(description)){
+   const origin=description.replace(/^from\s+/i,'');
    prompt=plural?'Which muscles originate from '+origin+'?':'Which muscle originates from '+origin+'?';
   }else if(english)prompt=(plural?'Which muscles match the following description':'Which muscle matches the following description')+(question.topic==='origins'?' of the origin: ':' of the insertion: ')+'“'+description+'”?';
   else prompt=(plural?'Какие мышцы соответствуют описанию':'Какая мышца соответствует описанию')+(question.topic==='origins'?' места начала: ':' места прикрепления: ')+'«'+description+'»?';
