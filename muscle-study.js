@@ -383,7 +383,7 @@ function baseQuestionText(question,english){
  return prompt;
 }
 export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
- let answerCount='4',topic='all',testSize='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false,settingsExpanded=false;
+ let answerCount='4',topic='all',testSize='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false,settingsExpanded=false,currentChoices=[];
  const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x;};
  const section=el('div','muscle-study');container.append(section);
  const shuffled=(arr)=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
@@ -403,7 +403,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   }
   return unique.filter(q=>topic==='all'||q.topic===topic);
  };
- function reset(){order=shuffled(active());if(testSize!=='all')order=order.slice(0,Number(testSize));position=0;checked.clear();answered=false;}
+ function reset(){order=shuffled(active());if(testSize!=='all')order=order.slice(0,Number(testSize));position=0;checked.clear();answered=false;currentChoices=[];}
  reset();
  function questionText(q){
   const english=language()==='en';
@@ -462,7 +462,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   categories.value=topic;categories.onchange=()=>{topic=categories.value;settingsExpanded=settingsDetails.open;reset();draw();};settings.append(categories);
   const answers=el('select','muscle-dropdown');answers.setAttribute('aria-label',english?'Number of answer choices':'Количество вариантов ответа');
   for(const value of ['4','6','10','20','30','50','70','95']){const option=el('option','',value==='95'?(english?'95 (all muscles)':'95 (все мышцы)'):english?value+' choices':value+' вариантов');option.value=value;answers.append(option);}
-  answers.value=answerCount;answers.onchange=()=>{answerCount=answers.value;settingsExpanded=settingsDetails.open;checked.clear();answered=false;draw();};settings.append(answers);
+  answers.value=answerCount;answers.onchange=()=>{answerCount=answers.value;settingsExpanded=settingsDetails.open;checked.clear();answered=false;currentChoices=[];draw();};settings.append(answers);
   const count=el('select','muscle-dropdown');count.setAttribute('aria-label',english?'Number of quiz questions':'Количество вопросов в тесте');
   for(const value of ['all','10','20','30','50','70','95']){const option=el('option','',value==='all'?(english?'All available questions':'Все вопросы'):english?value+' questions':value+' вопросов');option.value=value;count.append(option);}
   count.value=testSize;count.onchange=()=>{testSize=count.value;settingsExpanded=settingsDetails.open;reset();draw();};settings.append(count);
@@ -490,12 +490,12 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   highlightStatus.id='muscleHighlightStatus';questionMeta.append(highlightStatus);section.append(questionMeta);
   section.append(el('h4','muscle-question',questionText(q)));
   section.append(settingsDetails);
-  const choices=options(q);const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
+  if(!currentChoices.length)currentChoices=options(q);
+  const choices=currentChoices;const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
   const result=el('p','muscle-note','');
   const next=el('button','',english?'Next question':'Следующий вопрос');
-  next.onclick=()=>{onAnswerFocus([]);position++;checked.clear();answered=false;model.restore?.();draw();};
-  function evaluate(){
-   if(answered||!checked.size)return;
+  next.onclick=()=>{onAnswerFocus([]);position++;checked.clear();answered=false;currentChoices=[];model.restore?.();draw();};
+  function restoreAnswerFeedback(){
    const expected=new Set(choices.filter(i=>q.correct.includes(i)));
    const correct=beginner?checked.size===1&&expected.has([...checked][0]):checked.size===expected.size&&[...expected].every(i=>checked.has(i));
    result.textContent=(correct?'✓ ':'✗ ')+(english?q.noteEn||englishNotes[(q._sourceIndex??anatomyQuestions.indexOf(q))-legacyQuestionOffset]||q.note:q.note);
@@ -505,9 +505,13 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
     else if(checked.has(index))label.classList.add('wrong');
     label.querySelector('input').disabled=true;
    });
-   answered=true;
    if(!beginner)check.disabled=true;
    next.disabled=false;
+  }
+  function evaluate(){
+   if(answered||!checked.size)return;
+   answered=true;
+   restoreAnswerFeedback();
    highlightAnswer(q);
   }
   choices.forEach(i=>{
@@ -538,8 +542,9 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   check.onclick=evaluate;
   if(!beginner)section.append(check);
   section.append(result);
+  if(answered){restoreAnswerFeedback();showHighlight([...checked]);onAnswerFocus([...checked]);}
   section.append(details);
-  next.disabled=true;
+  next.disabled=!answered;
   section.append(next);
  }
  model.setOnPick(mesh=>{meshInfo='GLB: '+(model.getPickedPath?.()||mesh.name||'(без названия)');const e=section.querySelector('#meshInfo');if(e)e.textContent=meshInfo;});
