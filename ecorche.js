@@ -128,8 +128,6 @@ export function createEcorche(scene,camera,canvas){
  }
  function meshPath(mesh){const parts=[];let node=mesh;while(node&&node!==root){parts.unshift((node.name||'(unnamed)')+'#'+(node.parent?.children.indexOf(node)??0));node=node.parent;}return parts.join('/');}
  function meshLabels(mesh){return [...new Set([mesh.name,mesh.userData?.name].filter(value=>typeof value==='string'&&value.trim()))];}
- function saveMappings(){try{localStorage.setItem(mappingKey,JSON.stringify(Object.fromEntries(manualMappings)));}catch(_error){}}
- function mapSelected(name){if(!picked||!name)return false;const key=norm(name);const paths=manualMappings.get(key)||[];const path=meshPath(picked);if(!paths.includes(path))paths.push(path);manualMappings.set(key,paths);saveMappings();return true;}
  function restore(){
    for(const [mesh,material] of materialCache){mesh.material=material;mesh.renderOrder=renderOrderCache.get(mesh)??0;}
    renderOrderCache.clear();
@@ -204,24 +202,20 @@ export function createEcorche(scene,camera,canvas){
      return bounds.isEmpty()?null:bounds;
    },
    setOnPick(fn){onPick=fn;},
-   mapSelected,
    getPickedPath(){return picked?meshPath(picked):'';},
-   getMappingCount(){return [...manualMappings.values()].reduce((n,arr)=>n+arr.length,0);},
-   clearMappings(){manualMappings.clear();saveMappings();},
    findByAnatomicalName(name){
      // Match only exact anatomical names or exact names with side suffixes.
      // Do not highlight unrelated parts through substring matching.
      const key=norm(name);
-     const manual=new Set(manualMappings.get(key)||[]);
      if(!key)return [];
      const verified=VERIFIED_GROUPS[key];
    if(verified){
      const names=new Set(verified);
-     return meshes.filter(mesh=>meshLabels(mesh).some(label=>names.has(label))||manual.has(meshPath(mesh)));
+     return meshes.filter(mesh=>meshLabels(mesh).some(label=>names.has(label)));
    }
    // Match the full anatomical base only. Parts/heads are accepted when
    // their source labels explicitly identify the same muscle.
-   const auto=meshes.filter(mesh=>meshLabels(mesh).some(label=>anatomicalBase(label)===key)||manual.has(meshPath(mesh)));
+   const auto=meshes.filter(mesh=>meshLabels(mesh).some(label=>anatomicalBase(label)===key));
    if(auto.length)return auto;
    const aliases=new Set([key,'musculus '+key,'muscle '+key,'m '+key]);
      // Accept exact scientific labels, with common authoring prefixes.
@@ -234,7 +228,6 @@ export function createEcorche(scene,camera,canvas){
      if(key==='longus colli')aliases.add('longus colli muscle');
      const side=new Set(['l','r','left','right','sinister','dexter','001','002']);
      return meshes.filter(mesh=>{
-       if(manual.has(meshPath(mesh)))return true;
        return meshLabels(mesh).some(sourceLabel=>{
          const label=norm(sourceLabel);
          if(aliases.has(label))return true;
