@@ -55,6 +55,50 @@ if(touchDevice){
   rotateBtn.hidden=false;
   controls.enabled=false;
   renderer.domElement.style.touchAction='pan-y';
+
+  // Надёжный pinch-to-zoom для мышечной модели на сенсорных экранах.
+  // OrbitControls остаётся ответственным за поворот одним пальцем
+  // и перемещение двумя пальцами.
+  let previousPinchDistance=0;
+  const canvas=renderer.domElement;
+  canvas.addEventListener('touchstart',event=>{
+    previousPinchDistance=event.touches.length===2
+      ?Math.hypot(
+        event.touches[0].clientX-event.touches[1].clientX,
+        event.touches[0].clientY-event.touches[1].clientY
+      )
+      :0;
+  },{passive:true});
+  canvas.addEventListener('touchmove',event=>{
+    if(!touchRotate||!muscleMode||event.touches.length!==2){
+      previousPinchDistance=0;
+      return;
+    }
+    const distance=Math.hypot(
+      event.touches[0].clientX-event.touches[1].clientX,
+      event.touches[0].clientY-event.touches[1].clientY
+    );
+    if(previousPinchDistance>0&&distance>0){
+      event.preventDefault();
+      const currentDistance=camera.position.distanceTo(controls.target);
+      const nextDistance=THREE.MathUtils.clamp(
+        currentDistance*previousPinchDistance/distance,
+        controls.minDistance,
+        controls.maxDistance
+      );
+      camera.position
+        .sub(controls.target)
+        .setLength(nextDistance)
+        .add(controls.target);
+      controls.update();
+    }
+    previousPinchDistance=distance;
+  },{passive:false});
+  canvas.addEventListener('touchend',event=>{
+    if(event.touches.length<2)previousPinchDistance=0;
+  },{passive:true});
+  canvas.addEventListener('touchcancel',()=>{previousPinchDistance=0;},{passive:true});
+
   rotateBtn.onclick=()=>{
     touchRotate=!touchRotate;
     controls.enabled=touchRotate;
@@ -68,7 +112,10 @@ controls.enableDamping=true;
 controls.enablePan=false;
 controls.screenSpacePanning=true;
 controls.touches.ONE=THREE.TOUCH.ROTATE;
-controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
+// На iPhone жест OrbitControls DOLLY_PAN иногда обрабатывает
+// только перемещение двумя пальцами. Масштабирование ниже задаётся
+// отдельным pinch-обработчиком, поэтому нативный жест оставляем для pan.
+controls.touches.TWO=THREE.TOUCH.PAN;
 controls.minDistance=2;
 controls.maxDistance=12;
 
