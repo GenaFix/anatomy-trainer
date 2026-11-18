@@ -374,10 +374,13 @@ function baseQuestionText(question,english){
  const index=question._sourceIndex??anatomyQuestions.indexOf(question);
  let prompt=english?question.textEn||englishQuestionTexts[index-legacyQuestionOffset]||question.text||'Identify the muscle.':question.text||((question.kind==='synergists'?'Какая мышца является синергистом трапециевидной мышцы при движении «':'Какая мышца является антагонистом трапециевидной мышцы при движении «')+question.movement+'»?');
  const asksForMuscle=english?/\bwhich muscles?\b/i.test(prompt):/какая мышца|какие мышцы/i.test(prompt);
- if(['origins','insertions'].includes(question.topic)&&!asksForMuscle){
+ if(['origins','insertions','functions'].includes(question.topic)&&!asksForMuscle){
   const plural=question.correct.length>1;
   const description=maskedFact(question,english);
-  if(english)prompt=(plural?'Which muscles match the following description':'Which muscle matches the following description')+(question.topic==='origins'?' of the origin: ':' of the insertion: ')+'“'+description+'”?';
+  if(question.topic==='functions'){
+   if(english)prompt=(plural?'Which muscles match this functional description':'Which muscle matches this functional description')+': “'+description+'”?';
+   else prompt=(plural?'Какие мышцы соответствуют описанию функции':'Какая мышца соответствует описанию функции')+': «'+description+'»?';
+  }else if(english)prompt=(plural?'Which muscles match the following description':'Which muscle matches the following description')+(question.topic==='origins'?' of the origin: ':' of the insertion: ')+'“'+description+'”?';
   else prompt=(plural?'Какие мышцы соответствуют описанию':'Какая мышца соответствует описанию')+(question.topic==='origins'?' места начала: ':' места прикрепления: ')+'«'+description+'»?';
  }
  return prompt;
