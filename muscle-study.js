@@ -374,7 +374,8 @@ function baseQuestionText(question,english){
  const index=question._sourceIndex??anatomyQuestions.indexOf(question);
  let prompt=english?question.textEn||englishQuestionTexts[index-legacyQuestionOffset]||question.text||'Identify the muscle.':question.text||((question.kind==='synergists'?'Какая мышца является синергистом трапециевидной мышцы при движении «':'Какая мышца является антагонистом трапециевидной мышцы при движении «')+question.movement+'»?');
  const asksForMuscle=english?/\bwhich muscles?\b/i.test(prompt):/какая мышца|какие мышцы/i.test(prompt);
- if(['origins','insertions','functions'].includes(question.topic)&&!asksForMuscle){
+ const genericDescriptionPrompt=english?/matches? the description|according to this description/i.test(prompt):/соответствует описанию|по описанию места/i.test(prompt);
+ if(['origins','insertions','attachments','functions'].includes(question.topic)&&(!asksForMuscle||genericDescriptionPrompt)){
   const plural=question.correct.length>1;
   const description=maskedFact(question,english);
   if(question.topic==='functions'){
@@ -388,7 +389,7 @@ function baseQuestionText(question,english){
   }else if(question.topic==='origins'&&english&&/^from\s/i.test(description)){
    const origin=description.replace(/^from\s+/i,'').replace(/[.;]+$/,'');
    prompt=plural?'Which muscles originate from '+origin+'?':'Which muscle originates from '+origin+'?';
-  }else if(question.topic==='insertions'){
+  }else if(['insertions','attachments'].includes(question.topic)){
    let attachment=english
     ?description.replace(/^(?:it|they|the common tendon|its parts)\s+(?:attaches?|inserts?)\s*/i,'')
     :description.replace(/^(?:она|они|её части|ее части|общее сухожилие|сухожилие)\s+прикрепля(?:ется|ются)\s*/i,'');
