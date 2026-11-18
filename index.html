@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Anatomy Trainer 2.9.4.19</title>
-<link rel="stylesheet" href="./style.css?v=29419">
+<title>Anatomy Trainer 2.9.4.20</title>
+<link rel="stylesheet" href="./style.css?v=29420">
 
 <script type="importmap">
 {
@@ -21,7 +21,7 @@
 <main>
 
 <header class="topbar">
-  <h1>🦴 Anatomy Trainer 2.9.4.19</h1>
+  <h1>🦴 Anatomy Trainer 2.9.4.20</h1>
   <div class="controls topbar-tools">
     
     <label for="language">Язык:</label>
@@ -62,7 +62,10 @@
       <button id="restoreMuscleMeshes" type="button">Вернуть слои</button>
       <button id="focusMuscleMesh" type="button">Приблизить выбранное</button>
     </div>
-    <p id="muscleGestureHint" class="small muted hidden">Один палец: вращение. Два пальца: перемещение или масштабирование. На компьютере: левая кнопка вращает, правая перемещает. Для прокрутки страницы нажмите «Готово».</p>
+    <details id="muscleGestureHint" class="small muted hidden">
+      <summary>Управление моделью</summary>
+      <p id="muscleGestureText">На телефоне нажмите «Вращать 3D-модель» и проведите одним пальцем. Двумя пальцами можно перемещать и приближать. Нажмите «Готово», чтобы прокручивать страницу. На компьютере левая кнопка вращает, правая перемещает.</p>
+    </details>
     <div id="stage">
       
       <div id="viewLabel">3D-модель</div>
@@ -124,6 +127,6 @@
 
 </main>
 
-<script type="module" src="./app.js?v=29419"></script>
+<script type="module" src="./app.js?v=29420"></script>
 </body>
 </html>

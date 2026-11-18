@@ -230,6 +230,9 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 @media(max-width:800px){
  #stage #touchRotate{position:absolute;z-index:4;right:8px;bottom:8px;margin:0;max-width:58%;font-size:12px;padding:8px 10px;white-space:normal;box-shadow:0 2px 8px #07132699}
  body.muscle-mode #stage{height:clamp(205px,30vh,265px)}
+ #muscleGestureHint{font-size:12px;margin:3px 0 5px}
+ #muscleGestureHint summary{cursor:pointer}
+ #muscleGestureText{margin:4px 0;font-size:12px;line-height:1.35}
 }
 
 .muscle-settings-details{margin:2px 0 6px;font-size:13px;color:#b4c7df}

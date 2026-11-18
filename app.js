@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=29419';
-import {setupMuscleQuiz} from './muscle-study.js?v=29419';
+import {createEcorche} from './ecorche.js?v=29420';
+import {setupMuscleQuiz} from './muscle-study.js?v=29420';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -178,6 +178,7 @@ function focusMuscleBounds(bounds,side='front'){
 }
 function focusQuizAnswer(indices){
  lastMuscleFocusBounds=null;
+ if(!indices.length){setView('front');return;}
  const muscleNames=muscleStudy?.getMuscleNames?.()||[];
  const names=indices.map(i=>muscleNames[i]?.[1]).filter(Boolean);
  const posteriorNames=new Set([
@@ -266,10 +267,11 @@ function translateInterface(){
  const search=$('muscleGlobalSearch');
  search.placeholder=en?'Find GLB object':'Поиск объекта GLB';
  search.setAttribute('aria-label',search.placeholder);
- const hint=$('muscleGestureHint');
+ const hint=$('muscleGestureText');
+ $('muscleGestureHint').querySelector('summary').textContent=en?'Model controls':'Управление моделью';
  hint.textContent=en
-  ?'One finger: rotate. Two fingers: pan or zoom. On desktop: left mouse button rotates, right button pans. Tap “Done” to scroll the page.'
-  :'Один палец: вращение. Два пальца: перемещение или масштабирование. На компьютере: левая кнопка вращает, правая перемещает. Для прокрутки страницы нажмите «Готово».';
+  ?'On a phone, tap “Rotate 3D model”, then drag with one finger. Use two fingers to pan or zoom. Tap “Done” to scroll. On a computer, left mouse rotates and right mouse pans.'
+  :'На телефоне нажмите «Вращать 3D-модель» и проведите одним пальцем. Двумя пальцами можно перемещать и приближать. Нажмите «Готово», чтобы прокручивать страницу. На компьютере левая кнопка вращает, правая перемещает.';
  const langLabel=document.querySelector('label[for="language"]');
  if(langLabel)langLabel.textContent=en?'Language:':'Язык:';
  const heading=document.querySelector('#quizPanel .quiz-heading h3');
