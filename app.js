@@ -5,7 +5,7 @@ import {OrbitControls} from
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
 import {createEcorche} from './ecorche.js?v=29430';
-import {setupMuscleQuiz} from './muscle-study.js?v=29436';
+import {setupMuscleQuiz} from './muscle-study.js?v=29437';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
