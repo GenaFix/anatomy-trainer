@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=29427';
-import {setupMuscleQuiz} from './muscle-study.js?v=29427';
+import {createEcorche} from './ecorche.js?v=29428';
+import {setupMuscleQuiz} from './muscle-study.js?v=29428';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -729,6 +729,7 @@ function renderMuscle(){
  if(muscleStudy)muscleStudy.draw();
 }
 function activateMode(enabled){
+ if(!enabled)muscleStudy?.stopSpeech?.();
  muscleMode=enabled;
  document.body.classList.toggle('muscle-mode',enabled);
  translateInterface();
