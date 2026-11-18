@@ -435,7 +435,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
  function questionText(q){
   const english=language()==='en';
   let prompt=baseQuestionText(q,english);
-  if(q.correct.length>1)prompt=(english?(answerCount==='4'?'Choose one correct option. ':'Select all correct options shown. '):(answerCount==='4'?'Выберите один правильный вариант. ':'Отметьте все правильные варианты из показанных. '))+prompt;
+  if(q.correct.length>1)prompt=(english?'Select all correct options shown. ':'Отметьте все правильные варианты из показанных. ')+prompt;
   return prompt;
  }
  function options(q){
@@ -443,9 +443,10 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   const wrong=shuffled(all.filter(i=>!q.correct.includes(i)));
   const eligible=q.correct.filter(i=>i!==q.focus);
   if(answerCount==='95')return muscleNames.map((_,i)=>i);
-  if(answerCount==='4')return shuffled([eligible[Math.floor(Math.random()*eligible.length)],...wrong.slice(0,3)]);
+  if(answerCount==='4'&&q.correct.length===1)return shuffled([eligible[Math.floor(Math.random()*eligible.length)],...wrong.slice(0,3)]);
   const requested=Number(answerCount);
-  const visibleCorrect=q.correct.length<=requested?q.correct:shuffled(q.correct).slice(0,requested);
+  const correctLimit=requested===4?Math.min(3,requested):requested;
+  const visibleCorrect=q.correct.length<=correctLimit?q.correct:shuffled(q.correct).slice(0,correctLimit);
   const count=Math.max(requested,visibleCorrect.length);
   return shuffled([...visibleCorrect,...wrong.slice(0,Math.max(0,count-visibleCorrect.length))]);
  }
@@ -514,7 +515,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   if(search){search.placeholder=english?'Find GLB object':'Поиск объекта GLB';search.oninput=()=>{const found=model.selectByName(search.value);meshInfo=found.length?'GLB: '+found.length:'';pickedInfo.textContent=meshInfo;};}
   if(!order.length){section.append(settingsDetails,details,el('p','muscle-note',english?'Questions are being prepared.':'Вопросы готовятся.'));return;}
   if(position>=order.length){section.append(settingsDetails,details,el('h4','muscle-question',english?'Quiz completed':'Тест завершён'));const restart=el('button','',english?'New quiz':'Новый тест');restart.onclick=()=>{reset();draw();};section.append(restart);return;}
-  const q=order[position];const beginner=answerCount==='4';
+  const q=order[position];const singleChoice=answerCount==='4'&&q.correct.length===1;
   model.restore?.();
   visualStatus='';
   const questionMeta=el('div','muscle-question-meta');
@@ -553,13 +554,13 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   questionRow.append(speakButton);section.append(questionRow);
   section.append(settingsDetails);
   if(!currentChoices.length)currentChoices=options(q);
-  const choices=currentChoices;const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
+  const choices=currentChoices;const panel=el('div',singleChoice?'muscle-answers easy':'muscle-answers');
   const result=el('p','muscle-note','');
   const next=el('button','',english?'Next question':'Следующий вопрос');
   next.onclick=()=>{onAnswerFocus([]);position++;checked.clear();answered=false;currentChoices=[];model.restore?.();draw();};
   function restoreAnswerFeedback(){
    const expected=new Set(choices.filter(i=>q.correct.includes(i)));
-   const correct=beginner?checked.size===1&&expected.has([...checked][0]):checked.size===expected.size&&[...expected].every(i=>checked.has(i));
+   const correct=singleChoice?checked.size===1&&expected.has([...checked][0]):checked.size===expected.size&&[...expected].every(i=>checked.has(i));
    result.textContent=(correct?'✓ ':'✗ ')+(english?q.noteEn||englishNotes[(q._sourceIndex??anatomyQuestions.indexOf(q))-legacyQuestionOffset]||q.note:q.note);
    panel.querySelectorAll('label').forEach(label=>{
     const index=Number(label.dataset.index);
@@ -567,7 +568,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
     else if(checked.has(index))label.classList.add('wrong');
     label.querySelector('input').disabled=true;
    });
-   if(!beginner)check.disabled=true;
+   if(!singleChoice)check.disabled=true;
    next.disabled=false;
   }
   function evaluate(){
@@ -580,12 +581,12 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   choices.forEach(i=>{
    const label=el('label','muscle-choice');
    const box=el('input');
-   box.type=beginner?'radio':'checkbox';
-   if(beginner)box.name='muscle-answer';
+   box.type=singleChoice?'radio':'checkbox';
+   if(singleChoice)box.name='muscle-answer';
    box.checked=checked.has(i);
    box.onchange=()=>{
     if(answered)return;
-    if(beginner){
+    if(singleChoice){
      checked.clear();checked.add(i);
      panel.querySelectorAll('input').forEach(x=>{if(x!==box)x.checked=false;});
      evaluate();
@@ -603,7 +604,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   section.append(panel);
   const check=el('button','',english?'Check':'Проверить');
   check.onclick=evaluate;
-  if(!beginner)section.append(check);
+  if(!singleChoice)section.append(check);
   section.append(result);
   if(answered){const expected=choices.filter(i=>q.correct.includes(i));restoreAnswerFeedback();showHighlight(expected);onAnswerFocus(expected);}
   section.append(details);
