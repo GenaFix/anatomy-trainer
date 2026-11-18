@@ -386,7 +386,7 @@ export function setupMuscleQuiz(container,model,language){
    const status=section.querySelector('#muscleHighlightStatus');
    if(status)status.textContent=visualStatus;
  }
- function highlightAnswer(q){showHighlight(q.correct);}
+ function highlightAnswer(){showHighlight([...checked]);}
  function draw(){
   section.replaceChildren();
   const english=language()==='en',bilingual=language()==='both';
@@ -415,9 +415,8 @@ export function setupMuscleQuiz(container,model,language){
   const q=order[position];const beginner=level==='easy';
   model.restore?.();
   visualStatus='';
-  if(Number.isInteger(q.focus))showHighlight([q.focus]);
   section.append(el('p','muscle-note',String(position+1)+' / '+order.length));
-  const highlightStatus=el('p','muscle-note',visualStatus||(english?'3D: highlighting requires matching object names.':'3D: выделение доступно при совпадении названий объектов.'));
+  const highlightStatus=el('p','muscle-note',visualStatus||(english?'3D: the selected answer will be highlighted after you respond.':'3D: после ответа на модели подсветится выбранная мышца.'));
   highlightStatus.id='muscleHighlightStatus';section.append(highlightStatus);
   section.append(el('h4','muscle-question',questionText(q)));
   const choices=options(q);const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
