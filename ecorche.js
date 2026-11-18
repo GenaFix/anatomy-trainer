@@ -111,9 +111,9 @@ export function createEcorche(scene,camera,canvas){
  const materialCache=new Map();
  const renderOrderCache=new Map();
  const hidden=new Set();
- const manualMappings=new Map();
  const mappingKey='anatomy-trainer-ecorche-mappings-v1';
- try{for(const [key,paths] of Object.entries(JSON.parse(localStorage.getItem(mappingKey)||'{}')))if(Array.isArray(paths))manualMappings.set(key,paths);}catch(_error){}
+ // Remove legacy per-browser mappings so model matching stays consistent for every user.
+ try{localStorage.removeItem(mappingKey);}catch(_error){}
  const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
  // Conservative automatic index: resolve a whole muscle and its explicitly
  // named heads/parts, never a substring of another muscle or a tendon.
