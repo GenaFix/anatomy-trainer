@@ -432,9 +432,44 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
  };
  function reset(){order=shuffled(active());if(testSize!=='all')order=order.slice(0,Number(testSize));position=0;checked.clear();answered=false;currentChoices=[];}
  reset();
+ function bilingualMuscleNames(prompt){
+  const words=[...prompt.matchAll(/[\\p{L}\\p{N}]+/gu)].map(m=>({text:m[0],start:m.index,end:m.index+m[0].length,stem:stem(m[0])}));
+  const candidates=muscleNames.map(([ru,en])=>({en,roots:ru.split(/[\\s,]+/).map(stem).filter(x=>x&&x!=='мышц')}))
+   .sort((a,b)=>b.roots.length-a.roots.length);
+  const matches=[];
+  for(const candidate of candidates){
+   const anchors=candidate.roots;
+   for(let i=0;i<words.length;i++){
+    if(words[i].stem!==anchors[0])continue;
+    const positions=[i];let previous=i;
+    for(const anchor of anchors.slice(1)){
+     let found=-1;
+     for(let j=previous+1;j<Math.min(words.length,previous+7);j++)if(words[j].stem===anchor){found=j;break;}
+     if(found<0)break;
+     positions.push(found);previous=found;
+    }
+    if(positions.length!==anchors.length)continue;
+    if(anchors.length===1&&!words.some((w,j)=>w.stem==='мышц'&&Math.abs(j-i)<=2))continue;
+    const start=words[positions[0]].start,end=words[positions.at(-1)].end;
+    if(matches.some(m=>start<m.end&&end>m.start))continue;
+    matches.push({start,end,en:candidate.en});
+    break;
+   }
+  }
+  for(const match of matches.sort((a,b)=>b.start-a.start))
+   prompt=prompt.slice(0,match.end)+' ('+match.en+')'+prompt.slice(match.end);
+  return prompt;
+ }
+ function stem(value){
+  let token=value.toLocaleLowerCase().replace(/ё/g,'е');
+  for(const ending of ['иями','ями','ами','ого','его','ому','ему','ыми','ими','ая','яя','ое','ее','ые','ие','ый','ий','ой','ую','юю','ых','их','ым','им','ом','ем','ах','ях','ам','ям','ью','а','я','ы','и','у','ю','е','о'])
+   if(token.endsWith(ending)&&token.length-ending.length>=3){token=token.slice(0,-ending.length);break;}
+  return token;
+ }
  function questionText(q){
-  const english=language()==='en';
+  const english=language()==='en',bilingual=language()==='both';
   let prompt=baseQuestionText(q,english);
+  if(bilingual)prompt=bilingualMuscleNames(prompt);
   if(q.correct.length>1)prompt=(english?'Select all correct options shown. ':'Отметьте все правильные варианты из показанных. ')+prompt;
   return prompt;
  }
