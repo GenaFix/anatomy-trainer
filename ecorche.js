@@ -127,6 +127,7 @@ export function createEcorche(scene,camera,canvas){
    return value;
  }
  function meshPath(mesh){const parts=[];let node=mesh;while(node&&node!==root){parts.unshift((node.name||'(unnamed)')+'#'+(node.parent?.children.indexOf(node)??0));node=node.parent;}return parts.join('/');}
+ function meshLabels(mesh){return [...new Set([mesh.name,mesh.userData?.name].filter(value=>typeof value==='string'&&value.trim()))];}
  function saveMappings(){try{localStorage.setItem(mappingKey,JSON.stringify(Object.fromEntries(manualMappings)));}catch(_error){}}
  function mapSelected(name){if(!picked||!name)return false;const key=norm(name);const paths=manualMappings.get(key)||[];const path=meshPath(picked);if(!paths.includes(path))paths.push(path);manualMappings.set(key,paths);saveMappings();return true;}
  function restore(){
@@ -216,11 +217,11 @@ export function createEcorche(scene,camera,canvas){
      const verified=VERIFIED_GROUPS[key];
    if(verified){
      const names=new Set(verified);
-     return meshes.filter(mesh=>names.has(mesh.userData?.name)||manual.has(meshPath(mesh)));
+     return meshes.filter(mesh=>meshLabels(mesh).some(label=>names.has(label))||manual.has(meshPath(mesh)));
    }
    // Match the full anatomical base only. Parts/heads are accepted when
    // their source labels explicitly identify the same muscle.
-   const auto=meshes.filter(mesh=>anatomicalBase(mesh.name)===key||manual.has(meshPath(mesh)));
+   const auto=meshes.filter(mesh=>meshLabels(mesh).some(label=>anatomicalBase(label)===key)||manual.has(meshPath(mesh)));
    if(auto.length)return auto;
    const aliases=new Set([key,'musculus '+key,'muscle '+key,'m '+key]);
      // Accept exact scientific labels, with common authoring prefixes.
@@ -234,21 +235,23 @@ export function createEcorche(scene,camera,canvas){
      const side=new Set(['l','r','left','right','sinister','dexter','001','002']);
      return meshes.filter(mesh=>{
        if(manual.has(meshPath(mesh)))return true;
-       const label=norm(mesh.name);
-       if(aliases.has(label))return true;
-       const tokens=label.split(' ');
-       if(tokens.length>1&&side.has(tokens[tokens.length-1])&&aliases.has(tokens.slice(0,-1).join(' ')))return true;
-       if(tokens.length>1&&side.has(tokens[0])&&aliases.has(tokens.slice(1).join(' ')))return true;
+       return meshLabels(mesh).some(sourceLabel=>{
+         const label=norm(sourceLabel);
+         if(aliases.has(label))return true;
+         const tokens=label.split(' ');
+         if(tokens.length>1&&side.has(tokens[tokens.length-1])&&aliases.has(tokens.slice(0,-1).join(' ')))return true;
+         if(tokens.length>1&&side.has(tokens[0])&&aliases.has(tokens.slice(1).join(' ')))return true;
+         return false;
+       });
        // Parent names are not reliable muscle identities: a parent can
        // contain several adjacent anatomical structures.
-       return false;
      });
    },
-   getNameSamples(limit=12){return meshes.filter(mesh=>mesh.name).slice(0,limit).map(mesh=>mesh.name);},
+   getNameSamples(limit=12){return meshes.filter(mesh=>meshLabels(mesh).length).slice(0,limit).map(mesh=>meshLabels(mesh).join(' / '));},
    selectByName(query){
      const q=query.toLowerCase().trim();
      if(!q)return [];
-     const matches=meshes.filter(m=>m.name.toLowerCase().includes(q));
+     const matches=meshes.filter(m=>meshLabels(m).some(label=>label.toLowerCase().includes(q)));
      highlight(matches);return matches;
    },
    dispose(){canvas.removeEventListener('click',click);restore();}
