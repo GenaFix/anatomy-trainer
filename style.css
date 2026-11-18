@@ -191,6 +191,11 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 .muscle-compact-settings{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:7px}
 .muscle-compact-settings select{min-width:0;width:100%;padding:9px 24px 9px 8px;font-size:14px}
 .muscle-question{font-size:18px;line-height:1.35;margin:5px 0 3px}
+.muscle-question-row{display:flex;align-items:flex-start;gap:8px}
+.muscle-question-row .muscle-question{flex:1;min-width:0}
+.muscle-speak-button{flex:0 0 42px;width:42px;height:42px;min-height:42px;padding:8px;margin-top:4px;display:grid;place-items:center;border-radius:50%;background:#29496f;border:1px solid #668db7;color:#e7f0ff}
+.muscle-speak-button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.muscle-speak-button.speaking{background:#087fa9;border-color:#36c9e8;color:#fff}
 .muscle-diagnostics{font-size:12px;color:#b4c7df}
 .muscle-diagnostics summary{cursor:pointer}
 .muscle-diagnostics p{margin-top:5px}
