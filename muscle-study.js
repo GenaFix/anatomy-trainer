@@ -346,7 +346,7 @@ const englishNotes=[
  "Coracobrachialis flexes and adducts the arm."
 ];
 export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
- let level='easy',topic='all',testSize='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false,settingsExpanded=false;
+ let answerCount='4',topic='all',testSize='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false,settingsExpanded=false;
  const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x;};
  const section=el('div','muscle-study');container.append(section);
  const shuffled=(arr)=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
@@ -356,19 +356,19 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
  function questionText(q){
   const english=language()==='en';
   let prompt=english?q.textEn||englishQuestionTexts[anatomyQuestions.indexOf(q)-legacyQuestionOffset]||q.text||'Identify the muscle.':q.text||((q.kind==='synergists'?'Какая мышца является синергистом трапециевидной мышцы при движении «':'Какая мышца является антагонистом трапециевидной мышцы при движении «')+q.movement+'»?');
-  if(q.correct.length>1)prompt=(english?(level==='easy'?'Choose one correct option. ':'Select all correct options shown. '):(level==='easy'?'Выберите один правильный вариант. ':'Отметьте все правильные варианты из показанных. '))+prompt;
+  if(q.correct.length>1)prompt=(english?(answerCount==='4'?'Choose one correct option. ':'Select all correct options shown. '):(answerCount==='4'?'Выберите один правильный вариант. ':'Отметьте все правильные варианты из показанных. '))+prompt;
   return prompt;
  }
  function options(q){
   const all=muscleNames.map((_,i)=>i).filter(i=>i!==q.focus);
   const wrong=shuffled(all.filter(i=>!q.correct.includes(i)));
   const eligible=q.correct.filter(i=>i!==q.focus);
-  if(level==='expert')return all;
-  if(level==='medium'){
-   const visibleCorrect=q.correct.length>4?shuffled(q.correct).slice(0,3):q.correct;
-   return shuffled([...visibleCorrect,...wrong.slice(0,Math.max(0,6-visibleCorrect.length))]);
-  }
-  return shuffled([eligible[Math.floor(Math.random()*eligible.length)],...wrong.slice(0,3)]);
+  if(answerCount==='95')return muscleNames.map((_,i)=>i);
+  if(answerCount==='4')return shuffled([eligible[Math.floor(Math.random()*eligible.length)],...wrong.slice(0,3)]);
+  const requested=Number(answerCount);
+  const visibleCorrect=q.correct.length<=requested?q.correct:shuffled(q.correct).slice(0,requested);
+  const count=Math.max(requested,visibleCorrect.length);
+  return shuffled([...visibleCorrect,...wrong.slice(0,Math.max(0,count-visibleCorrect.length))]);
  }
  let visualStatus='';
  function findMuscles(indices){
@@ -399,18 +399,18 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   const updateSettingsSummary=()=>{
    const english=language()==='en';
    const categoryNames={all:english?'All topics':'Все темы',relations:english?'Muscle relations':'Связи мышц',origins:english?'Origins':'Начало',insertions:english?'Insertions':'Прикрепление',functions:english?'Functions':'Функции'};
-   const levelNames={easy:english?'Beginner':'Начальный',medium:english?'Intermediate':'Средний',expert:english?'Expert':'Эксперт'};
+   const answerName=answerCount==='95'?(english?'All 95 muscles':'Все 95 мышц'):(english?answerCount+' choices':answerCount+' вариантов');
    const selectedCount=testSize==='all'?active().length:Math.min(Number(testSize),active().length);
    const countName=testSize==='all'?(english?'All '+active().length+' questions':'Все вопросы ('+active().length+')'):(english?selectedCount+' questions':selectedCount+' вопросов');
-   settingsSummary.textContent=(english?'Quiz settings: ':'Настройки теста: ')+(categoryNames[topic]||topic)+' · '+(levelNames[level]||level)+' · '+countName;
+   settingsSummary.textContent=(english?'Quiz settings: ':'Настройки теста: ')+(categoryNames[topic]||topic)+' · '+answerName+' · '+countName;
   };
   updateSettingsSummary();
   const categories=el('select','muscle-dropdown');categories.setAttribute('aria-label','Тема вопросов');
   for(const [v,ru,en] of [['all','Все вопросы','All questions'],['relations','Синергисты и антагонисты','Synergists and antagonists'],['origins','Начало мышцы','Muscle origins'],['insertions','Прикрепление мышцы','Muscle insertions'],['functions','Функции мышц','Muscle functions']]){const o=el('option','',english?en:ru);o.value=v;categories.append(o);}
   categories.value=topic;categories.onchange=()=>{topic=categories.value;settingsExpanded=settingsDetails.open;reset();draw();};settings.append(categories);
-  const difficulty=el('select','muscle-dropdown');difficulty.setAttribute('aria-label','Сложность');
-  for(const [v,ru,en] of [['easy','Начальный: 4 варианта','Beginner: 4 choices'],['medium','Средний: 6 вариантов','Intermediate: 6 choices'],['expert','Эксперт: все '+muscleNames.length+' мышц','Expert: all '+muscleNames.length+' muscles']]){const o=el('option','',english?en:ru);o.value=v;difficulty.append(o);}
-  difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;settingsExpanded=settingsDetails.open;checked.clear();answered=false;draw();};settings.append(difficulty);
+  const answers=el('select','muscle-dropdown');answers.setAttribute('aria-label',english?'Number of answer choices':'Количество вариантов ответа');
+  for(const value of ['4','6','10','20','30','50','70','95']){const option=el('option','',value==='95'?(english?'95 (all muscles)':'95 (все мышцы)'):english?value+' choices':value+' вариантов');option.value=value;answers.append(option);}
+  answers.value=answerCount;answers.onchange=()=>{answerCount=answers.value;settingsExpanded=settingsDetails.open;checked.clear();answered=false;draw();};settings.append(answers);
   const count=el('select','muscle-dropdown');count.setAttribute('aria-label',english?'Number of quiz questions':'Количество вопросов в тесте');
   for(const value of ['all','10','20','30','50','70','95']){const option=el('option','',value==='all'?(english?'All available questions':'Все вопросы'):english?value+' questions':value+' вопросов');option.value=value;count.append(option);}
   count.value=testSize;count.onchange=()=>{testSize=count.value;settingsExpanded=settingsDetails.open;reset();draw();};settings.append(count);
@@ -429,7 +429,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   if(search){search.placeholder=english?'Find GLB object':'Поиск объекта GLB';search.oninput=()=>{const found=model.selectByName(search.value);meshInfo=found.length?'GLB: '+found.length:'';pickedInfo.textContent=meshInfo;};}
   if(!order.length){section.append(settingsDetails,details,el('p','muscle-note',english?'Questions are being prepared.':'Вопросы готовятся.'));return;}
   if(position>=order.length){section.append(settingsDetails,details,el('h4','muscle-question',english?'Quiz completed':'Тест завершён'));const restart=el('button','',english?'New quiz':'Новый тест');restart.onclick=()=>{reset();draw();};section.append(restart);return;}
-  const q=order[position];const beginner=level==='easy';
+  const q=order[position];const beginner=answerCount==='4';
   model.restore?.();
   visualStatus='';
   const questionMeta=el('div','muscle-question-meta');
@@ -444,7 +444,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   next.onclick=()=>{onAnswerFocus([]);position++;checked.clear();answered=false;model.restore?.();draw();};
   function evaluate(){
    if(answered||!checked.size)return;
-   const expected=new Set(beginner||level==='medium'?choices.filter(i=>q.correct.includes(i)):q.correct);
+   const expected=new Set(choices.filter(i=>q.correct.includes(i)));
    const correct=beginner?checked.size===1&&expected.has([...checked][0]):checked.size===expected.size&&[...expected].every(i=>checked.has(i));
    result.textContent=(correct?'✓ ':'✗ ')+(english?q.noteEn||englishNotes[anatomyQuestions.indexOf(q)-legacyQuestionOffset]||q.note:q.note);
    panel.querySelectorAll('label').forEach(label=>{
