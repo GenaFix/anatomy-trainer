@@ -346,12 +346,12 @@ const englishNotes=[
  "Coracobrachialis flexes and adducts the arm."
 ];
 export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
- let level='easy',topic='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false,settingsExpanded=false;
+ let level='easy',topic='all',testSize='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false,settingsExpanded=false;
  const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x;};
  const section=el('div','muscle-study');container.append(section);
  const shuffled=(arr)=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
  const active=()=>anatomyQuestions.filter(q=>topic==='all'||q.topic===topic);
- function reset(){order=shuffled(active());position=0;checked.clear();answered=false;}
+ function reset(){order=shuffled(active());if(testSize!=='all')order=order.slice(0,Number(testSize));position=0;checked.clear();answered=false;}
  reset();
  function questionText(q){
   const english=language()==='en';
@@ -398,9 +398,11 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   settingsDetails.addEventListener('toggle',()=>{settingsExpanded=settingsDetails.open;});
   const updateSettingsSummary=()=>{
    const english=language()==='en';
-   const categoryNames={all:english?'All questions':'Все вопросы',relations:english?'Muscle relations':'Связи мышц',origins:english?'Origins':'Начало',insertions:english?'Insertions':'Прикрепление',functions:english?'Functions':'Функции'};
+   const categoryNames={all:english?'All topics':'Все темы',relations:english?'Muscle relations':'Связи мышц',origins:english?'Origins':'Начало',insertions:english?'Insertions':'Прикрепление',functions:english?'Functions':'Функции'};
    const levelNames={easy:english?'Beginner':'Начальный',medium:english?'Intermediate':'Средний',expert:english?'Expert':'Эксперт'};
-   settingsSummary.textContent=(english?'Quiz settings: ':'Настройки теста: ')+(categoryNames[topic]||topic)+' · '+(levelNames[level]||level);
+   const selectedCount=testSize==='all'?active().length:Math.min(Number(testSize),active().length);
+   const countName=testSize==='all'?(english?'All '+active().length+' questions':'Все вопросы ('+active().length+')'):(english?selectedCount+' questions':selectedCount+' вопросов');
+   settingsSummary.textContent=(english?'Quiz settings: ':'Настройки теста: ')+(categoryNames[topic]||topic)+' · '+(levelNames[level]||level)+' · '+countName;
   };
   updateSettingsSummary();
   const categories=el('select','muscle-dropdown');categories.setAttribute('aria-label','Тема вопросов');
@@ -409,6 +411,9 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   const difficulty=el('select','muscle-dropdown');difficulty.setAttribute('aria-label','Сложность');
   for(const [v,ru,en] of [['easy','Начальный: 4 варианта','Beginner: 4 choices'],['medium','Средний: 6 вариантов','Intermediate: 6 choices'],['expert','Эксперт: все '+muscleNames.length+' мышц','Expert: all '+muscleNames.length+' muscles']]){const o=el('option','',english?en:ru);o.value=v;difficulty.append(o);}
   difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;settingsExpanded=settingsDetails.open;checked.clear();answered=false;draw();};settings.append(difficulty);
+  const count=el('select','muscle-dropdown');count.setAttribute('aria-label',english?'Number of quiz questions':'Количество вопросов в тесте');
+  for(const value of ['all','10','20','30','50','70','95']){const option=el('option','',value==='all'?(english?'All available questions':'Все вопросы'):english?value+' questions':value+' вопросов');option.value=value;count.append(option);}
+  count.value=testSize;count.onchange=()=>{testSize=count.value;settingsExpanded=settingsDetails.open;reset();draw();};settings.append(count);
   const details=el('details','muscle-diagnostics');details.append(el('summary','',english?'Model details':'Информация о модели'));
   const modelInfo=el('p','muscle-note',info);modelInfo.id='ecorcheInfo';details.append(modelInfo);
   details.append(el('p','muscle-note',(english?'Sample GLB object names: ':'Примеры названий объектов GLB: ')+(model.getNameSamples?.(8).join(' | ')||(english?'not available yet':'пока недоступны'))));
