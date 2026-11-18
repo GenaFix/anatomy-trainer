@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=29418';
-import {setupMuscleQuiz} from './muscle-study.js?v=29418';
+import {createEcorche} from './ecorche.js?v=29419';
+import {setupMuscleQuiz} from './muscle-study.js?v=29419';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -45,6 +45,8 @@ const mobileSearchSlot=$('modelInteractionRow');
 function placeMuscleSearch(){
  const target=window.matchMedia('(min-width: 801px)').matches?desktopSearchSlot:mobileSearchSlot;
  if(searchField.parentElement!==target)target.append(searchField);
+ const rotateTarget=window.matchMedia('(max-width: 800px)').matches?stage:mobileSearchSlot;
+ if(rotateBtn.parentElement!==rotateTarget)rotateTarget.append(rotateBtn);
 }
 placeMuscleSearch();
 window.addEventListener('resize',placeMuscleSearch);
@@ -158,6 +160,39 @@ function setView(name){
       'active',b.dataset.view===name
     );
   });
+}
+
+let lastMuscleFocusBounds=null;
+function focusMuscleBounds(bounds,side='front'){
+ if(!bounds||bounds.isEmpty())return false;
+ const center=bounds.getCenter(new THREE.Vector3());
+ const size=bounds.getSize(new THREE.Vector3());
+ const distance=Math.max(2.15,Math.min(3.3,Math.max(size.x,size.y,size.z)*2.1));
+ const direction=side==='back'?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,0,1);
+ direction.y=.12;
+ direction.normalize();
+ controls.target.copy(center);
+ camera.position.copy(center).addScaledVector(direction,distance);
+ controls.update();
+ return true;
+}
+function focusQuizAnswer(indices){
+ lastMuscleFocusBounds=null;
+ const muscleNames=muscleStudy?.getMuscleNames?.()||[];
+ const names=indices.map(i=>muscleNames[i]?.[1]).filter(Boolean);
+ const posteriorNames=new Set([
+  'Trapezius','Rhomboid major','Rhomboid minor','Levator scapulae','Latissimus dorsi',
+  'Teres major','Teres minor','Supraspinatus','Infraspinatus','Erector spinae','Multifidus',
+  'Gluteus maximus','Gluteus medius','Gluteus minimus','Piriformis','Biceps femoris',
+  'Semitendinosus','Semimembranosus','Gastrocnemius','Soleus','Tibialis posterior','Popliteus',
+  'Flexor hallucis longus','Flexor digitorum longus','Fibularis brevis','Fibularis longus',
+  'Posterior scalene','Rectus capitis posterior major','Rectus capitis posterior minor',
+  'Obliquus capitis superior','Obliquus capitis inferior','Splenius capitis','Splenius cervicis',
+  'Semispinalis cervicis','Semispinalis capitis','Coccygeus'
+ ]);
+ const back=names.filter(n=>posteriorNames.has(n)).length>names.length/2;
+ const bounds=ecorche.getAnatomicalBounds(names);
+ if(bounds){lastMuscleFocusBounds=bounds.clone();focusMuscleBounds(bounds,back?'back':'front');}
 }
 
 document.querySelectorAll('[data-view]').forEach(b=>{
@@ -691,6 +726,7 @@ function renderMuscle(){
 }
 function activateMode(enabled){
  muscleMode=enabled;
+ document.body.classList.toggle('muscle-mode',enabled);
  translateInterface();
  controls.enablePan=enabled;
  $('muscleTools').classList.toggle('hidden',!enabled);
@@ -705,10 +741,11 @@ function activateMode(enabled){
  vectors.group.visible=false;
  reference.visible=false;
  if(enabled){
+   lastMuscleFocusBounds=null;
    model.setPlaying(false);
    model.clearCompound();
    model.setNeutralPose();
-   if(!muscleStudy)muscleStudy=setupMuscleQuiz($('musclePanel'),ecorche,()=>language);
+   if(!muscleStudy)muscleStudy=setupMuscleQuiz($('musclePanel'),ecorche,()=>language,focusQuizAnswer);
    renderMuscle();
    if(muscleLoadError)muscleStudy.setInfo((language==='en'?'Model loading error: ':'Ошибка загрузки модели: ')+muscleLoadError);
    else if(muscleReady)muscleStudy.setInfo((language==='en'?'Model loaded: ':'Модель загружена: ')+ecorche.meshes.length+(language==='en'?' objects':' объектов'));
@@ -732,13 +769,9 @@ $('restoreMuscleMeshes').onclick=()=>{
  if(muscleStudy)muscleStudy.setMeshInfo(language==='en'?'All surfaces restored.':'Все поверхности восстановлены.');
 };
 $('focusMuscleMesh').onclick=()=>{
- const center=ecorche.getPickedCenter();
- if(!center){if(muscleStudy)muscleStudy.setMeshInfo(language==='en'?'Select a muscle on the model first.':'Сначала выберите мышцу на модели.');return;}
- const delta=center.clone().sub(controls.target);
- controls.target.copy(center);
- camera.position.add(delta);
- camera.position.sub(controls.target).normalize().multiplyScalar(2.8).add(controls.target);
- controls.update();
+ const bounds=lastMuscleFocusBounds||ecorche.getPickedBounds?.();
+ if(!bounds){if(muscleStudy)muscleStudy.setMeshInfo(language==='en'?'Answer a question or select a muscle on the model first.':'Сначала ответьте на вопрос или выберите мышцу на модели.');return;}
+ focusMuscleBounds(bounds,camera.position.z<controls.target.z?'back':'front');
 };
 
 let lastTime=performance.now();

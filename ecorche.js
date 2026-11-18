@@ -194,6 +194,14 @@ export function createEcorche(scene,camera,canvas){
    showAll(){for(const mesh of hidden)mesh.visible=true;hidden.clear();restore();},
    getPicked(){return picked;},
    getPickedCenter(){if(!picked)return null;const bounds=new THREE.Box3().setFromObject(picked);return bounds.getCenter(new THREE.Vector3());},
+   getPickedBounds(){return picked?new THREE.Box3().setFromObject(picked):null;},
+   getAnatomicalBounds(names){
+     const bounds=new THREE.Box3();
+     for(const name of names||[]){
+       for(const mesh of this.findByAnatomicalName(name))bounds.expandByObject(mesh);
+     }
+     return bounds.isEmpty()?null:bounds;
+   },
    setOnPick(fn){onPick=fn;},
    mapSelected,
    getPickedPath(){return picked?meshPath(picked):'';},

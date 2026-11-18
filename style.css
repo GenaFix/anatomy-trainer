@@ -226,5 +226,17 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 #viewControls .muscle-global-search{flex:1 1 140px;min-width:110px;width:auto;max-width:240px;margin-left:auto;font-size:13px}
 @media(max-width:800px){.model-interaction-row #touchRotate{max-width:58%;white-space:normal}.model-interaction-row .muscle-global-search{max-width:none;width:auto}}
 
+/* Keep the touch rotation toggle beside the model on phones. */
+@media(max-width:800px){
+ #stage #touchRotate{position:absolute;z-index:4;right:8px;bottom:8px;margin:0;max-width:58%;font-size:12px;padding:8px 10px;white-space:normal;box-shadow:0 2px 8px #07132699}
+ body.muscle-mode #stage{height:clamp(205px,30vh,265px)}
+}
+
+.muscle-settings-details{margin:2px 0 6px;font-size:13px;color:#b4c7df}
+.muscle-settings-details summary{cursor:pointer;min-height:28px;padding:4px 0}
+.muscle-settings-details[open] summary{margin-bottom:4px}
+.muscle-settings-details .muscle-compact-settings{margin:3px 0 6px}
+.muscle-study #muscleHighlightStatus{margin:3px 0;font-size:12px}
+
 /* Bilingual muscle answers */
 .muscle-choice-name{display:inline-flex;flex-direction:column;gap:3px;min-width:0;vertical-align:middle}.muscle-choice-translation{font-size:.82em;opacity:.78;font-weight:400;line-height:1.25}

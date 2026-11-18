@@ -345,8 +345,8 @@ const englishNotes=[
  "Sternocleidomastoid rotates the head contralaterally.",
  "Coracobrachialis flexes and adducts the arm."
 ];
-export function setupMuscleQuiz(container,model,language){
- let level='easy',topic='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false;
+export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
+ let level='easy',topic='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false,settingsExpanded=false;
  const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x;};
  const section=el('div','muscle-study');container.append(section);
  const shuffled=(arr)=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
@@ -386,17 +386,29 @@ export function setupMuscleQuiz(container,model,language){
    const status=section.querySelector('#muscleHighlightStatus');
    if(status)status.textContent=visualStatus;
  }
- function highlightAnswer(){showHighlight([...checked]);}
+ function highlightAnswer(){const indices=[...checked];showHighlight(indices);onAnswerFocus(indices);}
  function draw(){
   section.replaceChildren();
   const english=language()==='en',bilingual=language()==='both';
-  const settings=el('div','muscle-compact-settings');section.append(settings);
+  const settingsDetails=el('details','muscle-settings-details');
+  const settingsSummary=el('summary','');
+  const settings=el('div','muscle-compact-settings');
+  settingsDetails.append(settingsSummary,settings);
+  settingsDetails.open=window.matchMedia('(min-width: 801px)').matches||settingsExpanded;
+  settingsDetails.addEventListener('toggle',()=>{settingsExpanded=settingsDetails.open;});
+  const updateSettingsSummary=()=>{
+   const english=language()==='en';
+   const categoryNames={all:english?'All questions':'Все вопросы',relations:english?'Muscle relations':'Связи мышц',origins:english?'Origins':'Начало',insertions:english?'Insertions':'Прикрепление',functions:english?'Functions':'Функции'};
+   const levelNames={easy:english?'Beginner':'Начальный',medium:english?'Intermediate':'Средний',expert:english?'Expert':'Эксперт'};
+   settingsSummary.textContent=(english?'Quiz settings: ':'Настройки теста: ')+(categoryNames[topic]||topic)+' · '+(levelNames[level]||level);
+  };
+  updateSettingsSummary();
   const categories=el('select','muscle-dropdown');categories.setAttribute('aria-label','Тема вопросов');
   for(const [v,ru,en] of [['all','Все вопросы','All questions'],['relations','Синергисты и антагонисты','Synergists and antagonists'],['origins','Начало мышцы','Muscle origins'],['insertions','Прикрепление мышцы','Muscle insertions'],['functions','Функции мышц','Muscle functions']]){const o=el('option','',english?en:ru);o.value=v;categories.append(o);}
-  categories.value=topic;categories.onchange=()=>{topic=categories.value;reset();draw();};settings.append(categories);
+  categories.value=topic;categories.onchange=()=>{topic=categories.value;settingsExpanded=settingsDetails.open;reset();draw();};settings.append(categories);
   const difficulty=el('select','muscle-dropdown');difficulty.setAttribute('aria-label','Сложность');
   for(const [v,ru,en] of [['easy','Начальный: 4 варианта','Beginner: 4 choices'],['medium','Средний: 6 вариантов','Intermediate: 6 choices'],['expert','Эксперт: все '+muscleNames.length+' мышц','Expert: all '+muscleNames.length+' muscles']]){const o=el('option','',english?en:ru);o.value=v;difficulty.append(o);}
-  difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;checked.clear();answered=false;draw();};settings.append(difficulty);
+  difficulty.value=level;difficulty.onchange=()=>{level=difficulty.value;settingsExpanded=settingsDetails.open;checked.clear();answered=false;draw();};settings.append(difficulty);
   const details=el('details','muscle-diagnostics');details.append(el('summary','',english?'Model details':'Информация о модели'));
   const modelInfo=el('p','muscle-note',info);modelInfo.id='ecorcheInfo';details.append(modelInfo);
   details.append(el('p','muscle-note',(english?'Sample GLB object names: ':'Примеры названий объектов GLB: ')+(model.getNameSamples?.(8).join(' | ')||(english?'not available yet':'пока недоступны'))));
@@ -407,22 +419,23 @@ export function setupMuscleQuiz(container,model,language){
   for(let i=0;i<muscleNames.length;i++){const opt=el('option','',english?muscleNames[i][1]:muscleNames[i][0]+' / '+muscleNames[i][1]);opt.value=String(i);mapSelect.append(opt);}mapper.append(mapSelect);
   const mapButton=el('button','',english?'Associate selected object':'Связать выбранный объект');mapButton.onclick=()=>{const picked=model.getPicked?.();if(!picked){mappingLabel.textContent=english?'First tap a 3D object.':'Сначала выберите объект на 3D-модели.';return;}const name=muscleNames[Number(mapSelect.value)][1];model.mapSelected?.(name);mappingLabel.textContent=(english?'Saved mapping: ':'Связь сохранена: ')+name+' ← '+(model.getPickedPath?.()||picked.name);};mapper.append(mapButton);
   const mappingCount=el('p','muscle-note',(english?'Saved mappings: ':'Сохранено связей: ')+(model.getMappingCount?.()||0));mapper.append(mappingCount);
-  details.append(mapper);section.append(details);
+  details.append(mapper);
   const search=document.getElementById('muscleGlobalSearch');
   if(search){search.placeholder=english?'Find GLB object':'Поиск объекта GLB';search.oninput=()=>{const found=model.selectByName(search.value);meshInfo=found.length?'GLB: '+found.length:'';pickedInfo.textContent=meshInfo;};}
-  if(!order.length){section.append(el('p','muscle-note',english?'Questions are being prepared.':'Вопросы готовятся.'));return;}
-  if(position>=order.length){section.append(el('h4','muscle-question',english?'Quiz completed':'Тест завершён'));const restart=el('button','',english?'New quiz':'Новый тест');restart.onclick=()=>{reset();draw();};section.append(restart);return;}
+  if(!order.length){section.append(settingsDetails,details,el('p','muscle-note',english?'Questions are being prepared.':'Вопросы готовятся.'));return;}
+  if(position>=order.length){section.append(settingsDetails,details,el('h4','muscle-question',english?'Quiz completed':'Тест завершён'));const restart=el('button','',english?'New quiz':'Новый тест');restart.onclick=()=>{reset();draw();};section.append(restart);return;}
   const q=order[position];const beginner=level==='easy';
   model.restore?.();
   visualStatus='';
   section.append(el('p','muscle-note',String(position+1)+' / '+order.length));
-  const highlightStatus=el('p','muscle-note',visualStatus||(english?'3D: the selected answer will be highlighted after you respond.':'3D: после ответа на модели подсветится выбранная мышца.'));
+  const highlightStatus=el('p','muscle-note',visualStatus||(english?'The muscle highlights after your answer.':'Мышца подсветится после ответа.'));
   highlightStatus.id='muscleHighlightStatus';section.append(highlightStatus);
   section.append(el('h4','muscle-question',questionText(q)));
+  section.append(settingsDetails);
   const choices=options(q);const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
   const result=el('p','muscle-note','');
   const next=el('button','',english?'Next question':'Следующий вопрос');
-  next.onclick=()=>{position++;checked.clear();answered=false;model.restore?.();draw();};
+  next.onclick=()=>{onAnswerFocus([]);position++;checked.clear();answered=false;model.restore?.();draw();};
   function evaluate(){
    if(answered||!checked.size)return;
    const expected=new Set(beginner||level==='medium'?choices.filter(i=>q.correct.includes(i)):q.correct);
@@ -467,9 +480,10 @@ export function setupMuscleQuiz(container,model,language){
   check.onclick=evaluate;
   if(!beginner)section.append(check);
   section.append(result);
+  section.append(details);
   next.disabled=true;
   section.append(next);
  }
  model.setOnPick(mesh=>{meshInfo='GLB: '+(model.getPickedPath?.()||mesh.name||'(без названия)');const e=section.querySelector('#meshInfo');if(e)e.textContent=meshInfo;});
- return {draw,setInfo(message){info=message;const e=section.querySelector('#ecorcheInfo');if(e)e.textContent=message;},setMeshInfo(message){meshInfo=message;const e=section.querySelector('#meshInfo');if(e)e.textContent=message;}};
+ return {draw,getMuscleNames:()=>muscleNames,setInfo(message){info=message;const e=section.querySelector('#ecorcheInfo');if(e)e.textContent=message;},setMeshInfo(message){meshInfo=message;const e=section.querySelector('#meshInfo');if(e)e.textContent=message;}};
 }
