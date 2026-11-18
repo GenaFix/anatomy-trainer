@@ -445,7 +445,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   if(answerCount==='95')return muscleNames.map((_,i)=>i);
   if(answerCount==='4'&&q.correct.length===1)return shuffled([eligible[Math.floor(Math.random()*eligible.length)],...wrong.slice(0,3)]);
   const requested=Number(answerCount);
-  const correctLimit=requested===4?Math.min(3,requested):requested;
+  const correctLimit=Math.min(q.correct.length,Math.max(1,requested-1));
   const visibleCorrect=q.correct.length<=correctLimit?q.correct:shuffled(q.correct).slice(0,correctLimit);
   const count=Math.max(requested,visibleCorrect.length);
   return shuffled([...visibleCorrect,...wrong.slice(0,Math.max(0,count-visibleCorrect.length))]);
