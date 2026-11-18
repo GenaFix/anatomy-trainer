@@ -426,6 +426,11 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   return shuffled([...visibleCorrect,...wrong.slice(0,Math.max(0,count-visibleCorrect.length))]);
  }
  let visualStatus='';
+ function stopQuestionSpeech(button){
+   if('speechSynthesis' in window)window.speechSynthesis.cancel();
+   button?.classList.remove('speaking');
+   if(button)button.setAttribute('aria-pressed','false');
+ }
  function findMuscles(indices){
    return [...new Set(indices.flatMap(i=>model.findByAnatomicalName?.(muscleNames[i][1])||[]))];
  }
@@ -443,6 +448,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
  }
  function highlightAnswer(indices){showHighlight(indices);onAnswerFocus(indices);}
  function draw(){
+  if('speechSynthesis' in window)window.speechSynthesis.cancel();
   section.replaceChildren();
   const english=language()==='en',bilingual=language()==='both';
   const settingsDetails=el('details','muscle-settings-details');
@@ -491,7 +497,36 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   questionMeta.append(el('p','muscle-question-progress',String(position+1)+' / '+order.length));
   const highlightStatus=el('p','muscle-note muscle-question-hint',visualStatus||(english?'Muscle highlights after your answer.':'Мышца подсветится после ответа.'));
   highlightStatus.id='muscleHighlightStatus';questionMeta.append(highlightStatus);section.append(questionMeta);
-  section.append(el('h4','muscle-question',questionText(q)));
+  const questionRow=el('div','muscle-question-row');
+  questionRow.append(el('h4','muscle-question',questionText(q)));
+  const speakButton=el('button','muscle-speak-button');
+  speakButton.type='button';
+  speakButton.setAttribute('aria-label',english?'Read question aloud':'Прочитать вопрос вслух');
+  speakButton.setAttribute('title',english?'Read question aloud':'Прочитать вопрос вслух');
+  speakButton.setAttribute('aria-pressed','false');
+  speakButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4z"></path><path d="M16 9a5 5 0 0 1 0 6M18.5 6.5a9 9 0 0 1 0 11"></path></svg>';
+  speakButton.onclick=()=>{
+   if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){
+    highlightStatus.textContent=english?'Speech playback is not available in this browser.':'В этом браузере озвучивание недоступно.';
+    return;
+   }
+   if(speakButton.getAttribute('aria-pressed')==='true'){stopQuestionSpeech(speakButton);return;}
+   window.speechSynthesis.cancel();
+   const utterance=new window.SpeechSynthesisUtterance(questionText(q));
+   utterance.lang=english?'en-US':'ru-RU';
+   utterance.rate=.92;
+   const voices=window.speechSynthesis.getVoices();
+   const prefix=english?'en':'ru';
+   const voice=voices.find(item=>item.lang?.toLowerCase()===utterance.lang.toLowerCase())||voices.find(item=>item.lang?.toLowerCase().startsWith(prefix));
+   if(voice)utterance.voice=voice;
+   const finish=()=>stopQuestionSpeech(speakButton);
+   utterance.onend=finish;
+   utterance.onerror=finish;
+   speakButton.classList.add('speaking');
+   speakButton.setAttribute('aria-pressed','true');
+   window.speechSynthesis.speak(utterance);
+  };
+  questionRow.append(speakButton);section.append(questionRow);
   section.append(settingsDetails);
   if(!currentChoices.length)currentChoices=options(q);
   const choices=currentChoices;const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
@@ -552,5 +587,5 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   section.append(next);
  }
  model.setOnPick(mesh=>{meshInfo='GLB: '+(model.getPickedPath?.()||mesh.name||'(без названия)');const e=section.querySelector('#meshInfo');if(e)e.textContent=meshInfo;});
- return {draw,getMuscleNames:()=>muscleNames,setInfo(message){info=message;const e=section.querySelector('#ecorcheInfo');if(e)e.textContent=message;},setMeshInfo(message){meshInfo=message;const e=section.querySelector('#meshInfo');if(e)e.textContent=message;}};
+ return {draw,stopSpeech(){if('speechSynthesis' in window)window.speechSynthesis.cancel();},getMuscleNames:()=>muscleNames,setInfo(message){info=message;const e=section.querySelector('#ecorcheInfo');if(e)e.textContent=message;},setMeshInfo(message){meshInfo=message;const e=section.querySelector('#meshInfo');if(e)e.textContent=message;}};
 }
