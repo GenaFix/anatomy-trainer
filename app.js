@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=29429';
-import {setupMuscleQuiz} from './muscle-study.js?v=29429';
+import {createEcorche} from './ecorche.js?v=29430';
+import {setupMuscleQuiz} from './muscle-study.js?v=29430';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -184,7 +184,7 @@ function focusQuizAnswer(indices){
  const muscleNames=muscleStudy?.getMuscleNames?.()||[];
  const names=indices.map(i=>muscleNames[i]?.[1]).filter(Boolean);
  const posteriorNames=new Set([
-  'Trapezius','Rhomboid major','Rhomboid minor','Levator scapulae','Latissimus dorsi',
+  'Trapezius','Rhomboid major','Rhomboid minor','Levator scapulae','Latissimus dorsi','Triceps brachii',
   'Teres major','Teres minor','Supraspinatus','Infraspinatus','Erector spinae','Multifidus',
   'Gluteus maximus','Gluteus medius','Gluteus minimus','Piriformis','Biceps femoris',
   'Semitendinosus','Semimembranosus','Gastrocnemius','Soleus','Tibialis posterior','Popliteus',
