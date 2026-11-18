@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=29415';
-import {setupMuscleQuiz} from './muscle-study.js?v=29413';
+import {createEcorche} from './ecorche.js?v=29416';
+import {setupMuscleQuiz} from './muscle-study.js?v=29416';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');

@@ -208,7 +208,7 @@ export function createEcorche(scene,camera,canvas){
      const verified=VERIFIED_GROUPS[key];
    if(verified){
      const names=new Set(verified);
-     return meshes.filter(mesh=>names.has(mesh.name)||manual.has(meshPath(mesh)));
+     return meshes.filter(mesh=>names.has(mesh.userData?.name)||manual.has(meshPath(mesh)));
    }
    // Match the full anatomical base only. Parts/heads are accepted when
    // their source labels explicitly identify the same muscle.
