@@ -240,6 +240,14 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 .muscle-settings-details[open] summary{margin-bottom:4px}
 .muscle-settings-details .muscle-compact-settings{margin:3px 0 6px}
 .muscle-study #muscleHighlightStatus{margin:3px 0;font-size:12px}
+.muscle-question-meta{display:flex;align-items:baseline;gap:9px;min-width:0}
+.muscle-question-progress{margin:4px 0;color:#b4c7df;white-space:nowrap;flex:none}
+.muscle-question-hint{margin:4px 0;min-width:0;flex:1}
+@media(max-width:800px){
+ body.muscle-mode #status.muscle-model-loaded{display:none}
+ .muscle-question-meta{gap:8px}
+ .muscle-question-hint{font-size:12px;line-height:1.25}
+}
 
 /* Bilingual muscle answers */
 .muscle-choice-name{display:inline-flex;flex-direction:column;gap:3px;min-width:0;vertical-align:middle}.muscle-choice-translation{font-size:.82em;opacity:.78;font-weight:400;line-height:1.25}

@@ -4,8 +4,8 @@ import {OrbitControls} from
   'three/addons/controls/OrbitControls.js';
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
-import {createEcorche} from './ecorche.js?v=29420';
-import {setupMuscleQuiz} from './muscle-study.js?v=29420';
+import {createEcorche} from './ecorche.js?v=29421';
+import {setupMuscleQuiz} from './muscle-study.js?v=29421';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -82,10 +82,12 @@ let muscleReady=false;
 let muscleLoadError=null;
 ecorche.ready.then(info=>{
   muscleReady=true;
+  $('status').classList.add('muscle-model-loaded');
   if(muscleStudy)muscleStudy.setInfo(language==='en'?('GLB: '+info.meshCount+' objects, named: '+info.namedCount):('GLB: '+info.meshCount+' объектов, с названиями: '+info.namedCount));
   if(muscleMode)$('status').textContent=language==='en'?'Original Écorché model loaded. Select a muscle or object.':'Оригинальная модель Écorché загружена. Выберите мышцу или объект.';
 }).catch(error=>{
   muscleLoadError=error.message;
+  $('status').classList.remove('muscle-model-loaded');
   if(muscleStudy)muscleStudy.setInfo('Не удалось загрузить GLB: '+error.message);
   if(muscleMode)$('status').textContent=language==='en'?'Failed to load Écorché. Check CDN access.':'Ошибка загрузки Écorché. Проверьте доступ к CDN.';
 });
@@ -754,6 +756,7 @@ function activateMode(enabled){
    else muscleStudy.setInfo(language==='en'?'Loading 3D muscle model, please wait...':'Загрузка 3D-модели мышц, подождите...');
    setView('front');
    $('status').textContent=muscleLoadError?(language==='en'?'Muscle model loading error: ':'Ошибка загрузки мышечной модели: ')+muscleLoadError:(muscleReady?(language==='en'?'Muscle model loaded.':'Мышечная модель загружена.'):(language==='en'?'Loading original muscle model...':'Загрузка оригинальной модели мышц...'));
+   $('status').classList.toggle('muscle-model-loaded',muscleReady&&!muscleLoadError);
  }else{
    ecorche.restore();
    beginTest(selectedQuestions());

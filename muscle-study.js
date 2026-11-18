@@ -427,9 +427,10 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   const q=order[position];const beginner=level==='easy';
   model.restore?.();
   visualStatus='';
-  section.append(el('p','muscle-note',String(position+1)+' / '+order.length));
-  const highlightStatus=el('p','muscle-note',visualStatus||(english?'The muscle highlights after your answer.':'Мышца подсветится после ответа.'));
-  highlightStatus.id='muscleHighlightStatus';section.append(highlightStatus);
+  const questionMeta=el('div','muscle-question-meta');
+  questionMeta.append(el('p','muscle-question-progress',String(position+1)+' / '+order.length));
+  const highlightStatus=el('p','muscle-note muscle-question-hint',visualStatus||(english?'Muscle highlights after your answer.':'Мышца подсветится после ответа.'));
+  highlightStatus.id='muscleHighlightStatus';questionMeta.append(highlightStatus);section.append(questionMeta);
   section.append(el('h4','muscle-question',questionText(q)));
   section.append(settingsDetails);
   const choices=options(q);const panel=el('div',beginner?'muscle-answers easy':'muscle-answers');
