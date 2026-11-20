@@ -1,5 +1,5 @@
 import {muscleChoiceAdditions, anatomyQuestionAdditions} from './muscle-question-bank-7-12.js?v=29501';
-import {muscleDescriptions} from './data/muscle-descriptions-7-12.js?v=29501';
+import {muscleDescriptions, buildMuscleDescriptionFromQuiz} from './data/muscle-descriptions.js?v=29502';
 // Training list is independent of the GLB mesh names.
 // Associations with model parts are not assumed without checking source metadata.
 export const muscleNames=[
@@ -610,10 +610,10 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
    anatomyBody.replaceChildren();
    const indices=[...new Set(q.correct)];
    for(const index of indices){
-    const [ru,en]=muscleNames[index],entry=muscleDescriptions[en];
+    const [ru,en]=muscleNames[index],entry=muscleDescriptions[en]||buildMuscleDescriptionFromQuiz(index,anatomyQuestions,english?'en':'ru');
     const title=el('h5','muscle-anatomy-title',english?en:ru);anatomyBody.append(title);
     if(!entry){anatomyBody.append(el('p','muscle-anatomy-empty',english?'A reference description is not available yet.':'Описание этой мышцы пока не добавлено.'));continue;}
-    const fields=[['origin','Начало','Origin'],['insertion','Прикрепление','Insertion'],['actions','Функция','Function'],['innervation','Иннервация','Innervation'],['topography','Топография','Topography'],['clinical','Клинические особенности','Clinical notes']];
+    const fields=[['origin','Начало','Origin'],['insertion','Прикрепление','Insertion'],['actions','Функция','Function'],['innervation','Иннервация','Innervation'],['topography','Топография','Topography'],['clinical','Клинические особенности','Clinical notes'],['additional','Дополнительные сведения','Additional information']];
     for(const [key,labelRu,labelEn] of fields){const value=entry[key];if(!value)continue;const block=el('section','muscle-anatomy-field');block.append(el('h6','',english?labelEn:labelRu));for(const text of (Array.isArray(value)?value:[value]))block.append(el('p','',Array.isArray(text)?text[english?1:0]:text));anatomyBody.append(block);}
    }
   };
