@@ -269,3 +269,4 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 .muscle-anatomy-field p{margin:0 0 4px}
 .muscle-model-names{margin:6px 0}
 .muscle-model-names p{overflow-wrap:anywhere;line-height:1.45}
+.muscle-anatomy-empty{color:#b4c7df;font-style:italic}

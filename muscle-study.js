@@ -1,4 +1,5 @@
-import {muscleChoiceAdditions, anatomyQuestionAdditions, muscleDetails} from './muscle-question-bank-7-12.js?v=29500';
+import {muscleChoiceAdditions, anatomyQuestionAdditions} from './muscle-question-bank-7-12.js?v=29501';
+import {muscleDescriptions} from './data/muscle-descriptions-7-12.js?v=29501';
 // Training list is independent of the GLB mesh names.
 // Associations with model parts are not assumed without checking source metadata.
 export const muscleNames=[
@@ -609,16 +610,11 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
    anatomyBody.replaceChildren();
    const indices=[...new Set(q.correct)];
    for(const index of indices){
-    const [ru,en]=muscleNames[index],entry=muscleDetails[en];
+    const [ru,en]=muscleNames[index],entry=muscleDescriptions[en];
     const title=el('h5','muscle-anatomy-title',english?en:ru);anatomyBody.append(title);
+    if(!entry){anatomyBody.append(el('p','muscle-anatomy-empty',english?'A reference description is not available yet.':'Описание этой мышцы пока не добавлено.'));continue;}
     const fields=[['origin','Начало','Origin'],['insertion','Прикрепление','Insertion'],['actions','Функция','Function'],['innervation','Иннервация','Innervation'],['topography','Топография','Topography'],['clinical','Клинические особенности','Clinical notes']];
-    const rendered=new Set();
-    for(const [key,labelRu,labelEn] of fields){const value=entry?.[key];if(!value)continue;const block=el('section','muscle-anatomy-field');block.append(el('h6','',english?labelEn:labelRu));const values=Array.isArray(value)?value:[value];for(const text of values)block.append(el('p','',Array.isArray(text)?text[english?1:0]:text));anatomyBody.append(block);rendered.add(key);}
-    const topicLabels={origins:['Начало','Origin'],insertions:['Прикрепление','Insertion'],functions:['Функция','Function'],attachments:['Прикрепление','Insertion']};
-    const related=anatomyQuestions.filter(item=>item.correct.includes(index));
-    const grouped=new Map();
-    for(const item of related){const key=topicLabels[item.topic]?item.topic:'extra';if(rendered.has(key))continue;if(!grouped.has(key))grouped.set(key,[]);const label=topicLabels[key]?(english?topicLabels[key][1]:topicLabels[key][0]):(english?'Additional anatomy':'Дополнительные сведения');const question=english?item.textEn||item.text:item.text;const fact=english?item.noteEn||item.note:item.note;if(fact)grouped.get(key).push((question?question+' ':'')+fact);}
-    for(const [key,items] of grouped){if(!items.length)continue;const label=topicLabels[key]?(english?topicLabels[key][1]:topicLabels[key][0]):(english?'Additional anatomy':'Дополнительные сведения');const block=el('section','muscle-anatomy-field');block.append(el('h6','',label));for(const fact of [...new Set(items)])block.append(el('p','',fact));anatomyBody.append(block);}
+    for(const [key,labelRu,labelEn] of fields){const value=entry[key];if(!value)continue;const block=el('section','muscle-anatomy-field');block.append(el('h6','',english?labelEn:labelRu));for(const text of (Array.isArray(value)?value:[value]))block.append(el('p','',Array.isArray(text)?text[english?1:0]:text));anatomyBody.append(block);}
    }
   };
   renderAnatomy();
