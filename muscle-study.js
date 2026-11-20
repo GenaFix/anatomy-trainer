@@ -424,6 +424,43 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
  let answerCount='4',topic='all',testSize='all',order=[],position=0,checked=new Set(),info='',meshInfo='',answered=false,settingsExpanded=false,currentChoices=[];
  const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x;};
  const section=el('div','muscle-study');container.append(section);
+ const pickedDetails=document.getElementById('pickedMuscleDetails');
+ const pickedSummary=document.getElementById('pickedMuscleSummary');
+ const pickedInfo=document.getElementById('pickedMuscleInfo');
+ function renderPickedMuscle(mesh=model.getPicked?.(),collapse=false){
+  if(!pickedDetails||!pickedSummary||!pickedInfo)return;
+  if(!mesh){pickedDetails.hidden=true;return;}
+  const english=language()==='en';
+  const index=muscleNames.findIndex(([,name])=>model.findByAnatomicalName?.(name)?.includes(mesh));
+  let label=mesh.name||model.getPickedPath?.()|| (english?'Selected object':'Выбранный объект');
+  let entry=null;
+  if(index>=0){
+   const [ru,en]=muscleNames[index];
+   let descriptionName=en;
+   if(en==='Biceps femoris'){
+    const sourceName=(mesh.name+' '+model.getPickedPath?.()).toLowerCase();
+    const shortHead=/short head|caput breve/.test(sourceName);
+    descriptionName='Biceps femoris, '+(shortHead?'short':'long')+' head';
+    label=(english?(shortHead?'Short head of biceps femoris':'Long head of biceps femoris'):(shortHead?'Короткая головка двуглавой мышцы бедра':'Длинная головка двуглавой мышцы бедра'));
+   }else label=english?en:ru;
+   entry=muscleDescriptions[descriptionName]||buildMuscleDescriptionFromQuiz(index,anatomyQuestions,english?'en':'ru');
+  }
+  pickedSummary.textContent=label;
+  pickedInfo.replaceChildren();
+  if(!entry){
+   pickedInfo.append(el('p','muscle-anatomy-empty',english?'A muscle description is not available for this selected object.':'Для выбранного объекта описание мышцы пока не подготовлено.'));
+  }else{
+   const fields=[['origin','Начало','Origin'],['insertion','Прикрепление','Insertion'],['actions','Функция','Function'],['innervation','Иннервация','Innervation'],['topography','Топография','Topography'],['clinical','Клинические особенности','Clinical notes'],['additional','Дополнительные сведения','Additional information']];
+   for(const [key,ru,en] of fields){
+    const value=entry[key];if(!value)continue;
+    const block=el('section','muscle-anatomy-field');block.append(el('h6','',english?en:ru));
+    for(const item of (Array.isArray(value)?value:[value]))block.append(el('p','',Array.isArray(item)?item[english?1:0]:item));
+    pickedInfo.append(block);
+   }
+  }
+  pickedDetails.hidden=false;
+  if(collapse)pickedDetails.open=false;
+ }
  const shuffled=(arr)=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
  const active=()=>{
   const english=language()==='en',unique=[],byPrompt=new Map();
@@ -528,6 +565,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
  function highlightAnswer(indices){showHighlight(indices);onAnswerFocus(indices);}
  function draw(){
   if('speechSynthesis' in window)window.speechSynthesis.cancel();
+  renderPickedMuscle();
   section.replaceChildren();
   const english=language()==='en',bilingual=language()==='both';
   const settingsDetails=el('details','muscle-settings-details');
@@ -675,6 +713,6 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   next.disabled=!answered;
   section.append(next);
  }
- model.setOnPick(mesh=>{meshInfo='GLB: '+(model.getPickedPath?.()||mesh.name||'(без названия)');const e=section.querySelector('#meshInfo');if(e)e.textContent=meshInfo;});
+ model.setOnPick(mesh=>{meshInfo='GLB: '+(model.getPickedPath?.()||mesh.name||'(без названия)');const e=section.querySelector('#meshInfo');if(e)e.textContent=meshInfo;renderPickedMuscle(mesh,true);});
  return {draw,stopSpeech(){if('speechSynthesis' in window)window.speechSynthesis.cancel();},getMuscleNames:()=>muscleNames,setInfo(message){info=message;const e=section.querySelector('#ecorcheInfo');if(e)e.textContent=message;},setMeshInfo(message){meshInfo=message;const e=section.querySelector('#meshInfo');if(e)e.textContent=message;}};
 }

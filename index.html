@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Anatomy Trainer 2.9.5.4</title>
-<link rel="stylesheet" href="./style.css?v=29504">
+<title>Anatomy Trainer 2.9.6.0</title>
+<link rel="stylesheet" href="./style.css?v=29600">
 
 <script type="importmap">
 {
@@ -21,7 +21,7 @@
 <main>
 
 <header class="topbar">
-  <h1>🦴 Anatomy Trainer 2.9.5.4</h1>
+  <h1>🦴 Anatomy Trainer 2.9.6.0</h1>
   <div class="controls topbar-tools">
     
     <label for="language">Язык:</label>
@@ -60,7 +60,13 @@
     <div id="muscleTools" class="controls hidden">
       <button id="hideMuscleMesh" type="button">Скрыть выбранное</button>
       <button id="restoreMuscleMeshes" type="button">Вернуть слои</button>
-      <button id="focusMuscleMesh" type="button">Приблизить выбранное</button>
+      <div class="muscle-pick-controls">
+        <button id="focusMuscleMesh" type="button">Приблизить мышцу</button>
+        <details id="pickedMuscleDetails" class="picked-muscle-details" hidden>
+          <summary id="pickedMuscleSummary">Выбранная мышца</summary>
+          <div id="pickedMuscleInfo" class="muscle-anatomy-body"></div>
+        </details>
+      </div>
     </div>
     <details id="muscleGestureHint" class="small muted hidden">
       <summary>Управление моделью</summary>
@@ -127,6 +133,6 @@
 
 </main>
 
-<script type="module" src="./app.js?v=29504"></script>
+<script type="module" src="./app.js?v=29600"></script>
 </body>
 </html>

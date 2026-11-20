@@ -177,6 +177,14 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 
 #muscleTools{gap:6px;margin:6px 0}
 #muscleTools button{flex:1 1 125px;font-size:12px;padding:9px 7px}
+#muscleTools .muscle-pick-controls{display:flex;gap:6px;flex:1 1 100%;min-width:0}
+#muscleTools #focusMuscleMesh,#muscleTools .picked-muscle-details{flex:1 1 0;min-width:0}
+.picked-muscle-details{border:1px solid #5a80ab;border-radius:9px;background:#29476d;color:#fff;min-width:0}
+.picked-muscle-details[hidden]{display:none}
+.picked-muscle-details>summary{cursor:pointer;list-style-position:inside;padding:9px 7px;font-size:12px;overflow-wrap:anywhere}
+.picked-muscle-details[open]{flex-basis:100%;background:#10233d;border-color:#496b91}
+.picked-muscle-details[open]>summary{border-bottom:1px solid #496b91}
+.picked-muscle-details .muscle-anatomy-body{padding:8px 10px;max-height:42vh;overflow:auto}
 #muscleGestureHint{margin:4px 0 8px}
 .muscle-answers.easy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible}
 .muscle-answers.easy .muscle-choice{font-size:14px;padding:12px 8px;border:1px solid #537da9;border-radius:9px;background:#29476d}

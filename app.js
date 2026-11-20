@@ -5,7 +5,7 @@ import {OrbitControls} from
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
 import {createEcorche} from './ecorche.js?v=29441';
-import {setupMuscleQuiz} from './muscle-study.js?v=29504';
+import {setupMuscleQuiz} from './muscle-study.js?v=29600';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
@@ -283,7 +283,7 @@ const uiLabels={
  resetView:['Сброс','Reset'],
  hideMuscleMesh:['Скрыть выбранное','Hide selected'],
  restoreMuscleMeshes:['Вернуть слои','Restore layers'],
- focusMuscleMesh:['Приблизить выбранное','Focus on selected'],
+ focusMuscleMesh:['Приблизить мышцу','Focus muscle'],
  touchRotate:['Вращать 3D-модель','Rotate 3D model'],
  viewLabel:['3D-модель','3D model']
 };
