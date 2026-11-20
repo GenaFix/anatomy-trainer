@@ -1,5 +1,5 @@
 import {muscleChoiceAdditions, anatomyQuestionAdditions} from './muscle-question-bank-7-12.js?v=29501';
-import {muscleDescriptions, buildMuscleDescriptionFromQuiz} from './data/muscle-descriptions.js?v=29504';
+import {muscleDescriptions, buildMuscleDescriptionFromQuiz} from './data/muscle-descriptions.js?v=29601';
 // Training list is independent of the GLB mesh names.
 // Associations with model parts are not assumed without checking source metadata.
 export const muscleNames=[
