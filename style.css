@@ -257,3 +257,15 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 
 /* Bilingual muscle answers */
 .muscle-choice-name{display:inline-flex;flex-direction:column;gap:3px;min-width:0;vertical-align:middle}.muscle-choice-translation{font-size:.82em;opacity:.78;font-weight:400;line-height:1.25}
+
+/* Readable per-muscle anatomy card and compact 3D diagnostics */
+.muscle-anatomy-details{margin:12px 0;padding:0 12px;border:1px solid #496b91;border-radius:12px;background:#10233d;color:#e5eefb}
+.muscle-anatomy-details>summary,.muscle-model-names>summary{cursor:pointer;padding:12px 0;font-weight:600}
+.muscle-anatomy-details[hidden]{display:none}
+.muscle-anatomy-body{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.muscle-anatomy-title{font-size:18px;margin:4px 0 10px}
+.muscle-anatomy-field{margin:0 0 12px}
+.muscle-anatomy-field h6{font-size:14px;margin:0 0 3px;color:#9ec5f1}
+.muscle-anatomy-field p{margin:0 0 4px}
+.muscle-model-names{margin:6px 0}
+.muscle-model-names p{overflow-wrap:anywhere;line-height:1.45}

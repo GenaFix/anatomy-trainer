@@ -1,3 +1,4 @@
+import {muscleChoiceAdditions, anatomyQuestionAdditions, muscleDetails} from './muscle-question-bank-7-12.js?v=29500';
 // Training list is independent of the GLB mesh names.
 // Associations with model parts are not assumed without checking source metadata.
 export const muscleNames=[
@@ -283,6 +284,15 @@ for(const item of atlasContinuation){
  if(correct.some(index=>index<0))throw new Error('Missing muscle choice: '+item.muscles.join(', '));
  anatomyQuestions.push({topic:item.topic,text:item.text,textEn:item.textEn,correct,note:item.note,noteEn:item.noteEn});
 }
+// Add the checked muscle records and clean, single-topic questions from batches 7–12.
+for(const entry of muscleChoiceAdditions){
+ if(!muscleNames.some(([,english])=>english===entry[1]))muscleNames.push(entry);
+}
+for(const item of anatomyQuestionAdditions){
+ const correct=item.muscles.map(name=>muscleNames.findIndex(([,english])=>english===name));
+ if(correct.some(index=>index<0))throw new Error('Missing supplemental muscle choice: '+item.muscles.join(', '));
+ anatomyQuestions.push({topic:item.topic,text:item.text,textEn:item.textEn,correct,note:item.note,noteEn:item.noteEn});
+}
 // Reclassify existing attachment-bank items whose wording asks for an origin.
 for(const question of anatomyQuestions){
  if(question.topic==='attachments')question.topic=/начинается|начинаются/.test(question.text||'')?'origins':'insertions';
@@ -475,9 +485,17 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
  }
  function options(q){
   const all=muscleNames.map((_,i)=>i).filter(i=>i!==q.focus);
-  const wrong=shuffled(all.filter(i=>!q.correct.includes(i)));
+  const region=index=>{
+   const [ru,en]=muscleNames[index],name=(ru+' '+en).toLocaleLowerCase();
+   if(/neck|head|capitis|cervicis|scalene|splenius|longus colli|sternocleidomastoid|шеи|головы|лестнич|ременная|грудино-ключично-сосцевид/.test(name))return 'head';
+   if(/hand|wrist|finger|pollicis|palmar|interossei of hand|brachii|forearm|кисти|запясть|пальц.*кисти|плеча|предплеч/.test(name))return 'upper';
+   if(/foot|toe|hallucis|digiti|minimi|fibular|tibialis|femoris|glute|hamstring|soleus|gastrocnemius|plantar|межкостн.*стоп|стопы|бедра|голен|ягодич|икронож|камбал|малоберц|большеберц|подколен/.test(name))return 'lower';
+   return 'trunk';
+  };
+  const sameRegion=all.filter(i=>region(i)===region(q.correct[0]));
+  const wrong=[...shuffled(sameRegion.filter(i=>!q.correct.includes(i))),...shuffled(all.filter(i=>region(i)!==region(q.correct[0])&&!q.correct.includes(i)))];
   const eligible=q.correct.filter(i=>i!==q.focus);
-  if(answerCount==='95')return muscleNames.map((_,i)=>i);
+  if(answerCount==='all')return muscleNames.map((_,i)=>i);
   if(answerCount==='4'&&q.correct.length===1)return shuffled([eligible[Math.floor(Math.random()*eligible.length)],...wrong.slice(0,3)]);
   const requested=Number(answerCount);
   const correctLimit=Math.min(q.correct.length,Math.max(1,requested-1));
@@ -519,25 +537,25 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   settingsDetails.addEventListener('toggle',()=>{settingsExpanded=settingsDetails.open;});
   const updateSettingsSummary=()=>{
    const english=language()==='en';
-   const categoryNames={all:english?'All topics':'Все темы',relations:english?'Muscle relations':'Связи мышц',origins:english?'Origins':'Начало',insertions:english?'Insertions':'Прикрепление',functions:english?'Functions':'Функции'};
-   const answerName=answerCount==='95'?(english?'All 95 muscles':'Все 95 мышц'):(english?answerCount+' choices':answerCount+' вариантов');
+   const categoryNames={all:english?'All topics':'Все темы',relations:english?'Muscle relations':'Связи мышц',origins:english?'Origins':'Начало',insertions:english?'Insertions':'Прикрепление',functions:english?'Functions':'Функции',details:english?'Muscle details':'Сведения о мышцах'};
+   const answerName=answerCount==='all'?(english?'All '+muscleNames.length+' muscles':'Все мышцы ('+muscleNames.length+')'):(english?answerCount+' choices':answerCount+' вариантов');
    const selectedCount=testSize==='all'?active().length:Math.min(Number(testSize),active().length);
    const countName=testSize==='all'?(english?'All '+active().length+' questions':'Все вопросы ('+active().length+')'):(english?selectedCount+' questions':selectedCount+' вопросов');
    settingsSummary.textContent=(english?'Quiz settings: ':'Настройки теста: ')+(categoryNames[topic]||topic)+' · '+answerName+' · '+countName;
   };
   updateSettingsSummary();
   const categories=el('select','muscle-dropdown');categories.setAttribute('aria-label','Тема вопросов');
-  for(const [v,ru,en] of [['all','Все вопросы','All questions'],['relations','Синергисты и антагонисты','Synergists and antagonists'],['origins','Начало мышцы','Muscle origins'],['insertions','Прикрепление мышцы','Muscle insertions'],['functions','Функции мышц','Muscle functions']]){const o=el('option','',english?en:ru);o.value=v;categories.append(o);}
+  for(const [v,ru,en] of [['all','Все вопросы','All questions'],['relations','Синергисты и антагонисты','Synergists and antagonists'],['origins','Начало мышцы','Muscle origins'],['insertions','Прикрепление мышцы','Muscle insertions'],['functions','Функции мышц','Muscle functions'],['details','Начало, прикрепление и иннервация','Origin, insertion and innervation']]){const o=el('option','',english?en:ru);o.value=v;categories.append(o);}
   categories.value=topic;categories.onchange=()=>{topic=categories.value;settingsExpanded=settingsDetails.open;reset();draw();};settings.append(categories);
   const answers=el('select','muscle-dropdown');answers.setAttribute('aria-label',english?'Number of answer choices':'Количество вариантов ответа');
-  for(const value of ['4','6','10','20','30','50','70','95']){const option=el('option','',value==='95'?(english?'95 (all muscles)':'95 (все мышцы)'):english?value+' choices':value+' вариантов');option.value=value;answers.append(option);}
+  for(const value of ['4','6','10','20','30','50','70','all']){const option=el('option','',value==='all'?(english?'All muscles ('+muscleNames.length+')':'Все мышцы ('+muscleNames.length+')'):english?value+' choices':value+' вариантов');option.value=value;answers.append(option);}
   answers.value=answerCount;answers.onchange=()=>{answerCount=answers.value;settingsExpanded=settingsDetails.open;checked.clear();answered=false;currentChoices=[];draw();};settings.append(answers);
   const count=el('select','muscle-dropdown');count.setAttribute('aria-label',english?'Number of quiz questions':'Количество вопросов в тесте');
   for(const value of ['all','10','20','30','50','70','95']){const option=el('option','',value==='all'?(english?'All available questions':'Все вопросы'):english?value+' questions':value+' вопросов');option.value=value;count.append(option);}
   count.value=testSize;count.onchange=()=>{testSize=count.value;settingsExpanded=settingsDetails.open;reset();draw();};settings.append(count);
-  const details=el('details','muscle-diagnostics');details.append(el('summary','',english?'Model details':'Информация о модели'));
+  const details=el('details','muscle-diagnostics');details.append(el('summary','',english?'3D model status':'Сведения о 3D-модели'));
   const modelInfo=el('p','muscle-note',info);modelInfo.id='ecorcheInfo';details.append(modelInfo);
-  details.append(el('p','muscle-note',(english?'Sample GLB object names: ':'Примеры названий объектов GLB: ')+(model.getNameSamples?.(8).join(' | ')||(english?'not available yet':'пока недоступны'))));
+  const namesDetails=el('details','muscle-model-names');namesDetails.append(el('summary','',english?'Example object names':'Примеры имён объектов'));namesDetails.append(el('p','muscle-note',(model.getNameSamples?.(8).join(' | ')||(english?'not available yet':'пока недоступны'))));details.append(namesDetails);
   const pickedInfo=el('p','muscle-note',meshInfo);pickedInfo.id='meshInfo';details.append(pickedInfo);
   const search=document.getElementById('muscleGlobalSearch');
   if(search){search.placeholder=english?'Find GLB object':'Поиск объекта GLB';search.oninput=()=>{const found=model.selectByName(search.value);meshInfo=found.length?'GLB: '+found.length:'';pickedInfo.textContent=meshInfo;};}
@@ -584,6 +602,26 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   if(!currentChoices.length)currentChoices=options(q);
   const choices=currentChoices;const panel=el('div',singleChoice?'muscle-answers easy':'muscle-answers');
   const result=el('p','muscle-note','');
+  const anatomyCard=el('details','muscle-anatomy-details');
+  const anatomySummary=el('summary','',english?'Muscle information':'Информация о мышце');anatomyCard.append(anatomySummary);
+  const anatomyBody=el('div','muscle-anatomy-body');anatomyCard.append(anatomyBody);
+  const renderAnatomy=()=>{
+   anatomyBody.replaceChildren();
+   const indices=[...new Set(q.correct)];
+   for(const index of indices){
+    const [ru,en]=muscleNames[index],entry=muscleDetails[en];
+    const title=el('h5','muscle-anatomy-title',english?en:ru);anatomyBody.append(title);
+    const fields=[['origin','Начало','Origin'],['insertion','Прикрепление','Insertion'],['actions','Функция','Function'],['innervation','Иннервация','Innervation'],['topography','Топография','Topography'],['clinical','Клинические особенности','Clinical notes']];
+    const rendered=new Set();
+    for(const [key,labelRu,labelEn] of fields){const value=entry?.[key];if(!value)continue;const block=el('section','muscle-anatomy-field');block.append(el('h6','',english?labelEn:labelRu));const values=Array.isArray(value)?value:[value];for(const text of values)block.append(el('p','',Array.isArray(text)?text[english?1:0]:text));anatomyBody.append(block);rendered.add(key);}
+    const topicLabels={origins:['Начало','Origin'],insertions:['Прикрепление','Insertion'],functions:['Функция','Function'],attachments:['Прикрепление','Insertion']};
+    const related=anatomyQuestions.filter(item=>item.correct.includes(index));
+    const grouped=new Map();
+    for(const item of related){const key=topicLabels[item.topic]?item.topic:'extra';if(rendered.has(key))continue;if(!grouped.has(key))grouped.set(key,[]);const label=topicLabels[key]?(english?topicLabels[key][1]:topicLabels[key][0]):(english?'Additional anatomy':'Дополнительные сведения');const question=english?item.textEn||item.text:item.text;const fact=english?item.noteEn||item.note:item.note;if(fact)grouped.get(key).push((question?question+' ':'')+fact);}
+    for(const [key,items] of grouped){if(!items.length)continue;const label=topicLabels[key]?(english?topicLabels[key][1]:topicLabels[key][0]):(english?'Additional anatomy':'Дополнительные сведения');const block=el('section','muscle-anatomy-field');block.append(el('h6','',label));for(const fact of [...new Set(items)])block.append(el('p','',fact));anatomyBody.append(block);}
+   }
+  };
+  renderAnatomy();
   const next=el('button','',english?'Next question':'Следующий вопрос');
   next.onclick=()=>{onAnswerFocus([]);position++;checked.clear();answered=false;currentChoices=[];model.restore?.();draw();};
   function restoreAnswerFeedback(){
@@ -598,6 +636,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
    });
    if(!singleChoice)check.disabled=true;
    next.disabled=false;
+   anatomyCard.hidden=false;
   }
   function evaluate(){
    if(answered||!checked.size)return;
@@ -634,6 +673,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   check.onclick=evaluate;
   if(!singleChoice)section.append(check);
   section.append(result);
+  anatomyCard.hidden=!answered;section.append(anatomyCard);
   if(answered){const expected=choices.filter(i=>q.correct.includes(i));restoreAnswerFeedback();showHighlight(expected);onAnswerFocus(expected);}
   section.append(details);
   next.disabled=!answered;
