@@ -1125,15 +1125,15 @@ const quizTopicToDescriptionField = {
 
 // Builds readable reference fields from answer explanations only. Quiz prompts
 // are deliberately never copied into a muscle description.
-export function buildMuscleDescriptionFromQuiz(muscleIndex, questions, language = 'ru') {
+export function buildMuscleDescriptionFromQuiz(muscleIndex, questions) {
   const fields = {};
   for (const question of questions) {
     if (!question.correct?.includes(muscleIndex)) continue;
-    const fact = (language === 'en' ? question.noteEn || question.note : question.note)?.trim();
-    if (!fact || fact.includes('?')) continue;
+    const pair = [question.note, question.noteEn].map(text => text?.trim() || '');
+    if (!pair.some(Boolean) || pair.some(text => text.includes('?'))) continue;
     const field = quizTopicToDescriptionField[question.topic] || 'additional';
-    (fields[field] ||= []);
-    if (!fields[field].includes(fact)) fields[field].push(fact);
+    const rows = fields[field] ||= [];
+    if (!rows.some(([ru, en]) => ru === pair[0] && en === pair[1])) rows.push(pair);
   }
   return Object.keys(fields).length ? fields : null;
 }
