@@ -281,3 +281,5 @@ main,.workspace,.workspace>.panel,.muscle-study,#musclePanel{min-width:0;max-wid
 
 .muscle-translation{display:block;margin-top:.25em;font-size:.86em;font-weight:400;line-height:1.4}
 .muscle-anatomy-body .muscle-speak-button{margin:0 0 8px auto}
+
+.workspace.text-only-workspace{grid-template-columns:minmax(0,1fr)}

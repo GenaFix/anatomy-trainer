@@ -631,6 +631,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
    return [...new Set(indices.flatMap(i=>model.findByAnatomicalName?.(muscleNames[i][1])||[]))];
  }
  function showHighlight(indices){
+   if(!model.findByAnatomicalName)return;
    const found=findMuscles(indices);
    if(found.length){
      model.highlight(found);
@@ -674,6 +675,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   for(const value of ['all','10','20','30','50','70','95']){const option=el('option','',value==='all'?(english?'All available questions':'Все вопросы'):english?value+' questions':value+' вопросов');option.value=value;count.append(option);}
   count.value=testSize;count.onchange=()=>{testSize=count.value;settingsExpanded=settingsDetails.open;reset();draw();};settings.append(count);
   const details=el('details','muscle-diagnostics');details.append(el('summary','',english?'3D model status':'Сведения о 3D-модели'));
+  details.hidden=!model.findByAnatomicalName;
   const modelInfo=el('p','muscle-note',info);modelInfo.id='ecorcheInfo';details.append(modelInfo);
   const namesDetails=el('details','muscle-model-names');namesDetails.append(el('summary','',english?'Example object names':'Примеры имён объектов'));namesDetails.append(el('p','muscle-note',(model.getNameSamples?.(8).join(' | ')||(english?'not available yet':'пока недоступны'))));details.append(namesDetails);
   const pickedInfo=el('p','muscle-note',meshInfo);pickedInfo.id='meshInfo';details.append(pickedInfo);
@@ -687,6 +689,7 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   const questionMeta=el('div','muscle-question-meta');
   questionMeta.append(el('p','muscle-question-progress',String(position+1)+' / '+order.length));
   const highlightStatus=el('p','muscle-note muscle-question-hint',visualStatus||(english?'Muscle highlights after your answer.':'Мышца подсветится после ответа.'));
+  highlightStatus.hidden=!model.findByAnatomicalName;
   highlightStatus.id='muscleHighlightStatus';questionMeta.append(highlightStatus);section.append(questionMeta);
   const questionRow=el('div','muscle-question-row');
   const ruQuestion=questionText(q,false),enQuestion=questionText(q,true);
@@ -774,6 +777,6 @@ export function setupMuscleQuiz(container,model,language,onAnswerFocus=()=>{}){
   next.disabled=!answered;
   section.append(next);
  }
- model.setOnPick(mesh=>{meshInfo='GLB: '+(model.getPickedPath?.()||mesh.name||'(без названия)');const e=section.querySelector('#meshInfo');if(e)e.textContent=meshInfo;renderPickedMuscle(mesh,true);});
+ model.setOnPick?.(mesh=>{meshInfo='GLB: '+(model.getPickedPath?.()||mesh.name||'(без названия)');const e=section.querySelector('#meshInfo');if(e)e.textContent=meshInfo;renderPickedMuscle(mesh,true);});
  return {draw,stopSpeech,getMuscleNames:()=>muscleNames,setInfo(message){info=message;const e=section.querySelector('#ecorcheInfo');if(e)e.textContent=message;},setMeshInfo(message){meshInfo=message;const e=section.querySelector('#meshInfo');if(e)e.textContent=message;}};
 }

@@ -5,16 +5,54 @@ import {OrbitControls} from
 import {createMovementModel} from './movement.js?v=2940';
 import {createVectorModel} from './vectors.js?v=2924';
 import {createEcorche} from './ecorche.js?v=29441';
-import {setupMuscleQuiz} from './muscle-study.js?v=29602';
+import {setupMuscleQuiz} from './muscle-study.js?v=29603';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage');
 
+let renderer;
+try{
+ renderer=new THREE.WebGLRenderer({antialias:true});
+}catch(error){
+ console.warn('3D renderer unavailable:',error);
+}
+
+if(renderer)start3D(renderer);
+else startTextQuiz();
+
+function startTextQuiz(){
+ const selector=$('language');
+ const quiz=setupMuscleQuiz($('musclePanel'),{},()=>selector.value);
+ stage.closest('.panel').classList.add('hidden');
+ $('quizPanel').classList.add('hidden');
+ $('musclePanel').classList.remove('hidden');
+ $('digitalBtn').disabled=true;
+ $('digitalBtn').classList.remove('active');
+ $('muscleBtn').classList.add('active');
+ document.querySelector('.workspace').classList.add('text-only-workspace');
+ const notice=document.createElement('p');
+ notice.className='small muted';
+ $('digitalBtn').closest('.panel').append(notice);
+ function drawTextQuiz(){
+  const en=selector.value==='en';
+  document.documentElement.lang=en?'en':'ru';
+  document.querySelector('label[for="language"]').textContent=en?'Language:':'Язык:';
+  $('digitalBtn').textContent=en?'Movements and directions':'Движения и направления';
+  $('muscleBtn').textContent=en?'Muscle study':'Изучение мышц';
+  notice.textContent=en?'3D requires WebGL. The muscle quiz is available in text mode.':
+   'Для 3D нужен WebGL. Вопросы и описания мышц доступны в текстовом режиме.';
+  document.querySelector('main > p.small.muted').textContent=en?'Anatomy Trainer · Muscle study':'Anatomy Trainer · Изучение мышц';
+  quiz.draw();
+ }
+ selector.onchange=drawTextQuiz;
+ drawTextQuiz();
+}
+
+function start3D(renderer){
 const scene=new THREE.Scene();
 scene.background=new THREE.Color('#0a192e');
 
 const camera=new THREE.PerspectiveCamera(36,1,.1,100);
-const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(
   window.devicePixelRatio||1,2
 ));
@@ -298,6 +336,7 @@ const englishViewNames={
 };
 function translateInterface(){
  const en=language==='en';
+ document.documentElement.lang=en?'en':'ru';
  for(const [id,pair] of Object.entries(uiLabels)){
    const node=$(id);
    if(!node)continue;
@@ -846,3 +885,4 @@ updateSettingsLanguage();
 translateInterface();
 beginTest(selectedQuestions());
 requestAnimationFrame(animate);
+}
